@@ -1,0 +1,29 @@
+#+TITLE: First order autodiff 
+
+* Component wise
+
+
+Exposition use 1-based indices.
+
+# Reason \Phi_1 : R -> R^2
+\begin{equation*}
+\Phi_n:\mathbb{R}^{n}\to \mathbb{R}^{n+1}
+\end{equation*}
+
+We have:
+\begin{equation*}
+\Phi=\Phi_{n}\circ \Phi_{n-1}\circ \Phi_{n-2} \circ \dots \circ \Phi_{1}
+\end{equation*}
+
+\begin{equation*}
+d\Phi_n=\left(
+\begin{array}{cccc}
+1        & 0      & \dots  & 0 \\
+0        & \ddots &        & \vdots \\
+\vdots   &        & \ddots & 0 \\
+0        & \dots  & 0      & 1 \\
+\hline
+\dots         & \partial_j (\Phi_n)^{n+1}  & \dots      & 0 
+\end{array}
+\right)_{(n+1)\times n}
+\end{equation*}
