@@ -69,16 +69,18 @@ so on... there is a recurrence relation:
 F_k=\Phi_{k}\circ F_{k-1},\ \ F_0=Id
 \end{equation*}
 Using chain rule:
-\begin{equation*}
+\begin{equation}
 \label{eq_chain_rule}
 dF_k(x)=d\Phi_{k}(F_{k-1}(x))\circ dF_{k-1}(x)
-\end{equation*}
-where
+\end{equation}
 
+If we unroll this last relation and use $F_0=Id_{n1}$; $dF_{0}(x)=Id_{n1}$, we get:
+\begin{align*}
+dF_k(x) & = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(F_{0}(x)) dF_{0}(x) \\
+	& = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(x) 
+\end{align*}
 
-
-
-If one computes $(dF_n).e_j$, we get one *column* $(dF_n)^j_:$. However
+If one computes $(dF_k).e_j$, we get one *column* $(dF_k)^j_{i=1\dots n_k:$. However
 in optimization we want to compute $(dF_n)$ row $i$. This row can be
 computed by $(dF_n)^t.e_i$
 
