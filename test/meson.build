@@ -1,4 +1,4 @@
-test_array = [['hello_test','hello_exe','hello.cpp']]
+test_array = [['tape_test','tape_exe','tape.cpp']]
 
 foreach test : test_array
   test(test.get(0),
