@@ -8,7 +8,7 @@ Exposition use 1-based indices.
 
 We want to compute differential of 
 $$
-F_k:\mathbb{R}^{n_1}\to \mathbb{R}^{n_{k+1}}
+F_k:\mathbb{R}^{n_1}\to \mathbb{R}^{n_k}
 $$
 
 We assume that it exists elementary transforms: 
@@ -17,7 +17,7 @@ We assume that it exists elementary transforms:
 \end{equation*}
 such that:
 \begin{equation*}
-F_k=\Phi_{k}\circ \Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
+F_k=\Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
 \end{equation*}
 More in details the elementary transforms $\Phi_k$ takes the form:
 \begin{equation*}
