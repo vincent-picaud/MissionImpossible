@@ -1,14 +1,20 @@
 #include "AutoDiffCpp/tape.hpp"
 
+#include <vector>
+
 using namespace AutoDiffCpp;
 
 int main()
 {
-  Tape<double> tape;
+  using T = double;
 
-  auto* p = tape.add_row(1);
+  Tape<T> tape;
+
+  std::vector<Index_PartialDiff<T>> buffer(50);
+
+  tape.add_row(1, buffer.data());
   std::cout << tape;
 
-  p = tape.add_row(10);
+  tape.add_row(10, buffer.data());
   std::cout << tape;
 }

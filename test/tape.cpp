@@ -1,4 +1,6 @@
 #include "AutoDiffCpp/tape.hpp"
+
+#include <vector>
 #include <gtest/gtest.h>
 
 using namespace AutoDiffCpp;
@@ -9,9 +11,10 @@ TEST(Tape, demo)
 
   ASSERT_EQ(tape.row_size(), 0);
 
-  auto* p = tape.add_row(1);
+  std::vector<double> buffer(50);
+  tape.add_row(1,buffer.data());
   ASSERT_EQ(tape.row_size(), 1);
 
-  p = tape.add_row(10);
+  p = tape.add_row(10,buffer);
   ASSERT_EQ(tape.row_size(), 2);
 }

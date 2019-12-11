@@ -43,9 +43,7 @@ namespace AutoDiffCpp
 
    protected:
     template <typename P>
-    static inline void resize(std::size_t new_size,
-                              std::size_t& capacity,
-                              P*& p)
+    static inline void resize(std::size_t new_size, std::size_t& capacity, P*& p)
     {
       constexpr std::size_t growth_factor = 2;
 
@@ -71,8 +69,20 @@ namespace AutoDiffCpp
       resize(new_size, _tape_capacity, _tape);
     };
 
+    [[nodiscard]] Index_PartialDiff<T>* add_row(const std::size_t row_size)
+    {
+      const auto row_offset_begin = _offset[_offset_end - 1];
+      offset_resize(_offset_end + 1);
+      _offset[_offset_end] = _offset[_offset_end - 1] + row_size;
+      tape_resize(_offset[_offset_end++]);
+
+      return _tape + row_offset_begin;
+    }
+
    public:
-    Tape() : Tape(1024, 4 * 1024) {}
+    Tape() : Tape(1024, 4 * 1024)
+    {
+    }
     Tape(const std::size_t offset_capacity, const std::size_t tape_capacity)
         : _offset_end(1)
         , _offset_capacity(offset_capacity)
@@ -84,17 +94,25 @@ namespace AutoDiffCpp
       _offset[0] = 0;
     }
 
-    [[nodiscard]] Index_PartialDiff<T>* add_row(const std::size_t row_size)
+    std::size_t row_size() const
     {
-      const auto row_offset_begin = _offset[_offset_end - 1];
-      offset_resize(_offset_end + 1);
-      _offset[_offset_end] = _offset[_offset_end - 1] + row_size;
-      tape_resize(_offset[_offset_end++]);
+      return _offset_end - 1;
+    };
 
-      return _tape + row_offset_begin;
+    void add_row(const std::size_t row_size, const Index_PartialDiff<T>* src)
+    {
+      auto dest = add_row(row_size);
+      std::memcpy(dest, src, row_size * sizeof(Index_PartialDiff<T>));
     }
-
-    std::size_t row_size() const { return _offset_end - 1; };
+    template <size_t ROW_SIZE>
+    void add_row(const std::integral_constant<std::size_t, ROW_SIZE>, const Index_PartialDiff<T>* src)
+    {
+      auto dest = add_row(ROW_SIZE);
+      for (std::size_t i = 0; i < ROW_SIZE; ++i)
+      {
+        dest[i] = src[i];
+      }
+    }
 
     ~Tape()
     {
@@ -107,10 +125,9 @@ namespace AutoDiffCpp
     std::size_t _offset_capacity;
     offset_type* _offset;
 
-    // NOTE: tape position cans deduced from offset last element (see
-    // check_invariant()), however it is faster to have a direct
-    // access
-    //    std::size_t _tape_end;
+    // NOTE: tape_end is deduced as follows:
+    //       tape_end = _offset[_offset_end - 1]
+    //
     std::size_t _tape_capacity;
     Index_PartialDiff<T>* _tape;
 
@@ -121,8 +138,7 @@ namespace AutoDiffCpp
         out << std::setw(5) << i << " ";
         for (size_t j = to_print._offset[i]; j < to_print._offset[i + 1]; j++)
         {
-          out << "[" << std::setw(5) << to_print._tape[j].index << ", "
-              << std::setw(15) << to_print._tape[j].value << "]" << std::endl;
+          out << "[" << std::setw(5) << to_print._tape[j].index << ", " << std::setw(15) << to_print._tape[j].value << "]" << std::endl;
 
           if (j + 1 != to_print._offset[i + 1])
           {
