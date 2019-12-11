@@ -2,6 +2,8 @@
 #include <cassert>
 #include <cstddef>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <type_traits>
 
 namespace AutoDiffCpp
@@ -13,6 +15,16 @@ namespace AutoDiffCpp
   {
     offset_type index;
     T value;
+
+    // friend std::ostream& operator<<(std::ostream& out,
+    //                                 const Index_PartialDiff&
+    //                                 index_partialdiff)
+    // {
+    //   out << "∂_" << index_partialdiff.index << "[=" <<
+    //   index_partialdiff.value
+    //       << "] ";
+    //   return out;
+    // };
   };
 
   template <typename T>
@@ -24,9 +36,8 @@ namespace AutoDiffCpp
     {
       bool ok = true;
       ok &= _offset_end <= _offset_capacity;
-      ok &= _tape_end <= _tape_capacity;
       ok &= _offset_end > 0;
-      ok &= _tape_end == _offset[_offset_end - 1];
+      ok &= _offset[_offset_end - 1] <= _tape_capacity;
       return ok;
     }
 
@@ -50,6 +61,15 @@ namespace AutoDiffCpp
         p = new_p;
       }
     }
+    void offset_resize(std::size_t new_size)
+    {
+      resize(new_size, _offset_capacity, _offset);
+    }
+
+    void tape_resize(std::size_t new_size)
+    {
+      resize(new_size, _tape_capacity, _tape);
+    };
 
    public:
     Tape() : Tape(1024, 4 * 1024) {}
@@ -57,7 +77,6 @@ namespace AutoDiffCpp
         : _offset_end(1)
         , _offset_capacity(offset_capacity)
         , _offset(new offset_type[_offset_capacity])
-        , _tape_end(0)
         , _tape_capacity(tape_capacity)
         , _tape(new Index_PartialDiff<T>[tape_capacity])
     {
@@ -65,31 +84,12 @@ namespace AutoDiffCpp
       _offset[0] = 0;
     }
 
-    // std::size_t offset_capacity() const { return _offset_capacity; };
-
-    void offset_resize(std::size_t new_size)
-    {
-      resize(new_size, _offset_capacity, _offset);
-    }
-
-    // std::size_t tape_size() const { return _tape_end; };
-    // std::size_t tape_capacity() const { return _tape_capacity; };
-
-    void tape_resize(std::size_t new_size)
-    {
-      resize(new_size, _tape_capacity, _tape);
-    };
-
     [[nodiscard]] Index_PartialDiff<T>* add_row(const std::size_t row_size)
     {
-      assert(_offset[_offset_end - 1] == _tape_end);
-
-      const auto row_offset_begin = _tape_end;
-      _tape_end += row_size;
-      tape_resize(_tape_end);
-
+      const auto row_offset_begin = _offset[_offset_end - 1];
       offset_resize(_offset_end + 1);
-      _offset[_offset_end++] = _tape_end;
+      _offset[_offset_end] = _offset[_offset_end - 1] + row_size;
+      tape_resize(_offset[_offset_end++]);
 
       return _tape + row_offset_begin;
     }
@@ -110,10 +110,24 @@ namespace AutoDiffCpp
     // NOTE: tape position cans deduced from offset last element (see
     // check_invariant()), however it is faster to have a direct
     // access
-    std::size_t _tape_end;
+    //    std::size_t _tape_end;
     std::size_t _tape_capacity;
     Index_PartialDiff<T>* _tape;
 
-  };  // namespace AutoDiffCpp
+    friend std::ostream& operator<<(std::ostream& out, const Tape& to_print)
+    {
+      for (size_t i = 0; i < to_print._offset_end; i++)
+      {
+        out << std::setw(5) << i << "\t";
+        for (size_t j = to_print._offset[i]; j < to_print._offset[i + 1]; j++)
+        {
+          out << "[" << std::setw(5) << to_print._tape[j].index << ", "
+              << std::setw(15) << to_print._tape[j].value << "]";
+        }
+        out << std::endl;
+      }
+      return out;
+    }
+  };
 
 }  // namespace AutoDiffCpp
