@@ -1,1 +1,7 @@
-# At least one empty file for the library
+// At least one empty file for the library
+namespace AutoDiffCpp
+{
+  namespace
+  {
+  }
+}  // namespace AutoDiffCpp
