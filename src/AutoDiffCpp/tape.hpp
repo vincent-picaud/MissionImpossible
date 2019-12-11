@@ -116,15 +116,24 @@ namespace AutoDiffCpp
 
     friend std::ostream& operator<<(std::ostream& out, const Tape& to_print)
     {
-      for (size_t i = 0; i < to_print._offset_end; i++)
+      for (size_t i = 0; i + 1 < to_print._offset_end; i++)
       {
-        out << std::setw(5) << i << "\t";
+        out << std::setw(5) << i << " ";
         for (size_t j = to_print._offset[i]; j < to_print._offset[i + 1]; j++)
         {
           out << "[" << std::setw(5) << to_print._tape[j].index << ", "
-              << std::setw(15) << to_print._tape[j].value << "]";
+              << std::setw(15) << to_print._tape[j].value << "]" << std::endl;
+
+          if (j + 1 != to_print._offset[i + 1])
+          {
+            out << std::setw(5) << " "
+                << " ";
+          }
+          else
+          {
+            out << std::endl;
+          }
         }
-        out << std::endl;
       }
       return out;
     }
