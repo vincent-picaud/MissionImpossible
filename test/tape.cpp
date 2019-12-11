@@ -7,6 +7,6 @@ TEST(Tape, demo)
 {
   Tape<double> tape;
 
-  ASSERT_TRUE(tape.tape_size() > 0);
+  ASSERT_EQ(tape.tape_size(),0);
   ASSERT_TRUE(tape.tape_capacity() > 0);
 }
