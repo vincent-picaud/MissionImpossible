@@ -10,7 +10,7 @@ int main()
 
   Tape<T> tape;
 
-  std::vector<Index_PartialDiff<T>> buffer(50);
+  std::vector<Index_PartialDiff<T>> buffer(50, Index_PartialDiff<T>());
 
   tape.add_row(1, buffer.data());
   std::cout << tape;
