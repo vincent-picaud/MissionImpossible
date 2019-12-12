@@ -101,9 +101,26 @@ namespace AutoDiffCpp
     void add_row(const std::integral_constant<std::size_t, ROW_SIZE>, const offset_type* const p_offset, const T* const p_T)
     {
       auto* p_dest = add_row(ROW_SIZE);
-      for (std::size_t i = 0; i < ROW_SIZE; i++)
+      for (std::size_t i = 0; i < ROW_SIZE; ++i)
       {
         p_dest[i] = Index_PartialDiff<T>{p_offset[i], p_T[i]};
+      }
+    }
+
+    void forward(const std::size_t row_begin, T* const diff)
+    {
+      const auto row_end = _offset_end - 1;
+      for (std::size_t i = row_begin; i < row_end; ++i)
+      {
+        auto* const partial_begin = _offset[i];
+        auto* const partial_end = _offset[i + 1];
+
+        T sum = 0;
+        for (std::size_t j = partial_begin; j < partial_end; ++j)
+        {
+          sum += _tape[i].value * diff[_tape[i].index];
+        }
+        diff[i] = sum;
       }
     }
 
