@@ -33,7 +33,9 @@ namespace AutoDiffCpp
 
    protected:
     template <typename P>
-    static inline void resize(std::size_t new_size, std::size_t& capacity, P*& p)
+    static inline void resize(std::size_t new_size,
+                              std::size_t& capacity,
+                              P*& p)
     {
       constexpr std::size_t growth_factor = 2;
 
@@ -70,9 +72,8 @@ namespace AutoDiffCpp
     }
 
    public:
-    Tape() : Tape(1024, 4 * 1024)
-    {
-    }
+    Tape() : Tape(1024, 4 * 1024) {}
+
     Tape(const std::size_t offset_capacity, const std::size_t tape_capacity)
         : _offset_end(1)
         , _offset_capacity(offset_capacity)
@@ -84,12 +85,21 @@ namespace AutoDiffCpp
       _offset[0] = 0;
     }
 
-    std::size_t row_size() const
+    std::size_t row_size() const { return _offset_end - 1; };
+    offset_type add_variable()
     {
-      return _offset_end - 1;
-    };
+      const std::size_t index = row_size();
+      auto* const p = add_row(1);
 
-    void add_row(const std::size_t row_size, const offset_type* const p_offset, const T* const p_T)
+      p->index = index;
+      p->value = 1;
+
+      assert(index <= std::numeric_limits<offset_type>::max());
+      return static_cast<offset_type>(index);
+    }
+    void add_row(const std::size_t row_size,
+                 const offset_type* const p_offset,
+                 const T* const p_T)
     {
       auto* const p_dest = add_row(row_size);
       for (std::size_t i = 0; i < row_size; i++)
@@ -98,7 +108,9 @@ namespace AutoDiffCpp
       }
     }
     template <size_t ROW_SIZE>
-    void add_row(const std::integral_constant<std::size_t, ROW_SIZE>, const offset_type* const p_offset, const T* const p_T)
+    void add_row(const std::integral_constant<std::size_t, ROW_SIZE>,
+                 const offset_type* const p_offset,
+                 const T* const p_T)
     {
       auto* p_dest = add_row(ROW_SIZE);
       for (std::size_t i = 0; i < ROW_SIZE; ++i)
@@ -148,7 +160,8 @@ namespace AutoDiffCpp
         out << std::setw(5) << i << " ";
         for (size_t j = to_print._offset[i]; j < to_print._offset[i + 1]; j++)
         {
-          out << "[" << std::setw(5) << to_print._tape[j].index << ", " << std::setw(15) << to_print._tape[j].value << "]" << std::endl;
+          out << "[" << std::setw(5) << to_print._tape[j].index << ", "
+              << std::setw(15) << to_print._tape[j].value << "]" << std::endl;
 
           if (j + 1 != to_print._offset[i + 1])
           {

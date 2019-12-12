@@ -1,4 +1,7 @@
-test_array = [['tape_test','tape_exe','tape.cpp']]
+test_array = [
+  ['tape_test','tape_exe','tape.cpp'],
+  ['ad_test','ad_exe','ad.cpp']
+]
 
 foreach test : test_array
   test(test.get(0),
