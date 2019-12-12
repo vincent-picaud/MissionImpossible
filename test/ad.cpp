@@ -15,3 +15,12 @@ TEST(AD, basic)
   EXPECT_EQ(x2.index(), 1);
   EXPECT_EQ(x2.value(), 2);
 }
+
+TEST(AD, scalar_product)
+{
+  AD<double> x(2);
+
+  auto z = 3 * x;
+
+  EXPECT_EQ(z.value(), 6);
+}
