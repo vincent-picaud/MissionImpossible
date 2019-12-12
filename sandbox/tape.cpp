@@ -10,11 +10,12 @@ int main()
 
   Tape<T> tape;
 
-  std::vector<Index_PartialDiff<T>> buffer(50, Index_PartialDiff<T>());
+  std::vector<offset_type> buffer_offset(50, offset_type());
+  std::vector<T> buffer_partial(50, T());
 
-  tape.add_row(1, buffer.data());
+  tape.add_row(1, buffer_offset.data(), buffer_partial.data());
   std::cout << tape;
 
-  tape.add_row(10, buffer.data());
+  tape.add_row(10, buffer_offset.data(), buffer_partial.data());
   std::cout << tape;
 }

@@ -11,10 +11,12 @@ TEST(Tape, demo)
 
   ASSERT_EQ(tape.row_size(), 0);
 
-  std::vector<Index_PartialDiff<double>> buffer(50, Index_PartialDiff<double>());
-  tape.add_row(1, buffer.data());
+  std::vector<offset_type> buffer_offset(50, offset_type());
+  std::vector<double> buffer_partial(50, double());
+
+  tape.add_row(1, buffer_offset.data(), buffer_partial.data());
   ASSERT_EQ(tape.row_size(), 1);
 
-  tape.add_row(10, buffer.data());
+  tape.add_row(10, buffer_offset.data(), buffer_partial.data());
   ASSERT_EQ(tape.row_size(), 2);
 }

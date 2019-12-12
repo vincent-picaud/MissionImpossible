@@ -15,16 +15,6 @@ namespace AutoDiffCpp
   {
     offset_type index;
     T value;
-
-    // friend std::ostream& operator<<(std::ostream& out,
-    //                                 const Index_PartialDiff&
-    //                                 index_partialdiff)
-    // {
-    //   out << "∂_" << index_partialdiff.index << "[=" <<
-    //   index_partialdiff.value
-    //       << "] ";
-    //   return out;
-    // };
   };
 
   template <typename T>
@@ -99,18 +89,21 @@ namespace AutoDiffCpp
       return _offset_end - 1;
     };
 
-    void add_row(const std::size_t row_size, const Index_PartialDiff<T>* src)
+    void add_row(const std::size_t row_size, const offset_type* const p_offset, const T* const p_T)
     {
-      auto dest = add_row(row_size);
-      std::memcpy(dest, src, row_size * sizeof(Index_PartialDiff<T>));
+      auto* const p_dest = add_row(row_size);
+      for (std::size_t i = 0; i < row_size; i++)
+      {
+        p_dest[i] = Index_PartialDiff<T>{p_offset[i], p_T[i]};
+      }
     }
     template <size_t ROW_SIZE>
-    void add_row(const std::integral_constant<std::size_t, ROW_SIZE>, const Index_PartialDiff<T>* src)
+    void add_row(const std::integral_constant<std::size_t, ROW_SIZE>, const offset_type* const p_offset, const T* const p_T)
     {
-      auto dest = add_row(ROW_SIZE);
-      for (std::size_t i = 0; i < ROW_SIZE; ++i)
+      auto* p_dest = add_row(ROW_SIZE);
+      for (std::size_t i = 0; i < ROW_SIZE; i++)
       {
-        dest[i] = src[i];
+        p_dest[i] = Index_PartialDiff<T>{p_offset[i], p_T[i]};
       }
     }
 
