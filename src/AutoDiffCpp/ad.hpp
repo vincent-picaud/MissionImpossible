@@ -47,20 +47,25 @@ namespace AutoDiffCpp
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
   {
-   protected:
-    static thread_local Tape<T> _tape;
-    T _value;
+   public:
+    using tape_type   = Tape<T>;
+    using offset_type = typename tape_type::offset_type;
+    using value_type  = typename tape_type::value_type;
+
+   private:
+    static thread_local tape_type _tape;
+    value_type _value;
     offset_type _index;
 
    public:
     //    AD(const AD&) = default;
-    AD(const T& value)
+    AD(const value_type& value)
     {
       _value = value;
       _index = _tape.add_variable();
     }
 
-    T
+    value_type
     value() const
     {
       return _value;
@@ -73,7 +78,7 @@ namespace AutoDiffCpp
   };
 
   template <typename T>
-  thread_local Tape<T> AD<T>::_tape = Tape<T>();
+  thread_local typename AD<T>::tape_type AD<T>::_tape = AD<T>::tape_type();
 
   /////////////
   // AD_Expr //
@@ -82,18 +87,24 @@ namespace AutoDiffCpp
   template <typename T, size_t N>
   class AD_Expr : public AD_Crtp<T, AD_Expr<T, N>>
   {
+   public:
+    using offset_type         = typename AD<T>::offset_type;
+    using value_type          = typename AD<T>::value_type;
+    using offset_array_type   = std::array<offset_type, N>;
+    using partialD_array_type = std::array<value_type, N>;
+
    protected:
     T _value;
-    std::array<offset_type, N> _offset;
-    std::array<T, N> _partial;
+    offset_array_type _offset_array;
+    partialD_array_type _partialD_array;
 
    public:
     //    AD_Expr(const AD_Expr&) = default;
 
     AD_Expr(const T value,
-            const std::array<offset_type, N>& offset,
-            const std::array<T, N>& partial)
-        : _value(value), _offset(offset), _partial(partial)
+            const offset_array_type& offset_array,
+            const partialD_array_type& partialD_array)
+        : _value(value), _offset_array(offset_array), _partialD_array(partialD_array)
     {
     }
 
@@ -121,10 +132,10 @@ namespace AutoDiffCpp
   //
   template <typename T>
   inline auto
-  chain_rule(const typename AD<T>::value_type f_circ_g_value,
-             const typename AD<T>::value_type partial1,
+  chain_rule(const Identity_t<T> f_circ_g_value,
+             const Identity_t<T> partial1,
              const AD<T>& g1,
-             const typename AD<T>::value_type partial2,
+             const Identity_t<T> partial2,
              const AD<T>& g2)
   {
   }
@@ -132,14 +143,17 @@ namespace AutoDiffCpp
   template <typename T>
   AD_Expr<T, 1> operator*(const Identity_t<T> a0, const AD<T>& a1)
   {
-    return AD_Expr<T, 1>{
-        a0 * a1.value(), std::array<offset_type, 1>({a1.index()}), std::array<T, 1>({a0})};
+    using return_type         = AD_Expr<T, 1>;
+    using offset_array_type   = typename return_type::offset_array_type;
+    using partialD_array_type = typename return_type::partialD_array_type;
+
+    return return_type{a0 * a1.value(), offset_array_type({a1.index()}), partialD_array_type({a0})};
   }
 
-  template <typename T, typename IMPL0, typename IMPL1>
-  AD_Expr<T, 1> operator*(const AD_Crtp<T, IMPL0>& a0, const AD_Crtp<T, IMPL1>& a1)
-  {
-    return AD_Expr<T, 1>{
-        a0 * a1.value(), std::array<offset_type, 1>({a1.index()}), std::array<T, 1>({a0})};
-  }
+  // template <typename T, typename IMPL0, typename IMPL1>
+  // AD_Expr<T, 1> operator*(const AD_Crtp<T, IMPL0>& a0, const AD_Crtp<T, IMPL1>& a1)
+  // {
+  //   return AD_Expr<T, 1>{
+  //       a0 * a1.value(), std::array<offset_type, 1>({a1.index()}), std::array<T, 1>({a0})};
+  // }
 }  // namespace AutoDiffCpp
