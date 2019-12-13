@@ -220,12 +220,6 @@ namespace AutoDiffCpp
 
     return to_return;
   }
-  // template <typename T>
-  // inline auto
-  // join_with_product(const T partialD_1_f, const T partialD_2_f, const T dg1, const T dg2)
-  // {
-  //   return std::array<T, 2>({partialD_1_f * dg1, partialD_2_f * dg2});
-  // }
 
   // f:R2->R
   //

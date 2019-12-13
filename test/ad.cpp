@@ -16,20 +16,19 @@ TEST(AD, basic)
   EXPECT_EQ(x2.value(), 2);
 }
 
-TEST(AD, scalar_product)
+TEST(AD, product)
 {
   AD<double> x(2);
 
-  auto z = 3 * x;
+  auto z0 = 3 * x;
 
-  EXPECT_EQ(z.value(), 6);
-}
+  EXPECT_EQ(z0.value(), 6);
 
-TEST(AD, ad_product)
-{
-  AD<double> x(2);
+  auto z1 = x * x;
 
-  auto z = x * x;
+  EXPECT_EQ(z1.value(), 4);
 
-  EXPECT_EQ(z.value(), 4);
+  auto z2 = (x * x) * (x * x);
+
+  EXPECT_EQ(z2.value(), 16);
 }
