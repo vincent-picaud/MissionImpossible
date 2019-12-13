@@ -1,4 +1,10 @@
-AutoDiffCpp_headers = ['tape.hpp','ad.hpp']
+AutoDiffCpp_headers = [
+  'tape.hpp',
+  'ad.hpp',
+  'identity.hpp',
+  'type_traits.hpp',
+]
+
 AutoDiffCpp_sources = ['tape.cpp']
 
 AutoDiffCpp_lib = library('AutoDiffCpp',
