@@ -126,15 +126,28 @@ namespace AutoDiffCpp
     }
   };
 
-  template <typename T, size_t N>
-  inline std::array<T, N> operator*(const Identity_t<T> alpha, const std::array<T, N>& vector)
+  // template <typename T, size_t N>
+  // inline std::array<T, N> chain_rule_helper(const Identity_t<T> alpha, const std::array<T, N>& vector)
+  // {
+  //   std::array<T, N> dest;
+  //   for (std::size_t i = 0; i < N; ++i)
+  //   {
+  //     dest[i] = alpha * vector[i];
+  //   }
+  //   return dest;
+  // }
+  template <typename T>
+  inline auto
+  join(const T v0, const T v1)
   {
-    std::array<T, N> dest;
-    for (std::size_t i = 0; i < N; ++i)
-    {
-      dest[i] = alpha * vector[i];
-    }
-    return dest;
+    return std::array<T, 2>({v0, v1});
+  }
+
+  template <typename T>
+  inline auto
+  join_with_product(const T partialD_1_f, const T partialD_2_f, const T dg1, const T dg2)
+  {
+    return std::array<T, 2>({partialD_1_f * dg1, partialD_2_f * dg2});
   }
 
   // f:R2->R
@@ -142,20 +155,16 @@ namespace AutoDiffCpp
   // df○g = ∂1f.dg^1 + ∂2f.dg^2
   //
   template <typename T>
-  inline auto
+  inline AD_Expr<T, 2>
   chain_rule(const Identity_t<T> f_circ_g_value,
              const Identity_t<T> partial1,
              const Identity_t<T> partial2,
              const AD<T>& g1,
              const AD<T>& g2)
   {
-    using return_type         = AD_Expr<T, 2>;
-    using index_array_type    = typename return_type::index_array_type;
-    using partialD_array_type = typename return_type::partialD_array_type;
-
-    return return_type{f_circ_g_value,
-                       index_array_type({g1.index(), g2.index()}),
-                       partialD_array_type({partial1 * g1.partialD(), partial2 * g2.partialD()})};
+    return {f_circ_g_value,
+            join(g1.index(), g2.index()),
+            join_with_product(partial1, partial2, g1.partialD(), g2.partialD())};
   }
 
   template <typename T>
