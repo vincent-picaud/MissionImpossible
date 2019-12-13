@@ -16,13 +16,6 @@ namespace AutoDiffCpp
   class AD_Crtp
   {
    public:
-    using type_traits = Type_Traits<IMPL>;
-    // using value_type = typename type_traits::value_type;
-    // using offset_type = typename type_traits::value_type;
-    // using value_type = typename type_traits::value_type;
-    // using value_type = typename type_traits::value_type;
-    //  using arr
-   public:
     IMPL&
     impl()
     {
@@ -131,7 +124,7 @@ namespace AutoDiffCpp
   // df○g = ∂1f.dg^1 + ∂2f.dg^2
   //
   template <typename T>
-  inline auto
+  inline  AD_Expr<T, 1>
   chain_rule(const Identity_t<T> f_circ_g_value,
              const Identity_t<T> partial1,
              const AD<T>& g1,
@@ -143,7 +136,7 @@ namespace AutoDiffCpp
   template <typename T>
   AD_Expr<T, 1> operator*(const Identity_t<T> a0, const AD<T>& a1)
   {
-    using return_type         = AD_Expr<T, 1>;
+    using return_type         = decltype(a0 * a1);
     using offset_array_type   = typename return_type::offset_array_type;
     using partialD_array_type = typename return_type::partialD_array_type;
 
