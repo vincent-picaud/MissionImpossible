@@ -88,7 +88,8 @@ namespace AutoDiffCpp
     static constexpr partialD_array_type _partialD_array{1};
 
    public:
-    //    AD(const AD&) = default;
+    AD(){};
+    AD(const AD&) = default;
     AD(const value_type value) noexcept : _value{value}, _index_array{_tape.add_variable()} {}
 
     value_type
@@ -106,6 +107,29 @@ namespace AutoDiffCpp
     partialD() const noexcept
     {
       return _partialD_array;
+    }
+
+    template <typename IMPL>
+    AD&
+    operator=(const AD_Crtp<T, IMPL>& ad)
+    {
+      assert((void*)this != (void*)&ad);
+
+      _value          = ad.value();
+      _index_array[0] = _tape.row_size();
+
+      _tape.add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
+                    ad.index().data(),
+                    ad.partialD().data());
+
+      return *this;
+    }
+
+    // debug only
+    const tape_type&
+    tape() const
+    {
+      return _tape;
     }
   };
 
@@ -176,13 +200,6 @@ namespace AutoDiffCpp
   //   }
   //   return dest;
   // }
-  // template <typename T>
-  // inline auto
-  // join(const T v0, const T v1)
-  // {
-  //   return std::array<T, 2>({v0, v1});
-  // }
-
   template <typename T, size_t N0, size_t N1>
   inline auto
   join(const std::array<T, N0>& v0, const std::array<T, N1>& v1)
@@ -223,7 +240,7 @@ namespace AutoDiffCpp
 
   // f:R2->R
   //
-  // df○g = ∂0f.dg^0 + ∂2f.dg^2
+  // df○g = ∂0f.dg^0 + ∂1f.dg^1
   //
   template <typename T, typename IMPL0, typename IMPL1>
   inline AD_Expr<T, IMPL0::size + IMPL1::size>
