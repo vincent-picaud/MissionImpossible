@@ -16,6 +16,16 @@ namespace AutoDiffCpp
   class AD_Crtp
   {
    public:
+    using tape_type  = Tape<T>;
+    using index_type = typename tape_type::index_type;
+    using value_type = typename tape_type::value_type;
+
+    using type_traits          = Type_Traits<IMPL>;
+    static constexpr auto size = type_traits::size;
+    using index_array_type     = std::array<index_type, size>;
+    using partialD_array_type  = std::array<value_type, size>;
+
+   protected:
     IMPL&
     impl() noexcept
     {
@@ -24,8 +34,25 @@ namespace AutoDiffCpp
     const IMPL&
     impl() const noexcept
     {
-      return static_cast<IMPL&>(*this);
+      return static_cast<const IMPL&>(*this);
     };
+
+   public:
+    value_type
+    value() const
+    {
+      return impl().value();
+    }
+    const index_array_type&
+    index() const
+    {
+      return impl().index();
+    }
+    const partialD_array_type&
+    partialD() const
+    {
+      return impl().partialD();
+    }
   };
 
   ////////
@@ -38,41 +65,47 @@ namespace AutoDiffCpp
   class AD_Expr;
 
   template <typename T>
+  struct Type_Traits<AD<T>>
+  {
+    static constexpr std::size_t size = 1;
+  };
+
+  template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
   {
    public:
-    using tape_type  = Tape<T>;
-    using index_type = typename tape_type::index_type;
-    using value_type = typename tape_type::value_type;
+    using base_type           = AD_Crtp<T, AD<T>>;
+    using tape_type           = typename base_type::tape_type;
+    using index_type          = typename base_type::index_type;
+    using value_type          = typename base_type::value_type;
+    using index_array_type    = typename base_type::index_array_type;
+    using partialD_array_type = typename base_type::partialD_array_type;
 
    private:
     static thread_local tape_type _tape;
     value_type _value;
-    index_type _index;
+    index_array_type _index_array;
+    static constexpr partialD_array_type _partialD_array{1};
 
    public:
     //    AD(const AD&) = default;
-    AD(const value_type& value) noexcept
-    {
-      _value = value;
-      _index = _tape.add_variable();
-    }
+    AD(const value_type value) noexcept : _value{value}, _index_array{_tape.add_variable()} {}
 
     value_type
     value() const noexcept
     {
       return _value;
     };
-    index_type
+    const index_array_type&
     index() const noexcept
     {
-      return _index;
+      return _index_array;
     };
 
-    value_type
+    const partialD_array_type&
     partialD() const noexcept
     {
-      return 1;
+      return _partialD_array;
     }
   };
 
@@ -84,13 +117,20 @@ namespace AutoDiffCpp
   /////////////
 
   template <typename T, size_t N>
+  struct Type_Traits<AD_Expr<T, N>>
+  {
+    static constexpr std::size_t size = N;
+  };
+
+  template <typename T, size_t N>
   class AD_Expr : public AD_Crtp<T, AD_Expr<T, N>>
   {
    public:
-    using index_type          = typename AD<T>::index_type;
-    using value_type          = typename AD<T>::value_type;
-    using index_array_type    = std::array<index_type, N>;
-    using partialD_array_type = std::array<value_type, N>;
+    using base_type           = AD_Crtp<T, AD_Expr<T, N>>;
+    using index_type          = typename base_type::index_type;
+    using value_type          = typename base_type::value_type;
+    using index_array_type    = typename base_type::index_array_type;
+    using partialD_array_type = typename base_type::partialD_array_type;
 
    protected:
     value_type _value;
@@ -136,51 +176,87 @@ namespace AutoDiffCpp
   //   }
   //   return dest;
   // }
-  template <typename T>
-  inline auto
-  join(const T v0, const T v1)
-  {
-    return std::array<T, 2>({v0, v1});
-  }
+  // template <typename T>
+  // inline auto
+  // join(const T v0, const T v1)
+  // {
+  //   return std::array<T, 2>({v0, v1});
+  // }
 
-  template <typename T>
+  template <typename T, size_t N0, size_t N1>
   inline auto
-  join_with_product(const T partialD_1_f, const T partialD_2_f, const T dg1, const T dg2)
+  join(const std::array<T, N0>& v0, const std::array<T, N1>& v1)
   {
-    return std::array<T, 2>({partialD_1_f * dg1, partialD_2_f * dg2});
+    std::array<T, N0 + N1> to_return;
+
+    for (std::size_t i = 0; i < N0; ++i)
+    {
+      to_return[i] = v0[i];
+    }
+    for (std::size_t i = 0; i < N1; ++i)
+    {
+      to_return[N0 + i] = v1[i];
+    }
+
+    return to_return;
   }
+  template <typename T, size_t N0, size_t N1>
+  inline auto
+  join_with_product(const Identity_t<T> partialD_0_f,
+                    const Identity_t<T> partialD_1_f,
+                    const std::array<T, N0>& v0,
+                    const std::array<T, N1>& v1)
+  {
+    std::array<T, N0 + N1> to_return;
+
+    for (std::size_t i = 0; i < N0; ++i)
+    {
+      to_return[i] = partialD_0_f * v0[i];
+    }
+    for (std::size_t i = 0; i < N1; ++i)
+    {
+      to_return[N0 + i] = partialD_1_f * v1[i];
+    }
+
+    return to_return;
+  }
+  // template <typename T>
+  // inline auto
+  // join_with_product(const T partialD_1_f, const T partialD_2_f, const T dg1, const T dg2)
+  // {
+  //   return std::array<T, 2>({partialD_1_f * dg1, partialD_2_f * dg2});
+  // }
 
   // f:R2->R
   //
-  // df○g = ∂1f.dg^1 + ∂2f.dg^2
+  // df○g = ∂0f.dg^0 + ∂2f.dg^2
   //
-  template <typename T>
-  inline AD_Expr<T, 2>
+  template <typename T, typename IMPL0, typename IMPL1>
+  inline AD_Expr<T, IMPL0::size + IMPL1::size>
   chain_rule(const Identity_t<T> f_circ_g_value,
+             const Identity_t<T> partial0,
              const Identity_t<T> partial1,
-             const Identity_t<T> partial2,
-             const AD<T>& g1,
-             const AD<T>& g2)
+             const AD_Crtp<T, IMPL0>& g0,
+             const AD_Crtp<T, IMPL1>& g1)
   {
     return {f_circ_g_value,
-            join(g1.index(), g2.index()),
-            join_with_product(partial1, partial2, g1.partialD(), g2.partialD())};
+            join(g0.index(), g1.index()),
+            join_with_product(partial0, partial1, g0.partialD(), g1.partialD())};
   }
 
   template <typename T>
-  AD_Expr<T, 1> operator*(const Identity_t<T> a0, const AD<T>& a1)
+  AD_Expr<T, 1> operator*(const Identity_t<T> g0, const AD<T>& g1)
   {
-    using return_type         = decltype(a0 * a1);
+    using return_type         = decltype(g0 * g1);
     using index_array_type    = typename return_type::index_array_type;
     using partialD_array_type = typename return_type::partialD_array_type;
 
-    return return_type{a0 * a1.value(), index_array_type({a1.index()}), partialD_array_type({a0})};
+    return return_type{g0 * g1.value(), index_array_type({g1.index()}), partialD_array_type({g0})};
   }
 
-  // template <typename T, typename IMPL0, typename IMPL1>
-  // AD_Expr<T, 1> operator*(const AD_Crtp<T, IMPL0>& a0, const AD_Crtp<T, IMPL1>& a1)
-  // {
-  //   return AD_Expr<T, 1>{
-  //       a0 * a1.value(), std::array<index_type, 1>({a1.index()}), std::array<T, 1>({a0})};
-  // }
+  template <typename T, typename IMPL0, typename IMPL1>
+  auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  {
+    return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
+  }
 }  // namespace AutoDiffCpp
