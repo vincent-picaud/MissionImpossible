@@ -89,7 +89,6 @@ namespace AutoDiffCpp
 
    public:
     AD(){};
-    AD(const AD&) = default;
     AD(const value_type value) noexcept : _value{value}, _index_array{_tape.add_variable()} {}
 
     value_type
@@ -162,8 +161,6 @@ namespace AutoDiffCpp
     partialD_array_type _partialD_array;
 
    public:
-    //    AD_Expr(const AD_Expr&) = default;
-
     AD_Expr(const value_type value,
             const index_array_type& index_array,
             const partialD_array_type& partialD_array) noexcept

@@ -12,7 +12,7 @@ namespace AutoDiffCpp
   struct Index_PartialD
   {
     using index_type = unsigned int;
-    using value_type  = T;
+    using value_type = T;
 
     index_type index;
     value_type value;
@@ -25,7 +25,7 @@ namespace AutoDiffCpp
 
    public:
     using index_partialD_type = Index_PartialD<T>;
-    using index_type         = typename index_partialD_type::index_type;
+    using index_type          = typename index_partialD_type::index_type;
     using value_type          = typename index_partialD_type::value_type;
     static_assert(std::is_same_v<T, value_type>);
 
