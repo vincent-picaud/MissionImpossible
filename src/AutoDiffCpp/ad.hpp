@@ -17,12 +17,12 @@ namespace AutoDiffCpp
   {
    public:
     IMPL&
-    impl()
+    impl() noexcept
     {
       return static_cast<IMPL&>(*this);
     };
     const IMPL&
-    impl() const
+    impl() const noexcept
     {
       return static_cast<IMPL&>(*this);
     };
@@ -52,25 +52,25 @@ namespace AutoDiffCpp
 
    public:
     //    AD(const AD&) = default;
-    AD(const value_type& value)
+    AD(const value_type& value) noexcept
     {
       _value = value;
       _index = _tape.add_variable();
     }
 
     value_type
-    value() const
+    value() const noexcept
     {
       return _value;
     };
     index_type
-    index() const
+    index() const noexcept
     {
       return _index;
     };
 
     value_type
-    partialD() const
+    partialD() const noexcept
     {
       return 1;
     }
@@ -102,25 +102,25 @@ namespace AutoDiffCpp
 
     AD_Expr(const value_type value,
             const index_array_type& index_array,
-            const partialD_array_type& partialD_array)
+            const partialD_array_type& partialD_array) noexcept
         : _value(value), _index_array(index_array), _partialD_array(partialD_array)
     {
     }
 
     value_type
-    value() const
+    value() const noexcept
     {
       return _value;
     };
 
     const index_array_type&
-    index() const
+    index() const noexcept
     {
       return _index_array;
     }
 
     const partialD_array_type&
-    partialD() const
+    partialD() const noexcept
     {
       return _partialD_array;
     }
