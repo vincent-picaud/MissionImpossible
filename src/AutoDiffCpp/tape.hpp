@@ -8,6 +8,32 @@
 
 namespace AutoDiffCpp
 {
+  template <typename TAPE>
+  class JamesBond_Tape
+  {
+    friend TAPE;
+
+   public:
+    using index_type = typename TAPE::index_type;
+
+   private:
+    TAPE& _tape;
+    const index_type _index;
+
+    JamesBond_Tape(TAPE& tape) : _tape(tape), _index(_tape.row_size()) {}
+
+    JamesBond_Tape operator=(const JamesBond_Tape&) = delete;
+
+    index_type
+    index() const
+    {
+      return _index;
+    };
+
+   public:
+    ~JamesBond_Tape() { _tape.rewind(_index); }
+  };
+
   template <typename T>
   struct Index_PartialD
   {
@@ -100,6 +126,9 @@ namespace AutoDiffCpp
     {
       return _index_end - 1;
     };
+
+    // Old encoding
+
     // index_type
     // add_variable()
     // {
@@ -113,14 +142,12 @@ namespace AutoDiffCpp
     //   return static_cast<index_type>(index);
     // }
 
+    // New encoding: to best tested in reverse mode!
     index_type
     add_variable()
     {
       const std::size_t index = row_size();
       (void)add_row(0);
-
-      // p->index = index;
-      // p->value = 1;
 
       assert(index <= std::numeric_limits<index_type>::max());
       return static_cast<index_type>(index);
@@ -148,6 +175,20 @@ namespace AutoDiffCpp
       {
         p_dest[i] = index_partialD_type{p_index[i], p_value[i]};
       }
+    }
+
+    JamesBond_Tape<Tape>
+    JamesBond_tape()
+    {
+      return {*this};
+    }
+    void
+    rewind(const index_type index)
+    {
+      assert(index <= row_size());
+      _index_end = index + 1;
+
+      assert(check_invariant());
     }
 
     void
@@ -192,7 +233,7 @@ namespace AutoDiffCpp
 
         if (to_print._index[i] == to_print._index[i + 1])
         {
-          out << std::endl<< std::endl;
+          out << std::endl << std::endl;
           continue;
         }
 
@@ -215,5 +256,16 @@ namespace AutoDiffCpp
       return out;
     }
   };
+
+  // tape singleton access
+  //
+  template <typename T>
+  inline Tape<T>&
+  tape()
+  {
+    thread_local static Tape<T> _tape;
+
+    return _tape;
+  }
 
 }  // namespace AutoDiffCpp

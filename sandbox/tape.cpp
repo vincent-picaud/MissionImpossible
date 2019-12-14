@@ -23,15 +23,21 @@ main()
 
   AD<T> y, x(2);
 
-  y = x * x;
+  y = 3 * x * x;
+  std::cout << "\n tape before \n" << tape<T>();
+  {
+    auto mark = tape<T>().JamesBond_tape();
 
-  y = x * y;
-  std::cout << y.tape();
+    y = x * y;
+    std::cout << tape<T>();
 
-  std::vector<T> diff(20, 0);
-  diff[x.index()[0]] = 1;
+    std::vector<T> diff(20, 0);
+    diff[x.index()[0]] = 1;
 
-  y.tape().forward(y.index()[0], diff.data());
+    tape<T>().forward(y.index()[0], diff.data());
 
-  std::cout << "Diff\n" << diff;
+    std::cout << "Diff\n" << diff;
+  }
+
+  std::cout << "\n tape after \n" << tape<T>();
 }

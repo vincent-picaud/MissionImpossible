@@ -82,14 +82,14 @@ namespace AutoDiffCpp
     using partialD_array_type = typename base_type::partialD_array_type;
 
    private:
-    static thread_local tape_type _tape;
+    //   static thread_local tape_type _tape;
     value_type _value;
     index_array_type _index_array;
     static constexpr partialD_array_type _partialD_array{1};
 
    public:
     AD(){};
-    AD(const value_type value) noexcept : _value{value}, _index_array{_tape.add_variable()} {}
+    AD(const value_type value) noexcept : _value{value}, _index_array{tape<T>().add_variable()} {}
 
     value_type
     value() const noexcept
@@ -115,25 +115,25 @@ namespace AutoDiffCpp
       assert((void*)this != (void*)&ad);
 
       _value          = ad.value();
-      _index_array[0] = _tape.row_size();
+      _index_array[0] = tape<T>().row_size();
 
-      _tape.add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
-                    ad.index().data(),
-                    ad.partialD().data());
+      tape<T>().add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
+                        ad.index().data(),
+                        ad.partialD().data());
 
       return *this;
     }
 
     // debug only
-    const tape_type&
-    tape() const
-    {
-      return _tape;
-    }
+    // const tape_type&
+    // tape() const
+    // {
+    //   return _tape;
+    // }
   };
 
-  template <typename T>
-  thread_local typename AD<T>::tape_type AD<T>::_tape = AD<T>::tape_type();
+  // template <typename T>
+  // thread_local typename AD<T>::tape_type AD<T>::_tape = AD<T>::tape_type();
 
   /////////////
   // AD_Expr //
