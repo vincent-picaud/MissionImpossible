@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cassert>
+#include <cstddef>
+
 namespace AutoDiffCpp
 {
   template <typename TAPE>
@@ -18,13 +21,19 @@ namespace AutoDiffCpp
 
     JamesBond_Tape operator=(const JamesBond_Tape&) = delete;
 
+   public:
+    ~JamesBond_Tape() { _tape.rewind(_index); }
+
+    std::size_t
+    size() const
+    {
+      assert(_index <= _tape.row_size());
+      return _tape.row_size() - _index;
+    }
     index_type
     index() const
     {
       return _index;
     };
-
-   public:
-    ~JamesBond_Tape() { _tape.rewind(_index); }
   };
 }
