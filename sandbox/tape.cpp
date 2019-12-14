@@ -36,8 +36,22 @@ main()
 
     tape<T>().forward(y.index()[0], diff.data());
 
-    std::cout << "Diff\n" << diff;
+    std::cout << "Diff forward\n" << diff;
   }
 
   std::cout << "\n tape after \n" << tape<T>();
+
+   {
+    auto mark = tape<T>().JamesBond_tape();
+
+    y = x * y;
+    std::cout << tape<T>();
+
+    std::vector<T> diff(20, 0);
+    diff[y.index()[0]] = 1;
+
+    tape<T>().reverse(y.index()[0], diff.data());
+
+    std::cout << "Diff reverse\n" << diff;
+  }
 }
