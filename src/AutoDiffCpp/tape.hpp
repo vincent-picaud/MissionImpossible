@@ -13,25 +13,19 @@
 namespace AutoDiffCpp
 {
   template <typename T>
-  struct Index_PartialD
-  {
-    using index_type = unsigned int;
-    using value_type = T;
-
-    index_type index;
-    value_type value;
-  };
-
-  template <typename T>
   class Tape
   {
-    static_assert(std::is_trivial_v<Index_PartialD<T>>);
-
    public:
-    using index_partialD_type = Index_PartialD<T>;
-    using index_type          = typename index_partialD_type::index_type;
-    using value_type          = typename index_partialD_type::value_type;
-    static_assert(std::is_same_v<T, value_type>);
+    using index_type = uint_fast32_t;
+    using value_type = T;
+
+   private:
+    struct Index_PartialD
+    {
+      index_type index;
+      value_type value;
+    };
+    static_assert(std::is_trivial_v<Index_PartialD>);
 
    private:
     bool
@@ -74,7 +68,7 @@ namespace AutoDiffCpp
       resize(new_size, _tape_capacity, _tape);
     };
 
-    [[nodiscard]] index_partialD_type*
+    [[nodiscard]] Index_PartialD*
     add_row(const std::size_t row_size)
     {
       const auto row_index_begin = _index[_index_end - 1];
@@ -93,7 +87,7 @@ namespace AutoDiffCpp
           _index_capacity(index_capacity),
           _index(new index_type[_index_capacity]),
           _tape_capacity(tape_capacity),
-          _tape(new index_partialD_type[tape_capacity])
+          _tape(new Index_PartialD[tape_capacity])
     {
       assert(_index_capacity > 0);
       _index[0] = 0;
@@ -139,7 +133,7 @@ namespace AutoDiffCpp
       auto* const p_dest = add_row(row_size);
       for (std::size_t i = 0; i < row_size; i++)
       {
-        p_dest[i] = index_partialD_type{p_index[i], p_value[i]};
+        p_dest[i] = Index_PartialD{p_index[i], p_value[i]};
       }
     }
     template <size_t ROW_SIZE>
@@ -151,7 +145,7 @@ namespace AutoDiffCpp
       auto* p_dest = add_row(ROW_SIZE);
       for (std::size_t i = 0; i < ROW_SIZE; ++i)
       {
-        p_dest[i] = index_partialD_type{p_index[i], p_value[i]};
+        p_dest[i] = Index_PartialD{p_index[i], p_value[i]};
       }
     }
 
@@ -215,7 +209,7 @@ namespace AutoDiffCpp
     //       tape_end = _index[_index_end - 1]
     //
     std::size_t _tape_capacity;
-    index_partialD_type* _tape;
+    Index_PartialD* _tape;
 
     friend std::ostream&
     operator<<(std::ostream& out, const Tape& to_print)
@@ -261,5 +255,9 @@ namespace AutoDiffCpp
     return _tape;
   }
 
-  
+  /////////////////////////////
+  // Define internal objects //
+  /////////////////////////////
+
+
 }  // namespace AutoDiffCpp
