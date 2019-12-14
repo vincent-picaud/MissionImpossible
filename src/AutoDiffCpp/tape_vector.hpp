@@ -27,6 +27,9 @@ namespace AutoDiffCpp
     }
 
    public:
+    Tape_Vector(const TAPE& tape) : _offset(0), _size(tape.row_size()), _data(new value_type[_size])
+    {
+    }
     Tape_Vector(const JamesBond_Tape<TAPE>& jb_tape)
         : _offset(jb_tape.index()), _size(jb_tape.size()), _data(new value_type[_size])
     {
