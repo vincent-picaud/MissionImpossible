@@ -1,3 +1,5 @@
+#pragma once
+
 #include "AutoDiffCpp/JamesBond_tape.hpp"
 
 #include <algorithm>
