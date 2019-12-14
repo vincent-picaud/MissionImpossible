@@ -100,18 +100,32 @@ namespace AutoDiffCpp
     {
       return _index_end - 1;
     };
+    // index_type
+    // add_variable()
+    // {
+    //   const std::size_t index = row_size();
+    //   auto* const p           = add_row(1);
+
+    //   p->index = index;
+    //   p->value = 1;
+
+    //   assert(index <= std::numeric_limits<index_type>::max());
+    //   return static_cast<index_type>(index);
+    // }
+
     index_type
     add_variable()
     {
       const std::size_t index = row_size();
-      auto* const p           = add_row(1);
+      (void)add_row(0);
 
-      p->index = index;
-      p->value = 1;
+      // p->index = index;
+      // p->value = 1;
 
       assert(index <= std::numeric_limits<index_type>::max());
       return static_cast<index_type>(index);
     }
+
     void
     add_row(const std::size_t row_size,
             const index_type* const p_index,
@@ -145,12 +159,10 @@ namespace AutoDiffCpp
         const auto partial_begin = _index[i];
         const auto partial_end   = _index[i + 1];
 
-        value_type sum = 0;
         for (std::size_t j = partial_begin; j < partial_end; ++j)
         {
-          sum += _tape[i].value * diff[_tape[i].index];
+          diff[i] += _tape[i].value * diff[_tape[i].index];
         }
-        diff[i] = sum;
       }
     }
 
