@@ -3,6 +3,7 @@ AutoDiffCpp_headers = [
   'ad.hpp',
   'identity.hpp',
   'type_traits.hpp',
+  'tape_vector.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']
