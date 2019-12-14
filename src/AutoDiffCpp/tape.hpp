@@ -137,13 +137,13 @@ namespace AutoDiffCpp
     }
 
     void
-    forward(const std::size_t row_begin, value_type* const diff)
+    forward(const std::size_t row_begin, value_type* const diff) const
     {
       const auto row_end = _index_end - 1;
       for (std::size_t i = row_begin; i < row_end; ++i)
       {
-        auto* const partial_begin = _index[i];
-        auto* const partial_end   = _index[i + 1];
+        const auto partial_begin = _index[i];
+        const auto partial_end   = _index[i + 1];
 
         value_type sum = 0;
         for (std::size_t j = partial_begin; j < partial_end; ++j)
