@@ -1,4 +1,5 @@
 #include "AutoDiffCpp/tape_vector.hpp"
+#include "AutoDiffCpp/JamesBond_tape.hpp"
 #include "AutoDiffCpp/ad.hpp"
 #include "AutoDiffCpp/tape.hpp"
 
