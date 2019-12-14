@@ -189,6 +189,13 @@ namespace AutoDiffCpp
       for (size_t i = 0; i + 1 < to_print._index_end; i++)
       {
         out << std::setw(5) << i << " ";
+
+        if (to_print._index[i] == to_print._index[i + 1])
+        {
+          out << std::endl<< std::endl;
+          continue;
+        }
+
         for (size_t j = to_print._index[i]; j < to_print._index[i + 1]; j++)
         {
           out << "[" << std::setw(5) << to_print._tape[j].index << ", " << std::setw(15)

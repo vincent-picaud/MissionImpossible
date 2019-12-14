@@ -30,7 +30,7 @@ main()
 
   std::vector<T> diff(20, 0);
   diff[x.index()[0]] = 1;
-  std::cout << "Diff\n" << diff;
+
   y.tape().forward(y.index()[0], diff.data());
 
   std::cout << "Diff\n" << diff;
