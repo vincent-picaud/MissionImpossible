@@ -4,7 +4,6 @@ AutoDiffCpp_headers = [
   'identity.hpp',
   'type_traits.hpp',
   'tape_vector.hpp',
-  'JamesBond_tape.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']

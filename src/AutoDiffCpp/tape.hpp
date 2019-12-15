@@ -1,7 +1,5 @@
 #pragma once
 
-#include "AutoDiffCpp/JamesBond_tape.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -18,6 +16,8 @@ namespace AutoDiffCpp
    public:
     using index_type = uint_fast32_t;
     using value_type = T;
+
+    struct JamesBond_Mark;
 
    private:
     struct Index_PartialD
@@ -149,11 +149,12 @@ namespace AutoDiffCpp
       }
     }
 
-    JamesBond_Tape<Tape>
-    JamesBond_tape()
+    JamesBond_Mark
+    JamesBond_mark()
     {
       return {*this};
     }
+
     void
     rewind(const index_type index)
     {
@@ -244,8 +245,43 @@ namespace AutoDiffCpp
     }
   };
 
-  // tape singleton access
-  //
+  /////////////////////////////
+  // Define internal objects //
+  /////////////////////////////
+
+  template <typename T>
+  struct Tape<T>::JamesBond_Mark
+  {
+    friend Tape<T>;
+
+   private:
+    Tape<T>& _tape;
+    const index_type _index_begin;
+
+    JamesBond_Mark(Tape<T>& tape) : _tape(tape), _index_begin(_tape.row_size()) {}
+
+    JamesBond_Mark operator=(const JamesBond_Mark&) = delete;
+
+   public:
+    ~JamesBond_Mark() { _tape.rewind(_index_begin); }
+
+    std::size_t
+    size() const
+    {
+      assert(_tape.row_size() >= _index_begin);
+      return _tape.row_size() - _index_begin;
+    }
+    index_type
+    index_begin() const
+    {
+      return _index_begin;
+    };
+  };
+
+  ///////////////////////////
+  // Tape Singleton Access //
+  ///////////////////////////
+
   template <typename T>
   inline Tape<T>&
   tape()
@@ -254,10 +290,5 @@ namespace AutoDiffCpp
 
     return _tape;
   }
-
-  /////////////////////////////
-  // Define internal objects //
-  /////////////////////////////
-
 
 }  // namespace AutoDiffCpp

@@ -1,5 +1,4 @@
 #include "AutoDiffCpp/tape_vector.hpp"
-#include "AutoDiffCpp/JamesBond_tape.hpp"
 #include "AutoDiffCpp/ad.hpp"
 #include "AutoDiffCpp/tape.hpp"
 
@@ -16,7 +15,7 @@ TEST(Tape_Vector, demo)
 
   EXPECT_EQ(tape<T>().row_size(), 1);
 
-  auto jb_tape = tape<T>().JamesBond_tape();
+  auto jb_tape = tape<T>().JamesBond_mark();
 
   EXPECT_EQ(tape<T>().row_size(), 1);
 
