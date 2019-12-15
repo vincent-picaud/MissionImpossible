@@ -156,10 +156,10 @@ namespace AutoDiffCpp
     }
 
     void
-    rewind(const index_type index)
+    rewind(const index_type index_begin)
     {
-      assert(index <= row_size());
-      _index_end = index + 1;
+      assert(index_begin <= row_size());
+      _index_end = index_begin + 1;
 
       assert(check_invariant());
     }

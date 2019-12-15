@@ -252,6 +252,10 @@ namespace AutoDiffCpp
             join_with_product(partial0, partial1, g0.partialD(), g1.partialD())};
   }
 
+  ///////////////
+  // operator* //
+  ///////////////
+  //
   template <typename T>
   AD_Expr<T, 1> operator*(const Identity_t<T> g0, const AD<T>& g1)
   {
@@ -261,10 +265,77 @@ namespace AutoDiffCpp
 
     return return_type{g0 * g1.value(), index_array_type({g1.index()}), partialD_array_type({g0})};
   }
-
+  template <typename T>
+  auto operator*(const AD<T>& g0, const Identity_t<T> g1)
+  {
+    return g1 * g0;
+  }
   template <typename T, typename IMPL0, typename IMPL1>
   auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
   }
+
+  ///////////////
+  // operator/ //
+  ///////////////
+  //
+  template <typename T>
+  AD_Expr<T, 1>
+  operator/(const Identity_t<T> g0, const AD<T>& g1)
+  {
+    using return_type         = decltype(g0 / g1);
+    using index_array_type    = typename return_type::index_array_type;
+    using partialD_array_type = typename return_type::partialD_array_type;
+
+    return return_type{g0 / g1.value(),
+                       index_array_type({g1.index()}),
+                       partialD_array_type({-g0 / (g1.value() * g1.value())})};
+  }
+  template <typename T>
+  auto
+  operator/(const AD<T>& g0, const Identity_t<T> g1)
+  {
+    using return_type         = decltype(g0 / g1);
+    using index_array_type    = typename return_type::index_array_type;
+    using partialD_array_type = typename return_type::partialD_array_type;
+
+    return return_type{
+        g0.value() / g1, index_array_type({g0.index()}), partialD_array_type({1 / g1.value()})};
+  }
+  template <typename T, typename IMPL0, typename IMPL1>
+  auto
+  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  {
+    return chain_rule(
+        g0.value() / g1.value(), 1 / g1.value(), -g0 / (g1.value() * g1.value()), g0, g1);
+  }
+
+  ///////////////
+  // operator+ //
+  ///////////////
+  //
+  template <typename T>
+  AD_Expr<T, 1>
+  operator+(const Identity_t<T> g0, const AD<T>& g1)
+  {
+    using return_type         = decltype(g0 + g1);
+    using index_array_type    = typename return_type::index_array_type;
+    using partialD_array_type = typename return_type::partialD_array_type;
+
+    return return_type{g0 + g1.value(), index_array_type({g1.index()}), partialD_array_type({1})};
+  }
+  template <typename T>
+  auto
+  operator+(const AD<T>& g0, const Identity_t<T> g1)
+  {
+    return g1 + g0;
+  }
+  template <typename T, typename IMPL0, typename IMPL1>
+  auto
+  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  {
+    return chain_rule(g0.value() + g1.value(), 1, 1, g0, g1);
+  }
+
 }  // namespace AutoDiffCpp
