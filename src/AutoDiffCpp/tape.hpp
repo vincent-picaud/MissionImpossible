@@ -175,7 +175,7 @@ namespace AutoDiffCpp
 
         for (std::size_t j = partial_begin; j < partial_end; ++j)
         {
-          diff[i] += _tape[i].value * diff[_tape[i].index];
+          diff[i] += _tape[j].value * diff[_tape[j].index];
         }
       }
     }
@@ -187,11 +187,11 @@ namespace AutoDiffCpp
       {
         const auto partial_begin = _index[i - 1];
         const auto partial_end   = _index[i];
-
+        const auto diff_i_m_1    = diff[i - 1];
         for (std::size_t j = partial_begin; j < partial_end; ++j)
         {
           const auto indirection = _tape[j].index;
-          diff[indirection] += _tape[j].value * diff[indirection];
+          diff[indirection] += _tape[j].value * diff_i_m_1;
         }
       }
     }

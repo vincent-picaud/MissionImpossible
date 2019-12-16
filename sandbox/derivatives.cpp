@@ -12,7 +12,6 @@ main()
   std::cout << y.tape() << std::endl;
 
   // auto grad = gradient(y);
-   auto grad = Jacobian_column(y);
-
-  std::cout << grad;
+  std::cout << "Jacobian_row   \n" << Jacobian_row(y);
+  std::cout << "Jacobian_column\n" << Jacobian_column(x);
 }
