@@ -23,7 +23,7 @@ TEST(Tape_Vector, demo)
 
   EXPECT_EQ(tape<T>().row_size(), 2);
 
-  Tape_Vector<Tape<T>> tape_vector(jb_tape);
+  // Tape_Vector<Tape<T>> tape_vector(jb_tape);
 
-  EXPECT_EQ(tape_vector.size(), 1);
+  // EXPECT_EQ(tape_vector.size(), 1);
 }

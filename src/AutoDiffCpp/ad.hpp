@@ -89,7 +89,18 @@ namespace AutoDiffCpp
 
    public:
     AD(){};
-    AD(const value_type value) noexcept : _value{value}, _index_array{tape<T>().add_variable()} {}
+    // not being explicit would be an important source of bugs,
+    // especially for Tape_Vector object:
+    // #+begin_src cpp
+    // const T &Tape_Vector<T>::operator[](const AD<T> &var) const;
+    //
+    // tape_vector[4] // <- would unexpectedly create a new AD number
+    // #+end_src
+    //
+    /*explicit*/ AD(const value_type value) noexcept
+        : _value{value}, _index_array{tape().add_variable()}
+    {
+    }
 
     value_type
     value() const noexcept
@@ -115,21 +126,26 @@ namespace AutoDiffCpp
       assert((void*)this != (void*)&ad);
 
       _value          = ad.value();
-      _index_array[0] = tape<T>().row_size();
+      _index_array[0] = tape().row_size();
 
-      tape<T>().add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
-                        ad.index().data(),
-                        ad.partialD().data());
+      tape().add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
+                     ad.index().data(),
+                     ad.partialD().data());
 
       return *this;
     }
 
-    // debug only
-    // const tape_type&
-    // tape() const
-    // {
-    //   return _tape;
-    // }
+    const tape_type&
+    tape() const
+    {
+      return AutoDiffCpp::tape<T>();
+    }
+
+    tape_type&
+    tape()
+    {
+      return AutoDiffCpp::tape<T>();
+    }
   };
 
   // template <typename T>

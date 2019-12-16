@@ -2,54 +2,52 @@
 
 #include "AutoDiffCpp/ad.hpp"
 
+#include <iomanip>
+#include <iostream>
 #include <memory>
 
 namespace AutoDiffCpp
 {
-  // TODO: certainly an artificial dependency on tape, TOFIX
-  //
-  template <typename TAPE>
+  template <typename T>
   class Tape_Vector
   {
-    friend TAPE;
+   private:
+    const std::size_t _offset;
+    const std::size_t _size;
+    // principe of least surprise,  _data[i] must be valid for 0 <= i < size
+    // CAVEAT: op[AD<T>x] ok, but internally use [x.index()-offset]
+    std::shared_ptr<T[]> _data;
+
+    bool
+    check_AD_index(const std::size_t i) const
+    {
+      return (i >= _offset) and (i - _offset < _size);
+    }
+    bool
+    check_index(const std::size_t i) const
+    {
+      return i < _size;
+    }
 
    public:
-    using index_type = typename TAPE::index_type;
-    using value_type = typename TAPE::value_type;
+    Tape_Vector(const std::size_t size) : _offset(0), _size(size), _data(new T[_size]) {}
 
-   private:
-    const index_type _offset;  // a priori only used in assert
-    const index_type _size;
-    std::shared_ptr<value_type[]> _data;
+    // TODO: to keep until moved into another place
+    // Tape_Vector(const typename TAPE::JamesBond_Mark& jb_tape)
+    //     : _offset(jb_tape.index_begin()), _size(jb_tape.size()), _data(new T[_size])
+    // {
+    // }
 
-    // CAVEAT:
-    // data()[i] only makes sense when: (i > _offset) and (i - _offset < _size)
-    // -> this method is essentially used by Tape.
-    const value_type*
+    // data[i], 0 <= i < size
+    const T*
     data() const
     {
       return _data.get();
     }
-    value_type*
+    T*
     data()
     {
       return _data.get();
-    }
-
-    bool
-    check_index(const std::size_t i) const
-    {
-      return (i > _offset) and (i - _offset < _size);
-    }
-
-   public:
-    Tape_Vector(const TAPE& tape) : _offset(0), _size(tape.row_size()), _data(new value_type[_size])
-    {
-    }
-    Tape_Vector(const typename TAPE::JamesBond_Mark& jb_tape)
-        : _offset(jb_tape.index_begin()), _size(jb_tape.size()), _data(new value_type[_size])
-    {
-      _data = std::shared_ptr<value_type[]>(_data, _data.get() - jb_tape.index_begin());
     }
 
     std::size_t
@@ -63,24 +61,46 @@ namespace AutoDiffCpp
     {
       assert(check_index(i_star));
 
-      auto* p = _data.get() + _offset;
+      auto* p = _data.get();
       for (std::size_t i = 0; i < _size; ++i)
       {
         p[i] = 0;
       }
       p[i_star] = 1;
     }
-    const value_type& operator[](const AD<value_type>& var) const
+
+    const T& operator[](const AD<T>& var) const
     {
-      const auto i = var.index();
-      assert(check_index(i));
-      return _data.get()[i];
+      const auto i = var.index()[0];
+      assert(check_AD_index(i));
+      return data()[i - _offset];
     }
-    value_type& operator[](const AD<value_type>& var)
+    T& operator[](const AD<T>& var)
     {
-      const auto i = var.index();
+      const auto i = var.index()[0];
+      assert(check_AD_index(i));
+      return data()[i - _offset];
+    }
+    const T& operator[](const typename AD<T>::index_type i) const
+    {
       assert(check_index(i));
-      return _data.get()[i];
+      return data()[i];
+    }
+    T& operator[](const typename AD<T>::index_type i)
+    {
+      assert(check_index(i));
+      return data()[i];
+    }
+
+    friend std::ostream&
+    operator<<(std::ostream& out, const Tape_Vector<T>& to_print)
+    {
+      for (size_t i = 0; i < to_print.size(); ++i)
+      {
+        out << std::setw(5) << i + to_print._offset << "\t" << std::setw(5) << i
+            << "\t: " << to_print[i] << std::endl;
+      }
+      return out;
     }
   };
 }
