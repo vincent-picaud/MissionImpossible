@@ -203,17 +203,6 @@ namespace AutoDiffCpp
     }
   };
 
-  // template <typename T, size_t N>
-  // inline std::array<T, N> chain_rule_helper(const Identity_t<T> alpha, const std::array<T, N>& vector)
-  // {
-  //   std::array<T, N> dest;
-  //   for (std::size_t i = 0; i < N; ++i)
-  //   {
-  //     dest[i] = alpha * vector[i];
-  //   }
-  //   return dest;
-  // }
-
   // f:R->R
   //
   // df○g = ∂0f.dg^0
