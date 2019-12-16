@@ -11,17 +11,23 @@ TEST(Tape_Vector, demo)
 {
   using T = float;
 
-  [[maybe_unused]] AD<T> x = 1;
+  [[maybe_unused]] AD<T> x;
+  x = 1;
 
   EXPECT_EQ(tape<T>().row_size(), 1);
+
+  x = 2;
+
+  EXPECT_EQ(tape<T>().row_size(), 2);
 
   auto jb_tape = tape<T>().JamesBond_mark();
 
-  EXPECT_EQ(tape<T>().row_size(), 1);
-
-  [[maybe_unused]] AD<T> y = 1;
-
   EXPECT_EQ(tape<T>().row_size(), 2);
+
+  [[maybe_unused]] AD<T> y = T(1);
+  //  y = 1;
+
+  EXPECT_EQ(tape<T>().row_size(), 3);
 
   // Tape_Vector<Tape<T>> tape_vector(jb_tape);
 

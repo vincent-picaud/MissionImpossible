@@ -119,6 +119,14 @@ namespace AutoDiffCpp
       return _partialD_array;
     }
 
+    AD&
+    operator=(const T value)
+    {
+      _value          = value;
+      _index_array[0] = tape().add_variable();
+      return *this;
+    }
+    
     template <typename IMPL>
     AD&
     operator=(const AD_Crtp<T, IMPL>& ad)
@@ -358,7 +366,7 @@ namespace AutoDiffCpp
   {
     return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
   }
-  
+
   //////////////////////
   // unary operator- //
   /////////////////////
