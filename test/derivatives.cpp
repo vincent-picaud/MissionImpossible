@@ -82,3 +82,24 @@ TEST(Derivatives, addition)
   EXPECT_EQ(grad[x1], 4);
   EXPECT_EQ(grad[y], 1);
 }
+
+TEST(Derivatives, random_1)
+{
+  AD<double> x0(3), x1(4), y;
+
+  y = (x0 - x1) * (x0 + x1);  // x0^2-x1^2
+
+  auto grad = gradient(y);
+  EXPECT_EQ(y.value(), -7);
+  EXPECT_EQ(grad[x0], 6);
+  EXPECT_EQ(grad[x1], -8);
+  EXPECT_EQ(grad[y], 1);
+
+  y = x0 * x0 - x1 * x1;
+
+  grad = gradient(y);
+  EXPECT_EQ(y.value(), -7);
+  EXPECT_EQ(grad[x0], 6);
+  EXPECT_EQ(grad[x1], -8);
+  EXPECT_EQ(grad[y], 1);
+}
