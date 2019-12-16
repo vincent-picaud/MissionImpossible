@@ -297,17 +297,17 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  auto operator*(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
+  inline auto operator*(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0 * g1.value(), g0, g1);
   }
   template <typename T, typename IMPL0>
-  auto operator*(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
   {
     return chain_rule(g0.value() * g1, g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
-  auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
   }
@@ -317,19 +317,19 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  auto
+  inline auto
   operator/(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1);
   }
   template <typename T, typename IMPL0>
-  auto
+  inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
   {
     return chain_rule(g0.value() / g1, 1 / g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
-  auto
+  inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(
@@ -341,19 +341,19 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  auto
+  inline auto
   operator+(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0 + g1.value(), +1, g1);
   }
   template <typename T, typename IMPL0>
-  auto
+  inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
   {
     return chain_rule(g0.value() + g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
-  auto
+  inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
@@ -364,19 +364,19 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  auto
+  inline auto
   operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0 - g1.value(), -1, g1);
   }
   template <typename T, typename IMPL0>
-  auto
+  inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
   {
     return chain_rule(g0.value() - g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
-  auto
+  inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
   {
     return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
