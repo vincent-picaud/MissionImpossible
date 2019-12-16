@@ -25,6 +25,35 @@ TEST(Derivatives, product)
   EXPECT_EQ(grad[y], 1);
 }
 
+TEST(Derivatives, division)
+{
+  AD<double> x0(3), x1(4), y;
+
+  y = 2 / x1;
+
+  auto grad = gradient(y);
+  EXPECT_EQ(y.value(), 1 / 2.);
+  EXPECT_EQ(grad[x0], 0);
+  EXPECT_EQ(grad[x1], -1 / 8.);
+  EXPECT_EQ(grad[y], 1);
+
+  y = x0 / 2;
+
+  grad = gradient(y);
+  EXPECT_EQ(y.value(), 3 / 2.);
+  EXPECT_EQ(grad[x0], 1 / 2.);
+  EXPECT_EQ(grad[x1], 0);
+  EXPECT_EQ(grad[y], 1);
+
+  y = 2 * x0 / (3 * x1);
+
+  grad = gradient(y);
+  EXPECT_EQ(y.value(), 1 / 2.);
+  EXPECT_EQ(grad[x0], 1 / 6.);
+  EXPECT_EQ(grad[x1], -1 / 8.);
+  EXPECT_EQ(grad[y], 1);
+}
+
 TEST(Derivatives, substraction)
 {
   AD<double> x0(3), x1(4), y;
