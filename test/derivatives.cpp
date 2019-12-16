@@ -103,3 +103,31 @@ TEST(Derivatives, random_1)
   EXPECT_EQ(grad[x1], -8);
   EXPECT_EQ(grad[y], 1);
 }
+
+TEST(Derivatives, random_2)
+{
+  AD<double> x0(3), x1(4), y;
+
+  y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+
+  auto grad = gradient(y);
+  EXPECT_EQ(y.value(), 254);
+  EXPECT_EQ(grad[x0], 604);
+  EXPECT_EQ(grad[x1], -100);
+  EXPECT_EQ(grad[y], 1);
+
+  auto column_x0 = Jacobian_column(x0);
+  EXPECT_EQ(column_x0[x0], 1);
+  EXPECT_EQ(column_x0[x1], 0);
+  EXPECT_EQ(column_x0[y], 604);
+
+  auto column_x1 = Jacobian_column(x1);
+  EXPECT_EQ(column_x1[x0], 0);
+  EXPECT_EQ(column_x1[x1], 1);
+  EXPECT_EQ(column_x1[y], -100);
+
+  auto column_y = Jacobian_column(y);
+  EXPECT_EQ(column_y[x0], 0);
+  EXPECT_EQ(column_y[x1], 0);
+  EXPECT_EQ(column_y[y], 1);
+}
