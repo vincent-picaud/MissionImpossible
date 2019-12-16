@@ -54,6 +54,18 @@ TEST(Derivatives, division)
   EXPECT_EQ(grad[y], 1);
 }
 
+TEST(Derivatives, unary_substraction)
+{
+  AD<double> x0(3), y;
+
+  y = -x0;
+
+  auto grad = gradient(y);
+  EXPECT_EQ(y.value(), -3);
+  EXPECT_EQ(grad[x0], -1);
+  EXPECT_EQ(grad[y], 1);
+}
+
 TEST(Derivatives, substraction)
 {
   AD<double> x0(3), x1(4), y;

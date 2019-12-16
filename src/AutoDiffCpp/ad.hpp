@@ -358,6 +358,17 @@ namespace AutoDiffCpp
   {
     return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
   }
+  
+  //////////////////////
+  // unary operator- //
+  /////////////////////
+  //
+  template <typename T, typename IMPL0>
+  inline auto
+  operator-(const AD_Crtp<T, IMPL0>& g0)
+  {
+    return chain_rule(-g0.value(), -1, g0);
+  }
 
   ///////////////
   // operator- //
