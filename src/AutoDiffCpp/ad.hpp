@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AutoDiffCpp/final_value_type.hpp"
 #include "AutoDiffCpp/identity.hpp"
 #include "AutoDiffCpp/tape.hpp"
 #include "AutoDiffCpp/type_traits.hpp"
@@ -434,13 +435,13 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator==(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator==(const Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 == g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator==(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  operator==(const AD_Crtp<T, IMPL0>& g0, const Final_Value_Type_t<T> g1) noexcept
   {
     return g0.value() == g1;
   }
