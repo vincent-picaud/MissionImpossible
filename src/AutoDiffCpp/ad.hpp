@@ -43,12 +43,12 @@ namespace AutoDiffCpp
     {
       return impl().value();
     }
-    const index_array_type&
+    decltype(auto)
     index() const
     {
       return impl().index();
     }
-    const partialD_array_type&
+    decltype(auto)
     partialD() const
     {
       return impl().partialD();
@@ -85,19 +85,11 @@ namespace AutoDiffCpp
     //   static thread_local tape_type _tape;
     value_type _value;
     index_array_type _index_array;
-    static constexpr partialD_array_type _partialD_array{1};
 
    public:
-    AD(){};
-    // not being explicit would be an important source of bugs,
-    // especially for Tape_Vector object:
-    // #+begin_src cpp
-    // const T &Tape_Vector<T>::operator[](const AD<T> &var) const;
-    //
-    // tape_vector[4] // <- would unexpectedly create a new AD number
-    // #+end_src
-    //
-    /*explicit*/ AD(const value_type value) noexcept
+    AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
+    AD(const value_type value)
+    noexcept  // no explicit (allows AD<float> x=5 syntax
         : _value{value}, _index_array{tape().add_variable()}
     {
     }
@@ -113,10 +105,10 @@ namespace AutoDiffCpp
       return _index_array;
     };
 
-    const partialD_array_type&
+    partialD_array_type
     partialD() const noexcept
     {
-      return _partialD_array;
+      return partialD_array_type{1};
     }
 
     AD&
