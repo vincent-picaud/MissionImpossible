@@ -1,100 +1,150 @@
 #+TITLE: First order autodiff 
 
-
-
 * Component wise
 
-Exposition use 1-based indices.
+  Exposition use 1-based indices.
 
-We want to compute differential of 
-$$
-F_k:\mathbb{R}^{n_1}\to \mathbb{R}^{n_k}
-$$
+  We want to compute differential of 
+  $$
+  F_k:\mathbb{R}^{n_1}\to \mathbb{R}^{n_k}
+  $$
 
-We assume that it exists elementary transforms: 
-\begin{equation*}
-\Phi_k:\mathbb{R}^{n_k}\to \mathbb{R}^{n_{k+1}}
-\end{equation*}
-such that:
-\begin{equation*}
-F_k=\Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
-\end{equation*}
-More in details the elementary transforms $\Phi_k$ takes the form:
-\begin{equation*}
-\Phi_{k}(x\in\mathbb{R}^{n_k})=\left(x^1,\dots,x^{n_k},(\varphi_k)^{n_k+1}(x),\dots ,(\varphi_k)^{n_{k+1}}(x)\right)
-\end{equation*}
-In other terms $n_{k+1}-n_k$ components are created from $x$ and added
-to the first $n_k$ ones. 
+  We assume that it exists elementary transforms: 
+  \begin{equation*}
+  \Phi_k:\mathbb{R}^{n_k}\to \mathbb{R}^{n_{k+1}}
+  \end{equation*}
+  such that:
+  \begin{equation*}
+  F_k=\Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
+  \end{equation*}
+  More in details the elementary transforms $\Phi_k$ takes the form:
+  \begin{equation*}
+  \Phi_{k}(x\in\mathbb{R}^{n_k})=\left(x^1,\dots,x^{n_k},(\varphi_k)^{n_k+1}(x),\dots ,(\varphi_k)^{n_{k+1}}(x)\right)
+  \end{equation*}
+  In other terms $n_{k+1}-n_k$ components are created from $x$ and added
+  to the first $n_k$ ones. 
 
-If we further assume that $n_{k+1}=n_k+1$ which means that components
-are created one by one, then 
-\begin{equation*}
-\Phi_{k}(x\in\mathbb{R}^{n_k})=\left(x^1,\dots,x^{n_k},(\varphi_k)^{n_k+1}(x)\right)
-\end{equation*}
-and $d\Phi_{k}$ takes the form:
+  If we further assume that $n_{k+1}=n_k+1$ which means that components
+  are created one by one, then 
+  \begin{equation*}
+  \Phi_{k}(x\in\mathbb{R}^{n_k})=\left(x^1,\dots,x^{n_k},(\varphi_k)^{n_k+1}(x)\right)
+  \end{equation*}
+  and $d\Phi_{k}$ takes the form:
 
-\begin{equation*}
-\label{eq_dPhi}
-d\Phi_k=\left(
-\begin{array}{cccc}
-1        & 0      & \dots  & 0 \\
-0        & \ddots &        & \vdots \\
-\vdots   &        & \ddots & 0 \\
-0        & \dots  & 0      & 1 \\
-\hline
-\dots         & \partial_j (\varphi_k)^{n_k+1}  & \dots      & 0 
-\end{array}
-\right)_{(n_k+1)\times n_k}
-\end{equation*}
+  \begin{equation*}
+  \label{eq_dPhi}
+  d\Phi_k=\left(
+  \begin{array}{cccc}
+  1        & 0      & \dots  & 0 \\
+  0        & \ddots &        & \vdots \\
+  \vdots   &        & \ddots & 0 \\
+  0        & \dots  & 0      & 1 \\
+  \hline
+  \dots         & \partial_j (\varphi_k)^{n_k+1}  & \dots      & 0 
+  \end{array}
+  \right)_{(n_k+1)\times n_k}
+  \end{equation*}
 
-where $j=1..n_k$
+  where $j=1..n_k$
 
-# We have:
-# \begin{equation*}
-# \Phi=\Phi_{n}\circ \Phi_{n-1}\circ \Phi_{n-2} \circ \dots \circ \Phi_{1}
-# \end{equation*}
+  # We have:
+  # \begin{equation*}
+  # \Phi=\Phi_{n}\circ \Phi_{n-1}\circ \Phi_{n-2} \circ \dots \circ \Phi_{1}
+  # \end{equation*}
 
 
 * Forward pass
 
-To compute 
+  To compute 
 
-\begin{equation*}
-F_k=\Phi_{k}\circ \Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
-\end{equation*}
+  \begin{equation*}
+  F_k=\Phi_{k}\circ \Phi_{k-1}\circ \Phi_{k-2} \circ \dots \circ \Phi_{1}
+  \end{equation*}
 
-One can notice that $F_1=\Phi_1$, $F_2=\Phi_2\circ\Phi_1=\Phi_2\circ F_1$ and
-so on... there is a recurrence relation:
-\begin{equation*}
-F_k=\Phi_{k}\circ F_{k-1},\ \ F_0=Id
-\end{equation*}
-Using chain rule:
-\begin{equation}
-\label{eq_chain_rule}
-dF_k(x)=d\Phi_{k}(F_{k-1}(x))\circ dF_{k-1}(x)
-\end{equation}
+  One can notice that $F_1=\Phi_1$, $F_2=\Phi_2\circ\Phi_1=\Phi_2\circ F_1$ and
+  so on... there is a recurrence relation:
+  \begin{equation*}
+  F_k=\Phi_{k}\circ F_{k-1},\ \ F_0=Id
+  \end{equation*}
+  Using chain rule:
+  \begin{equation}
+  \label{eq_chain_rule}
+  dF_k(x)=d\Phi_{k}(F_{k-1}(x))\circ dF_{k-1}(x)
+  \end{equation}
 
-If we unroll this last relation and use $F_0=Id_{n1}$; $dF_{0}(x)=Id_{n1}$, we get:
-\begin{align*}
-dF_k(x) & = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(F_{0}(x)) dF_{0}(x) \\
-	& = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(x) 
-\end{align*}
+  If we unroll this last relation and use $F_0=Id_{n1}$; $dF_{0}(x)=Id_{n1}$, we get:
+  \begin{align*}
+  dF_k(x) & = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(F_{0}(x)) dF_{0}(x) \\
+	  & = d\Phi_{k}(F_{k-1}(x))\circ d\Phi_{k-1}(F_{k-2}(x))\circ \dots \circ d\Phi_{1}(x) 
+  \end{align*}
 
-If one computes $(dF_k).e_j$, we get one *column* $(dF_k)^j_{i=1\dots n_k:$. However
-in optimization we want to compute $(dF_n)$ row $i$. This row can be
-computed by $(dF_n)^t.e_i$
+  If one computes $(dF_k).e_j$, we get one *column* $(dF_k)^j_{i=1\dots n_k:$. However
+  in optimization we want to compute $(dF_n)$ row $i$. This row can be
+  computed by $(dF_n)^t.e_i$
 
-From Eq. \ref{eq_chain_rule}, \begin{equation*}
-\label{eq_chain_rule}
-(dF_k)^t(x)=(dF_{k-1})^t(x)\circ d(\Phi_{k})^t(F_{k-1}
-\end{equation*}
+  From Eq. \ref{eq_chain_rule}, \begin{equation*}
+  \label{eq_chain_rule}
+  (dF_k)^t(x)=(dF_{k-1})^t(x)\circ d(\Phi_{k})^t(F_{k-1}
+  \end{equation*}
 
 * Implementation details [0/1]
 
+** =AD<T>= constructor =explicit= or not? 
+
+*** First attempt 
+    A safe approach (which was our first attempt) is to declare
+    #+begin_src c++ :eval never
+explicit AD(const value_type value) noexcept 
+    #+end_src
+    This protect against a bug we add implementing =op[]=. If we *only* define:
+    A safe approach (which was our first attempt) is to declare
+    #+begin_src c++ :eval never
+AD(const value_type value) noexcept 
+    #+end_src
+    without =explicit= then 
+    #+begin_src c++ :eval never
+const T& operator[](const AD<T>& var) const;
+    #+end_src
+
+    #+begin_src c++ :eval never
+tape_vector[5]
+    #+end_src
+    will *create* and convert =5= into an =AD<double>= object -> BUG!
+
+    However if we use =explicit= this *implicit* does not happen anymore,
+    *but* you cannot write thing like
+    #+begin_src c++ :eval never
+AD<double> x = 5;  // not ok with explicit
+AD<double> y{5};   // ok witj explicit
+    #+end_src
+
+    We found this restriction problematic (this force target code
+    modification if one wants to use AutoDiff).
+
+*** Second (and definitive) version
+
+    We took the decision to *not* use =explicit=:
+    #+begin_src c++ :eval never
+AD(const value_type value) noexcept 
+    #+end_src
+    in order to allow the 
+    #+begin_src c++ :eval never
+AD<double> x = 5; 
+    #+end_src
+    syntax.
+
+    In the same time we have to systematically define *two* prototypes to
+    avoid the mentioned =op[]= bug:
+    #+begin_src c++ :eval never
+const T& operator[](const AD<T>& var) const;
+const T& operator[](const index_type index) const;
+    #+end_src
+
+
 ** =AD<T>= constructor
 
-For permance (not yet benchmarked), on must define
-#+begin_src c++ :eval never
+   For permance (not yet benchmarked), on must define
+   #+begin_src c++ :eval never
 template <typename T>
 class AD
 {
@@ -102,10 +152,10 @@ class AD
 
   AD<T> AD(){};
 };
-#+end_src
+   #+end_src
 
-and *not*:
-#+begin_src c++ :eval never
+   and *not*:
+   #+begin_src c++ :eval never
 template <typename T>
 class AD
 {
@@ -113,20 +163,20 @@ class AD
 
   AD<T> AD() = default;
 };
-#+end_src
+   #+end_src
 
-Reason: 
+   Reason: 
 
-In the =AD<T> AD() = default= former case, if =T=doubble= for instance,
-this =_value= is initialized by =_value()= which assign =0=. However, in our
-case we do *not* need a default value (it can be garbage), thus we are
-using the first version =AD<T> AD() {}=.
+   In the =AD<T> AD() = default= former case, if =T=doubble= for instance,
+   this =_value= is initialized by =_value()= which assign =0=. However, in our
+   case we do *not* need a default value (it can be garbage), thus we are
+   using the first version =AD<T> AD() {}=.
 
 ** TODO =JamesBond_Mark=
 
-In order to manage nested auto diff one must define 
+   In order to manage nested auto diff one must define 
 
-#+begin_src c++ :eval never
+   #+begin_src c++ :eval never
 template <typename TYPE>
 class JamesBond_Mark;
 
@@ -146,4 +196,4 @@ class JamesBond_Mark<Ad<T>>
 
   ~JamesBond_Mark() { tape<Ad<T>>().rewind(_offset); }
 };
-#+end_src
+   #+end_src
