@@ -91,6 +91,37 @@ From Eq. \ref{eq_chain_rule}, \begin{equation*}
 
 * Implementation details [0/1]
 
+** =AD<T>= constructor
+
+For permance (not yet benchmarked), on must define
+#+begin_src c++ :eval never
+template <typename T>
+class AD
+{
+  T _value;
+
+  AD<T> AD(){};
+};
+#+end_src
+
+and *not*:
+#+begin_src c++ :eval never
+template <typename T>
+class AD
+{
+  T _value;
+
+  AD<T> AD() = default;
+};
+#+end_src
+
+Reason: 
+
+In the =AD<T> AD() = default= former case, if =T=doubble= for instance,
+this =_value= is initialized by =_value()= which assign =0=. However, in our
+case we do *not* need a default value (it can be garbage), thus we are
+using the first version =AD<T> AD() {}=.
+
 ** TODO =JamesBond_Mark=
 
 In order to manage nested auto diff one must define 
