@@ -13,8 +13,8 @@ TEST(Nested, Rosenbrock)
   y = (1 - x0) * (1 - x0) +
       10 * (x1 - x0 * x0) * (x1 - x0 * x0);  // remark: y[x0] type is  AD<AD<T>>
 
-  EXPECT_EQ(y.value(), 254);  // TOFIX: overload == to avoid value().value() <- CREAT AN EXTRA INSTANCE
-
+  EXPECT_EQ(y, 254);  // TOFIX: overload == to avoid value().value() <- CREAT AN EXTRA INSTANCE
+                      // So far, fixed with Final_Value_Type
   auto y_gradient = Jacobian_row(y);
 
   EXPECT_EQ(y_gradient[x0].value(), 604);  // remark: y_gradient[x0] type is AD<T>
