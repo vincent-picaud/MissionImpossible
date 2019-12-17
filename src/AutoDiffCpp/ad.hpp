@@ -118,7 +118,7 @@ namespace AutoDiffCpp
       _index_array[0] = tape().add_variable();
       return *this;
     }
-    
+
     template <typename IMPL>
     AD&
     operator=(const AD_Crtp<T, IMPL>& ad)
@@ -182,6 +182,13 @@ namespace AutoDiffCpp
             const partialD_array_type& partialD_array) noexcept
         : _value(value), _index_array(index_array), _partialD_array(partialD_array)
     {
+    }
+
+    operator AD<T>() const
+    {
+      AD<T> _this;
+      _this = *this;
+      return _this;
     }
 
     value_type
