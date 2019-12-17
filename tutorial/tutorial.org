@@ -88,3 +88,31 @@ From Eq. \ref{eq_chain_rule}, \begin{equation*}
 \label{eq_chain_rule}
 (dF_k)^t(x)=(dF_{k-1})^t(x)\circ d(\Phi_{k})^t(F_{k-1}
 \end{equation*}
+
+* Implementation details [0/1]
+
+** TODO =JamesBond_Mark=
+
+In order to manage nested auto diff one must define 
+
+#+begin_src c++ :eval never
+template <typename TYPE>
+class JamesBond_Mark;
+
+template <typename T>
+class JamesBond_Mark<T>
+{
+  offset_type _offset;  // <- offset for Tape<T>
+
+  ~JamesBond_Mark() { tape<T>().rewind(_offset); }
+};
+
+template <typename T>
+class JamesBond_Mark<Ad<T>>
+{
+  offset_type _offset;           // <- offset for Tape<Ad<T>>
+  JamesBond_Mark<T> _recursive;  // <- offset for Tape<T>
+
+  ~JamesBond_Mark() { tape<Ad<T>>().rewind(_offset); }
+};
+#+end_src
