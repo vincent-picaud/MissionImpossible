@@ -13,7 +13,7 @@ TEST(Nested, Rosenbrock)
   y = (1 - x0) * (1 - x0) +
       10 * (x1 - x0 * x0) * (x1 - x0 * x0);  // remark: y[x0] type is  AD<AD<T>>
 
-  EXPECT_EQ(y.value().value(), 254);  // TOFIX: overload == to avoid value().value()
+  EXPECT_EQ(y.value(), 254);  // TOFIX: overload == to avoid value().value() <- CREAT AN EXTRA INSTANCE
 
   auto y_gradient = Jacobian_row(y);
 
@@ -43,4 +43,24 @@ TEST(Nested, Rosenbrock)
   //
   EXPECT_EQ(x0.tape().row_size(), 3);
   EXPECT_EQ(x0.value().tape().row_size(), 74);
+}
+
+TEST(Nested, Debug_op_eq_must_not_create_a_new_var_nested)
+{
+  AD<AD<double>> x0(3);
+  const std::size_t n_1  = x0.tape().row_size();
+  const std::size_t nn_1 = x0.value().tape().row_size();
+  const bool ok          = x0 == 3;  // this must not create an instance! NOT OK
+  ASSERT_TRUE(ok);
+  EXPECT_EQ(n_1, x0.tape().row_size());
+  EXPECT_EQ(nn_1, x0.value().tape().row_size());
+}
+
+TEST(Nested, Debug_op_eq_must_not_create_a_new_var)
+{
+  AD<double> x0(3);
+  const std::size_t n_1 = x0.tape().row_size();
+  const bool ok         = x0 == 3;  // this must not create an instance! OK
+  ASSERT_TRUE(ok);
+  EXPECT_EQ(n_1, x0.tape().row_size());
 }

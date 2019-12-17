@@ -38,7 +38,7 @@ namespace AutoDiffCpp
     };
 
    public:
-    value_type
+    const value_type&
     value() const noexcept
     {
       return impl().value();
@@ -101,7 +101,7 @@ namespace AutoDiffCpp
     {
     }
 
-    value_type
+    const value_type&
     value() const noexcept
     {
       return _value;
@@ -149,7 +149,7 @@ namespace AutoDiffCpp
     //
     template <typename IMPL>
     auto
-    operator+=(const AD_Crtp<T, IMPL>& y) 
+    operator+=(const AD_Crtp<T, IMPL>& y)
     {
       *this = *this + y;
       return *this;
@@ -211,7 +211,7 @@ namespace AutoDiffCpp
       return _this;
     }
 
-    value_type
+    const value_type&
     value() const noexcept
     {
       return _value;
@@ -428,26 +428,27 @@ namespace AutoDiffCpp
   // Here this is quite simple as we only return a boolean (no tape manipulation)
   //
 
-   ///////////////
+  ///////////////
   // operator- //
   ///////////////
   //
-  // template <typename T, typename IMPL1>
-  // inline auto
-  // operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
-  // {
-  //   return chain_rule(g0 - g1.value(), -1, g1);
-  // }
-  // template <typename T, typename IMPL0>
-  // inline auto
-  // operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
-  // {
-  //   return chain_rule(g0.value() - g1, +1, g0);
-  // }
-  // template <typename T, typename IMPL0, typename IMPL1>
-  // inline auto
-  // operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
-  // {
-  //   return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
-  // }
-}  // namespace AutoDiffCpp
+  template <typename T, typename IMPL1>
+  inline bool
+  operator==(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  {
+    return g0 == g1.value();
+  }
+  template <typename T, typename IMPL0>
+  inline bool
+  operator==(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  {
+    return g0.value() == g1;
+  }
+
+  template <typename T, typename IMPL0, typename IMPL1>
+  inline bool
+  operator==(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  {
+    return g0.value() == g1.value();
+  }
+}
