@@ -135,6 +135,19 @@ namespace AutoDiffCpp
       return *this;
     }
 
+    // +=, -= etc...
+    //
+    // a priory cannot be optimized: we use the x+=y -> x=x+y
+    // fallback.
+    // 
+    template <typename IMPL>
+    auto
+    operator+=(const AD_Crtp<T, IMPL>& y) 
+    {
+      *this = *this + y;
+      return *this;
+    }
+
     const tape_type&
     tape() const
     {
