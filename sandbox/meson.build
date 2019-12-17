@@ -5,3 +5,7 @@ executable('tape',
 executable('derivatives',
 	   'derivatives.cpp',
 	   dependencies : [AutoDiffCpp_dep])
+
+executable('nested_2nd_order',
+	   'nested_2nd_order.cpp',
+	   dependencies : [AutoDiffCpp_dep])

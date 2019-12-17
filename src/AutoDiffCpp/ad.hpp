@@ -53,6 +53,13 @@ namespace AutoDiffCpp
     {
       return impl().partialD();
     }
+
+    friend std::ostream&
+    operator<<(std::ostream& out, const AD_Crtp<T, IMPL>& to_print)
+    {
+      out << to_print.value();
+      return out;
+    }
   };
 
   ////////
@@ -139,10 +146,10 @@ namespace AutoDiffCpp
     //
     // a priory cannot be optimized: we use the x+=y -> x=x+y
     // fallback.
-    // 
+    //
     template <typename IMPL>
     auto
-    operator+=(const AD_Crtp<T, IMPL>& y) 
+    operator+=(const AD_Crtp<T, IMPL>& y)
     {
       *this = *this + y;
       return *this;

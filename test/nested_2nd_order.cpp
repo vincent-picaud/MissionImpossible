@@ -38,4 +38,9 @@ TEST(Nested, Rosenbrock)
 
   EXPECT_EQ(Hessian_x1_row[x0.value()], -120);
   EXPECT_EQ(Hessian_x1_row[x1.value()], 20);
+
+  // Check tape length
+  //
+  EXPECT_EQ(x0.tape().row_size(), 3);
+  EXPECT_EQ(x0.value().tape().row_size(), 74);
 }
