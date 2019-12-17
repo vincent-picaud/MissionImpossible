@@ -39,17 +39,17 @@ namespace AutoDiffCpp
 
    public:
     value_type
-    value() const
+    value() const noexcept
     {
       return impl().value();
     }
     decltype(auto)
-    index() const
+    index() const noexcept
     {
       return impl().index();
     }
     decltype(auto)
-    partialD() const
+    partialD() const noexcept
     {
       return impl().partialD();
     }
@@ -119,7 +119,7 @@ namespace AutoDiffCpp
     }
 
     AD&
-    operator=(const T value)
+    operator=(const T value) noexcept
     {
       _value          = value;
       _index_array[0] = tape().add_variable();
@@ -149,20 +149,20 @@ namespace AutoDiffCpp
     //
     template <typename IMPL>
     auto
-    operator+=(const AD_Crtp<T, IMPL>& y)
+    operator+=(const AD_Crtp<T, IMPL>& y) 
     {
       *this = *this + y;
       return *this;
     }
 
     const tape_type&
-    tape() const
+    tape() const noexcept
     {
       return AutoDiffCpp::tape<T>();
     }
 
     tape_type&
-    tape()
+    tape() noexcept
     {
       return AutoDiffCpp::tape<T>();
     }
@@ -204,7 +204,7 @@ namespace AutoDiffCpp
     {
     }
 
-    operator AD<T>() const
+    operator AD<T>() const noexcept
     {
       AD<T> _this;
       _this = *this;
@@ -236,14 +236,14 @@ namespace AutoDiffCpp
   //
   template <typename T, size_t N0>
   inline auto
-  join(const std::array<T, N0>& v0)
+  join(const std::array<T, N0>& v0) noexcept
   {
     return v0;
   }
 
   template <typename T, size_t N0>
   inline auto
-  join_with_product(const Identity_t<T> partialD_0_f, const std::array<T, N0>& v0)
+  join_with_product(const Identity_t<T> partialD_0_f, const std::array<T, N0>& v0) noexcept
   {
     std::array<T, N0> to_return;
 
@@ -259,7 +259,7 @@ namespace AutoDiffCpp
   inline AD_Expr<T, IMPL0::size>
   chain_rule(const Identity_t<T> f_circ_g_value,
              const Identity_t<T> partial0,
-             const AD_Crtp<T, IMPL0>& g0)
+             const AD_Crtp<T, IMPL0>& g0) noexcept
   {
     return {f_circ_g_value, join(g0.index()), join_with_product(partial0, g0.partialD())};
   }
@@ -270,7 +270,7 @@ namespace AutoDiffCpp
   //
   template <typename T, size_t N0, size_t N1>
   inline auto
-  join(const std::array<T, N0>& v0, const std::array<T, N1>& v1)
+  join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
   {
     std::array<T, N0 + N1> to_return;
 
@@ -290,7 +290,7 @@ namespace AutoDiffCpp
   join_with_product(const Identity_t<T> partialD_0_f,
                     const Identity_t<T> partialD_1_f,
                     const std::array<T, N0>& v0,
-                    const std::array<T, N1>& v1)
+                    const std::array<T, N1>& v1) noexcept
   {
     std::array<T, N0 + N1> to_return;
 
@@ -312,7 +312,7 @@ namespace AutoDiffCpp
              const Identity_t<T> partial0,
              const Identity_t<T> partial1,
              const AD_Crtp<T, IMPL0>& g0,
-             const AD_Crtp<T, IMPL1>& g1)
+             const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return {f_circ_g_value,
             join(g0.index(), g1.index()),
@@ -324,17 +324,17 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  inline auto operator*(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
+  inline auto operator*(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 * g1.value(), g0, g1);
   }
   template <typename T, typename IMPL0>
-  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
   {
     return chain_rule(g0.value() * g1, g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
-  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
   }
@@ -345,19 +345,19 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator/(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
+  operator/(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator/(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
+  operator/(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
   {
     return chain_rule(g0.value() / g1, 1 / g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
-  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(
         g0.value() / g1.value(), 1 / g1.value(), -g0.value() / (g1.value() * g1.value()), g0, g1);
@@ -369,19 +369,19 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator+(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
+  operator+(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 + g1.value(), +1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator+(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
+  operator+(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
   {
     return chain_rule(g0.value() + g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
-  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
   }
@@ -392,7 +392,7 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL0>
   inline auto
-  operator-(const AD_Crtp<T, IMPL0>& g0)
+  operator-(const AD_Crtp<T, IMPL0>& g0) noexcept
   {
     return chain_rule(-g0.value(), -1, g0);
   }
@@ -403,20 +403,51 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1)
+  operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 - g1.value(), -1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1)
+  operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
   {
     return chain_rule(g0.value() - g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
-  operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1)
+  operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
   }
+
+  ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+  //
+  // Comparison operators ==, !=
+  //
+  // Here this is quite simple as we only return a boolean (no tape manipulation)
+  //
+
+   ///////////////
+  // operator- //
+  ///////////////
+  //
+  // template <typename T, typename IMPL1>
+  // inline auto
+  // operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  // {
+  //   return chain_rule(g0 - g1.value(), -1, g1);
+  // }
+  // template <typename T, typename IMPL0>
+  // inline auto
+  // operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  // {
+  //   return chain_rule(g0.value() - g1, +1, g0);
+  // }
+  // template <typename T, typename IMPL0, typename IMPL1>
+  // inline auto
+  // operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  // {
+  //   return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
+  // }
 }  // namespace AutoDiffCpp
