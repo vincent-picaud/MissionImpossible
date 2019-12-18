@@ -355,7 +355,7 @@ namespace AutoDiffCpp
              const AD_Final_Value_Type_t<T> partial0,
              const AD_Crtp<T, IMPL0>& g0) noexcept
   {
-    return {f_circ_g_value, g0.index(), partial0 * g0.partialD()};
+    return {f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
   }
 
   // CAVEAT: certainly usefully however I do not understand why it is
@@ -382,7 +382,7 @@ namespace AutoDiffCpp
   {
     const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
 
-    return {ad_f_circ_g_value, g0.index(), partial0 * g0.partialD()};
+    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
   }
 
   // f:R2->R
@@ -419,9 +419,8 @@ namespace AutoDiffCpp
   {
     return {f_circ_g_value,
             join(g0.index(), g1.index()),
-            join(partial0 * g0.partialD(), partial1 * g1.partialD())};
-    // useless  join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
-    // as for the first order case all are true scalar (double, float)
+            join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
+    // OK
   }
 
   // Nested case specialization to avoid tape-creation of useless
@@ -446,7 +445,7 @@ namespace AutoDiffCpp
             join(g0.index(), g1.index()),
             join(chain_rule_helper(partial0.impl(), g0.impl()),
                  chain_rule_helper(partial1.impl(), g1.impl()))};
-    // join(partial0 * g0.partialD(), partial1 * g1.partialD())};
+    // OK
   }
 
   template <typename T, typename IMPL0, typename IMPL1, typename IMPL_A>
@@ -462,7 +461,7 @@ namespace AutoDiffCpp
     return {ad_f_circ_g_value,
             join(g0.index(), g1.index()),
             join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
-    //            join(partial0 * g0.partialD(), partial1 * g1.partialD())};
+    // OK
   }
 
   ///////////////
