@@ -425,19 +425,19 @@ namespace AutoDiffCpp
   // Here this is quite simple as we only return a boolean (no tape manipulation)
   //
 
-  ///////////////
-  // operator- //
-  ///////////////
+  ////////////////
+  // operator== //
+  ////////////////
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator==(const Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator==(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 == g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator==(const AD_Crtp<T, IMPL0>& g0, const Final_Value_Type_t<T> g1) noexcept
+  operator==(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
     return g0.value() == g1;
   }
