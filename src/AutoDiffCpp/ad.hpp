@@ -45,15 +45,10 @@ namespace AutoDiffCpp
     {
       return impl().value();
     }
-    decltype(auto)
+    const index_array_type&
     index() const noexcept
     {
       return impl().index();
-    }
-    decltype(auto)
-    partialD() const noexcept
-    {
-      return impl().partialD();
     }
 
     friend std::ostream&
@@ -114,13 +109,6 @@ namespace AutoDiffCpp
       return _index_array;
     };
 
-    partialD_array_type
-    partialD() const noexcept
-    {
-      //      std::cerr << __PRETTY_FUNCTION__ << std::endl;
-      return partialD_array_type{1};
-    }
-
     AD&
     operator=(const T value) noexcept
     {
@@ -129,18 +117,17 @@ namespace AutoDiffCpp
       return *this;
     }
 
-    template <typename IMPL>
+    template <std::size_t N>
     AD&
-    operator=(const AD_Crtp<T, IMPL>& ad)
+    operator=(const AD_Expr<T, N>& ad)
     {
       assert((void*)this != (void*)&ad);
 
       _value          = ad.value();
       _index_array[0] = tape().row_size();
 
-      tape().add_row(std::integral_constant<std::size_t, AD_Crtp<T, IMPL>::size>(),
-                     ad.index().data(),
-                     ad.partialD().data());
+      tape().add_row(
+          std::integral_constant<std::size_t, N>(), ad.index().data(), ad.partialD().data());
 
       return *this;
     }
