@@ -154,4 +154,18 @@ TEST(Nested, test_3_order)
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x1.value()].value(), 0);
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x2.value()].value(), +1 / 12.);
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x3.value()].value(), -1 / 18.);
+
+  //////////////////
+
+  auto Hessian_row_x1_x1 = Jacobian_row(Hessian_row_x1[x1.value()]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x1.value().value()], -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x2.value().value()], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x3.value().value()], -1 / 27.);
+
+  auto Hessian_row_x1_x2 = Jacobian_row(Hessian_row_x1[x2.value()]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x1.value().value()], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x2.value().value()], 0.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x3.value().value()], -1 / 54.);
 }
