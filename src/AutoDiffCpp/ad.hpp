@@ -271,26 +271,10 @@ namespace AutoDiffCpp
   //
   // df○g = ∂0f.dg^0
   //
-
-  // template <typename T, size_t N0>
   // inline auto
   // join(const std::array<T, N0>& v0) noexcept
   // {
   //   return v0;
-  // }
-
-  // template <typename T, size_t N0>
-  // inline auto
-  // join_with_product(const Identity_t<T> partialD_0_f, const std::array<T, N0>& v0) noexcept
-  // {
-  //   std::array<T, N0> to_return;
-
-  //   for (std::size_t i = 0; i < N0; ++i)
-  //   {
-  //     to_return[i] = partialD_0_f * v0[i];
-  //   }
-
-  //   return to_return;
   // }
 
   // template <typename T, typename IMPL0>
