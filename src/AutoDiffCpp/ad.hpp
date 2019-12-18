@@ -290,9 +290,23 @@ namespace AutoDiffCpp
   inline typename AD_Expr<AD<T>, N>::partialD_array_type
   chain_rule_helper(const AD<T>& partial0, const AD_Expr<AD<T>, N>& g0) noexcept
   {
-    //    using return_type = decltype(partial0, g0);
-
     return partial0 * g0.partialD();
+  }
+
+  // reduction to a common factor OK
+  template <typename T, size_t N_A>
+  inline auto
+  chain_rule_helper(const AD_Expr<T, N_A>& partial0, const AD<AD<T>>& g0) noexcept
+  {
+    AD<T> factor = partial0;
+    return chain_rule_helper(factor, g0);
+  }
+  template <typename T, size_t N_A, size_t N_B>
+  inline auto
+  chain_rule_helper(const AD_Expr<T, N_A>& partial0, const AD_Expr<AD<T>, N_B>& g0) noexcept
+  {
+    AD<T> factor = partial0;
+    return chain_rule_helper(factor, g0);
   }
 
   // f:R->R

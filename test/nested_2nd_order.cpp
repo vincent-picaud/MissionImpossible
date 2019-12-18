@@ -45,7 +45,7 @@ TEST(Nested, Rosenbrock)
   EXPECT_EQ(x0.value().tape().row_size(), 51);
 
   EXPECT_EQ(x0.tape().memory_size(), 224);
-  EXPECT_EQ(x0.value().tape().memory_size(), 1568);
+  EXPECT_EQ(x0.value().tape().memory_size(), 1440);
 }
 
 TEST(Nested, Debug_op_eq_must_not_create_a_new_var_nested)
@@ -87,5 +87,14 @@ TEST(Nested, Simple_Polynomial)
   EXPECT_EQ(Hessian_x_row[x.value()], 3 * 2 * 4);
 
   EXPECT_EQ(1, x.tape().row_size() - n_1);
-  EXPECT_EQ(22, x.value().tape().row_size() - nn_1);
+  EXPECT_EQ(14, x.value().tape().row_size() - nn_1);
+}
+
+TEST(Nested, Random_1)
+{
+  AD<AD<double>> x1(1), x2(2), x3(3), y;
+
+  y = 2 * x1 + x2 * x3 / (1 + x1 * x2 + x3);
+
+  EXPECT_EQ(y, 3);
 }
