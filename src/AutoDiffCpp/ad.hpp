@@ -292,6 +292,10 @@ namespace AutoDiffCpp
   //   return v0;
   // }
 
+  // Original:
+  //
+  // concise and works, but can lead to AD creation in nested mode
+  //
   // template <typename T, typename IMPL0>
   // inline AD_Expr<T, IMPL0::size>
   // chain_rule(const Identity_t<T> f_circ_g_value,
@@ -312,9 +316,6 @@ namespace AutoDiffCpp
     return {f_circ_g_value, g0.index(), partial0 * g0.partialD()};
   }
 
-  // Nested case specialization to avoid tape-creation of useless
-  // AD<T> vartiable storing constants
-  //
   // CAVEAT: certainly usefully however I do not understand why it is
   // not used for the moment
   //
@@ -402,42 +403,13 @@ namespace AutoDiffCpp
             join(partial0 * g0.partialD(), partial1 * g1.partialD())};
   }
 
-  //================
-
-  // template <typename T, typename IMPL0, typename IMPL1, typename IMPL_A>
-  // inline AD_Expr<AD<T>, IMPL0::size + IMPL1::size>
-  // chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-  //            const AD_Final_Value_Type_t<T> partial0,
-  //            const AD_Final_Value_Type_t<T> partial1,
-  //            const AD_Crtp<AD<T>, IMPL0>& g0,
-  //            const AD_Crtp<AD<T>, IMPL1>& g1) noexcept
-  // {
-  //   const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-
-  //   return {ad_f_circ_g_value,
-  //           join(g0.index(), g1.index()),
-  //           join(partial0 * g0.partialD(), partial1 * g1.partialD())};
-  // }
-
-  template <typename T, typename IMPL_A>
-  inline AD_Expr<AD<T>, 2>
+  template <typename T, typename IMPL0, typename IMPL1, typename IMPL_A>
+  inline AD_Expr<AD<T>, IMPL0::size + IMPL1::size>
   chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
              const AD_Final_Value_Type_t<T> partial0,
              const AD_Final_Value_Type_t<T> partial1,
-             const AD<AD<T>>& g0,
-             const AD<AD<T>>& g1) noexcept
-  {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-
-    return {ad_f_circ_g_value, join(g0.index(), g1.index()), std::array<AD<T>, 2>{1, 1}};
-  }
-  template <typename T, size_t N0, size_t N1, typename IMPL_A>
-  inline AD_Expr<AD<T>, N0 + N1>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Final_Value_Type_t<T> partial1,
-             const AD_Expr<AD<T>, N0>& g0,
-             const AD_Expr<AD<T>, N1>& g1) noexcept
+             const AD_Crtp<AD<T>, IMPL0>& g0,
+             const AD_Crtp<AD<T>, IMPL1>& g1) noexcept
   {
     const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
 
@@ -445,34 +417,7 @@ namespace AutoDiffCpp
             join(g0.index(), g1.index()),
             join(partial0 * g0.partialD(), partial1 * g1.partialD())};
   }
-  template <typename T, size_t N1, typename IMPL_A>
-  inline AD_Expr<AD<T>, 1 + N1>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Final_Value_Type_t<T> partial1,
-             const AD<AD<T>>& g0,
-             const AD_Expr<AD<T>, N1>& g1) noexcept
-  {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
 
-    return {ad_f_circ_g_value,
-            join(g0.index(), g1.index()),
-            join(std::array<AD<T>, 1>{partial0}, partial1 * g1.partialD())};
-  }
-  template <typename T, size_t N0, typename IMPL_A>
-  inline AD_Expr<AD<T>, N0 + 1>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Final_Value_Type_t<T> partial1,
-             const AD_Expr<AD<T>, N0>& g0,
-             const AD<AD<T>>& g1) noexcept
-  {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-
-    return {ad_f_circ_g_value,
-            join(g0.index(), g1.index()),
-            join(partial0 * g0.partialD(), std::array<AD<T>, 1>{partial1})};
-  }
   ///////////////
   // operator* //
   ///////////////
@@ -480,17 +425,17 @@ namespace AutoDiffCpp
   template <typename T, typename IMPL1>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 * g1.value(), g0, g1.impl());
+    return chain_rule(g0 * g1.value(), g0, g1);
   }
   template <typename T, typename IMPL0>
   inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() * g1, g1, g0.impl());
+    return chain_rule(g0.value() * g1, g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0.impl(), g1.impl());
+    return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
   }
 
   ///////////////
@@ -501,23 +446,20 @@ namespace AutoDiffCpp
   inline auto
   operator/(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1.impl());
+    return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1);
   }
   template <typename T, typename IMPL0>
   inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() / g1, 1 / g1, g0.impl());
+    return chain_rule(g0.value() / g1, 1 / g1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() / g1.value(),
-                      1 / g1.value(),
-                      -g0.value() / (g1.value() * g1.value()),
-                      g0.impl(),
-                      g1.impl());
+    return chain_rule(
+        g0.value() / g1.value(), 1 / g1.value(), -g0.value() / (g1.value() * g1.value()), g0, g1);
   }
 
   ///////////////
@@ -528,19 +470,19 @@ namespace AutoDiffCpp
   inline auto
   operator+(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 + g1.value(), +1, g1.impl());
+    return chain_rule(g0 + g1.value(), +1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() + g1, +1, g0.impl());
+    return chain_rule(g0.value() + g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() + g1.value(), 1, +1, g0.impl(), g1.impl());
+    return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
   }
 
   //////////////////////
@@ -551,7 +493,7 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0) noexcept
   {
-    return chain_rule(-g0.value(), -1, g0.impl());
+    return chain_rule(-g0.value(), -1, g0);
   }
 
   ///////////////
@@ -562,19 +504,19 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 - g1.value(), -1, g1.impl());
+    return chain_rule(g0 - g1.value(), -1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() - g1, +1, g0.impl());
+    return chain_rule(g0.value() - g1, +1, g0);
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() - g1.value(), 1, -1, g0.impl(), g1.impl());
+    return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
   }
 
   ////////////////////////////////////////////////////////////////
