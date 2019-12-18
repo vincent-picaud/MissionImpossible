@@ -1,20 +1,12 @@
 #pragma once
 
+#include "AutoDiffCpp/ad_fwd.hpp"
 #include "AutoDiffCpp/always.hpp"
 
 #include <type_traits>
 
 namespace AutoDiffCpp
 {
-  // TODO TEMPORARY -> must create ad_fwd or change include order
-  //
-  template <typename T, typename IMPL>
-  class AD_Crtp;
-  template <typename T>
-  class AD;
-  template <typename T, std::size_t N>
-  class AD_Expr;
-
   template <typename T, typename ENABLE = void>
   struct Final_Value_Type
   {
