@@ -127,6 +127,10 @@ TEST(Nested, test_3_order)
 {
   AD<AD<AD<double>>> x1(1), x2(2), x3(3), y;
 
+  const std::size_t n_1   = x1.tape().row_size();
+  const std::size_t nn_1  = x1.value().tape().row_size();
+  const std::size_t nnn_1 = x1.value().value().tape().row_size();
+
   y = 2 * x1 + x2 * x3 / (1 + x1 * x2 + x3);
 
   ASSERT_DOUBLE_EQ(y.value().value().value(), 3);
@@ -168,4 +172,9 @@ TEST(Nested, test_3_order)
   ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x1.value().value()], +2 / 9.);
   ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x2.value().value()], 0.);
   ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x3.value().value()], -1 / 54.);
+
+  //
+  EXPECT_EQ(x1.tape().row_size() - n_1, 1);
+  EXPECT_EQ(x1.value().tape().row_size() - nn_1, 37);
+  EXPECT_EQ(x1.value().value().tape().row_size() - nnn_1, 288);
 }
