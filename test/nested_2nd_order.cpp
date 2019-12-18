@@ -96,5 +96,11 @@ TEST(Nested, Random_1)
 
   y = 2 * x1 + x2 * x3 / (1 + x1 * x2 + x3);
 
-  EXPECT_EQ(y, 3);
+  ASSERT_DOUBLE_EQ(y.value().value(), 3);
+
+  auto y_gradient = Jacobian_row(y);
+
+  ASSERT_DOUBLE_EQ(y_gradient[x1].value(), 5 / 3.);
+  ASSERT_DOUBLE_EQ(y_gradient[x2].value(), 1 / 3.);
+  ASSERT_DOUBLE_EQ(y_gradient[x3].value(), 1 / 6.);
 }

@@ -293,7 +293,9 @@ namespace AutoDiffCpp
     return partial0 * g0.partialD();
   }
 
-  // reduction to a common factor OK
+  // NOTE: reduction to a common factor OK
+  // -> remember "FACTS": it returns decltype(dg.partialD)
+  //    this is mandatory a we also indendently return dg.index (both must stay coherent)
   template <typename T, size_t N_A>
   inline auto
   chain_rule_helper(const AD_Expr<T, N_A>& partial0, const AD<AD<T>>& g0) noexcept
