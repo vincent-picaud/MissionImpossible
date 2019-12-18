@@ -255,20 +255,6 @@ namespace AutoDiffCpp
     return to_return;
   }
 
-  template <typename T, typename IMPL, std::size_t N>
-  auto operator*(const AD_Crtp<T, IMPL>& nested_partialD_f, const std::array<AD<T>, N>& dg)
-  {
-    std::array<AD<T>, N> to_return;
-    const AD<T> ad_partialD_f = nested_partialD_f.impl();
-
-    for (std::size_t i = 0; i < N; ++i)
-    {
-      to_return[i] = ad_partialD_f * dg[i];
-    }
-
-    return to_return;
-  }
-
   template <typename T, std::size_t N>
   auto operator*(const AD<T>& ad_partialD_f, const std::array<AD<T>, N>& dg)
   {
@@ -361,17 +347,16 @@ namespace AutoDiffCpp
   // CAVEAT: certainly usefully however I do not understand why it is
   // not used for the moment
   //
-  // template <typename T, typename IMPL0, typename IMPL_A, typename IMPL_B>
-  // inline AD_Expr<AD<T>, IMPL0::size>
-  // chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-  //            const AD_Crtp<T, IMPL_B>& partial0,
-  //            const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
-  // {
-  //   const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-  //   const AD<T> ad_partial0       = partial0.impl();
-  //
-  //   return {ad_f_circ_g_value, g0.index(), ad_partial0 * g0.partialD()};
-  // }
+  template <typename T, typename IMPL0, typename IMPL_A, typename IMPL_B>
+  inline AD_Expr<AD<T>, IMPL0::size>
+  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
+             const AD_Crtp<T, IMPL_B>& partial0,
+             const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
+  {
+    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
+
+    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
+  }
 
   // Nested case: with scalar partial0
   template <typename T, typename IMPL0, typename IMPL_A>
@@ -424,7 +409,7 @@ namespace AutoDiffCpp
   }
 
   // Nested case specialization to avoid tape-creation of useless
-  // AD<T> vartiable storing constants
+  // AD<T> variable storing constants
   //
   template <typename T,
             typename IMPL0,
