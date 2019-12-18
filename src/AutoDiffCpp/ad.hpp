@@ -282,6 +282,48 @@ namespace AutoDiffCpp
     return to_return;
   }
 
+  // New approach that locally manage the partialD() problem
+  //
+  // Role: computes scale_factor * dg <-> scale_factor* g.partialD
+  //       that arise from df○g = ∂0f.dg^0 + ... (where ∂0f is scalar_factor)
+  //
+  // Facts:
+  // - it returns decltype(dg.partialD)
+  // - scale_factor is a scalar, OR an AD_Expr<> in nested case
+  // - g is
+  //    - AD<>   <- this is the problematic case as we must not use partialD (in nested case)
+  //      or
+  //    - AD_Expr<>
+  //
+  template <typename T>
+  inline typename AD<T>::partialD_array_type
+  chain_rule_helper(const AD_Final_Value_Type_t<T> partial0, const AD<T>& g0) noexcept
+  {
+    using return_type = decltype(chain_rule_helper(partial0, g0));
+    return return_type{partial0};
+  }
+  template <typename T, size_t N>
+  inline typename AD_Expr<T, N>::partialD_array_type
+  chain_rule_helper(const AD_Final_Value_Type_t<T> partial0, const AD_Expr<T, N>& g0) noexcept
+  {
+    return partial0 * g0.partialD();
+  }
+  template <typename T>
+  inline typename AD<AD<T>>::partialD_array_type
+  chain_rule_helper(const AD<T>& partial0, const AD<AD<T>>& g0) noexcept
+  {
+    using return_type = decltype(chain_rule_helper(partial0, g0));
+    return return_type{partial0};
+  }
+  template <typename T, size_t N>
+  inline typename AD_Expr<AD<T>, N>::partialD_array_type
+  chain_rule_helper(const AD<T>& partial0, const AD_Expr<AD<T>, N>& g0) noexcept
+  {
+    //    using return_type = decltype(partial0, g0);
+
+    return partial0 * g0.partialD();
+  }
+
   // f:R->R
   //
   // df○g = ∂0f.dg^0
@@ -378,6 +420,8 @@ namespace AutoDiffCpp
     return {f_circ_g_value,
             join(g0.index(), g1.index()),
             join(partial0 * g0.partialD(), partial1 * g1.partialD())};
+    // useless  join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
+    // as for the first order case all are true scalar (double, float)
   }
 
   // Nested case specialization to avoid tape-creation of useless
@@ -400,7 +444,9 @@ namespace AutoDiffCpp
 
     return {ad_f_circ_g_value,
             join(g0.index(), g1.index()),
-            join(partial0 * g0.partialD(), partial1 * g1.partialD())};
+            join(chain_rule_helper(partial0.impl(), g0.impl()),
+                 chain_rule_helper(partial1.impl(), g1.impl()))};
+    // join(partial0 * g0.partialD(), partial1 * g1.partialD())};
   }
 
   template <typename T, typename IMPL0, typename IMPL1, typename IMPL_A>
@@ -415,7 +461,8 @@ namespace AutoDiffCpp
 
     return {ad_f_circ_g_value,
             join(g0.index(), g1.index()),
-            join(partial0 * g0.partialD(), partial1 * g1.partialD())};
+            join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
+    //            join(partial0 * g0.partialD(), partial1 * g1.partialD())};
   }
 
   ///////////////
