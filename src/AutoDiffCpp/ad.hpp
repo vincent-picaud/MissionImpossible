@@ -139,7 +139,13 @@ namespace AutoDiffCpp
       *this = *this + y;
       return *this;
     }
-
+    template <typename IMPL>
+    auto
+    operator-=(const AD_Crtp<T, IMPL>& y)
+    {
+      *this = *this - y;
+      return *this;
+    }
     const tape_type&
     tape() const noexcept
     {

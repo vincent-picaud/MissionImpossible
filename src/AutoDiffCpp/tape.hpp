@@ -195,10 +195,47 @@ namespace AutoDiffCpp
         const auto partial_end   = _index[i];
         const auto diff_i_m_1    = diff[i - 1];
 
-        for (std::size_t j = partial_begin; j < partial_end; ++j)
+        // NOTE: tests
+        // - diff_i_m_1 == 0
+        // - diff_i_m_1 == +1
+        // - diff_i_m_1 == -1
+        //
+        // are not necessary to make it work, it is only optimization
+        // that are relevant for nested case
+        //
+        // TODO: maybe introduce a if constexpr: for the not nested
+        // case, remove the tests that maybe slowdown computation
+        // -> TO CHECK. IMPORTANT!
+        //
+        if (diff_i_m_1 != 0)
         {
-          const auto indirection = _tape[j].index;
-          diff[indirection] += _tape[j].value * diff_i_m_1;
+          if (diff_i_m_1 == 1)
+          {
+            for (std::size_t j = partial_begin; j < partial_end; ++j)
+            {
+              const auto indirection = _tape[j].index;
+              diff[indirection] += _tape[j].value;
+            }
+            continue;
+          }
+
+	  // does not reduce tape size
+          // if (diff_i_m_1 == -1)
+          // {
+          //   for (std::size_t j = partial_begin; j < partial_end; ++j)
+          //   {
+          //     const auto indirection = _tape[j].index;
+          //     diff[indirection] -= _tape[j].value;
+          //   }
+          //   continue;
+          // }
+
+          // This is the generic that work without the test
+          for (std::size_t j = partial_begin; j < partial_end; ++j)
+          {
+            const auto indirection = _tape[j].index;
+            diff[indirection] += _tape[j].value * diff_i_m_1;
+          }
         }
       }
     }
