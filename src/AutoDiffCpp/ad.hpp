@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AutoDiffCpp/ad_fwd.hpp"
 #include "AutoDiffCpp/final_value_type.hpp"
 #include "AutoDiffCpp/identity.hpp"
 #include "AutoDiffCpp/tape.hpp"
@@ -66,11 +67,6 @@ namespace AutoDiffCpp
   ////////
   // AD //
   ////////
-
-  template <typename T>
-  class AD;
-  template <typename T, size_t N>
-  class AD_Expr;
 
   template <typename T>
   struct Type_Traits<AD<T>>
