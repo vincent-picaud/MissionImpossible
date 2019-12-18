@@ -321,12 +321,12 @@ namespace AutoDiffCpp
   ///////////////
   //
   template <typename T, typename IMPL1>
-  inline auto operator*(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 * g1.value(), g0, g1);
   }
   template <typename T, typename IMPL0>
-  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
     return chain_rule(g0.value() * g1, g1, g0);
   }
@@ -342,13 +342,13 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator/(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator/(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator/(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
     return chain_rule(g0.value() / g1, 1 / g1, g0);
   }
@@ -366,13 +366,13 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator+(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator+(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 + g1.value(), +1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator+(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
     return chain_rule(g0.value() + g1, +1, g0);
   }
@@ -400,13 +400,13 @@ namespace AutoDiffCpp
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator-(const Identity_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator-(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return chain_rule(g0 - g1.value(), -1, g1);
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator-(const AD_Crtp<T, IMPL0>& g0, const Identity_t<T> g1) noexcept
+  operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
     return chain_rule(g0.value() - g1, +1, g0);
   }
