@@ -64,3 +64,25 @@ TEST(Nested, Debug_op_eq_must_not_create_a_new_var)
   ASSERT_TRUE(ok);
   EXPECT_EQ(n_1, x0.tape().row_size());
 }
+
+TEST(Nested, Simple_Polynomial)
+{
+  AD<AD<double>> x(4), y;
+  const std::size_t n_1  = x.tape().row_size();
+  const std::size_t nn_1 = x.value().tape().row_size();
+
+  y = x * x * x;
+
+  EXPECT_EQ(y, 4 * 4 * 4);
+
+  auto y_gradient = Jacobian_row(y);
+
+  EXPECT_EQ(y_gradient[x].value(), 3 * 4 * 4);
+
+  auto Hessian_x_row = Jacobian_row(y_gradient[x]);
+
+  EXPECT_EQ(Hessian_x_row[x.value()], 3 * 2 * 4);
+
+  EXPECT_EQ(n_1 + 1, x.tape().row_size());
+  EXPECT_EQ(nn_1 + 28, x.value().tape().row_size());
+}
