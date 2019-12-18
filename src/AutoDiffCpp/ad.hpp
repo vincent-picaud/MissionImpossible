@@ -92,11 +92,6 @@ namespace AutoDiffCpp
         : _value{value}, _index_array{tape().add_variable()}
     {
     }
-    // template <size_t N>
-    // AD(const AD_Expr<T, N>& ad)
-    // {
-    //   (*this) = ad;
-    // }
 
     const value_type&
     value() const noexcept
@@ -157,9 +152,6 @@ namespace AutoDiffCpp
       return AutoDiffCpp::tape<T>();
     }
   };
-
-  // template <typename T>
-  // thread_local typename AD<T>::tape_type AD<T>::_tape = AD<T>::tape_type();
 
   /////////////
   // AD_Expr //
