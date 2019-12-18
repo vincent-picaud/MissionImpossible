@@ -27,7 +27,7 @@ namespace AutoDiffCpp
     using index_array_type     = std::array<index_type, size>;
     using partialD_array_type  = std::array<value_type, size>;
 
-   protected:
+   public:  //protected:
     IMPL&
     impl() noexcept
     {
@@ -97,6 +97,11 @@ namespace AutoDiffCpp
         : _value{value}, _index_array{tape().add_variable()}
     {
     }
+    // template <size_t N>
+    // AD(const AD_Expr<T, N>& ad)
+    // {
+    //   (*this) = ad;
+    // }
 
     const value_type&
     value() const noexcept
@@ -227,38 +232,115 @@ namespace AutoDiffCpp
     }
   };
 
-  // f:R->R
+  // Overloading of U*std::array<T>
+  // -> used by chain rule
+  // Role: provides two specializations,
+  // - U is a scalar
+  // - U=AD<T> (when std::array<AD<T>>
   //
-  // df○g = ∂0f.dg^0
+  // -> IMPORTANT: this avoid artificial creation of AD<T> in nested
+  //    case (when std::array<AD<T>>)
   //
-  template <typename T, size_t N0>
-  inline auto
-  join(const std::array<T, N0>& v0) noexcept
+  template <typename T, std::size_t N>
+  auto operator*(const AD_Final_Value_Type_t<T> scalar_partialD_f, const std::array<T, N>& dg)
   {
-    return v0;
-  }
+    std::array<T, N> to_return;
 
-  template <typename T, size_t N0>
-  inline auto
-  join_with_product(const Identity_t<T> partialD_0_f, const std::array<T, N0>& v0) noexcept
-  {
-    std::array<T, N0> to_return;
-
-    for (std::size_t i = 0; i < N0; ++i)
+    for (std::size_t i = 0; i < N; ++i)
     {
-      to_return[i] = partialD_0_f * v0[i];
+      to_return[i] = scalar_partialD_f * dg[i];
     }
 
     return to_return;
   }
 
+  template <typename T, typename IMPL, std::size_t N>
+  auto operator*(const AD_Crtp<T, IMPL>& ad_partialD_f, const std::array<AD<T>, N>& dg)
+  {
+    std::array<AD<T>, N> to_return;
+
+    for (std::size_t i = 0; i < N; ++i)
+    {
+      to_return[i] = ad_partialD_f * dg[i];
+    }
+
+    return to_return;
+  }
+
+  // f:R->R
+  //
+  // df○g = ∂0f.dg^0
+  //
+
+  // template <typename T, size_t N0>
+  // inline auto
+  // join(const std::array<T, N0>& v0) noexcept
+  // {
+  //   return v0;
+  // }
+
+  // template <typename T, size_t N0>
+  // inline auto
+  // join_with_product(const Identity_t<T> partialD_0_f, const std::array<T, N0>& v0) noexcept
+  // {
+  //   std::array<T, N0> to_return;
+
+  //   for (std::size_t i = 0; i < N0; ++i)
+  //   {
+  //     to_return[i] = partialD_0_f * v0[i];
+  //   }
+
+  //   return to_return;
+  // }
+
+  // template <typename T, typename IMPL0>
+  // inline AD_Expr<T, IMPL0::size>
+  // chain_rule(const Identity_t<T> f_circ_g_value,
+  //            const Identity_t<T> partial0,
+  //            const AD_Crtp<T, IMPL0>& g0) noexcept
+  // {
+  //   return {f_circ_g_value, join(g0.index()), partial0 * g0.partialD()};
+  // }
+
+  // First order case
+  //
   template <typename T, typename IMPL0>
   inline AD_Expr<T, IMPL0::size>
-  chain_rule(const Identity_t<T> f_circ_g_value,
-             const Identity_t<T> partial0,
+  chain_rule(const AD_Final_Value_Type_t<T> f_circ_g_value,
+             const AD_Final_Value_Type_t<T> partial0,
              const AD_Crtp<T, IMPL0>& g0) noexcept
   {
-    return {f_circ_g_value, join(g0.index()), join_with_product(partial0, g0.partialD())};
+    return {f_circ_g_value, g0.index(), partial0 * g0.partialD()};
+  }
+  
+  // Nested case specialization to avoid tape-creation of useless
+  // AD<T> vartiable storing constants
+  //
+  // CAVEAT: certainly usefully however I do not understand why it is
+  // not used for the moment
+  //
+  // template <typename T, typename IMPL0, typename IMPL_A, typename IMPL_B>
+  // inline AD_Expr<AD<T>, IMPL0::size>
+  // chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
+  //            const AD_Crtp<T, IMPL_B>& partial0,
+  //            const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
+  // {
+  //   const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
+  //   const AD<T> ad_partial0       = partial0.impl();
+  //
+  //   return {ad_f_circ_g_value, g0.index(), ad_partial0 * g0.partialD()};
+  // }
+  
+  // Nested case: with scalar partial0
+  template <typename T, typename IMPL0, typename IMPL_A>
+  inline AD_Expr<AD<T>, IMPL0::size>
+  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
+             const AD_Final_Value_Type_t<T> partial0,
+             const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
+  {
+    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
+
+    return {ad_f_circ_g_value, g0.index(), partial0 * g0.partialD()};
   }
 
   // f:R2->R

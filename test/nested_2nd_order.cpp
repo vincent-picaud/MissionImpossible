@@ -42,7 +42,7 @@ TEST(Nested, Rosenbrock)
   // Check tape length
   //
   EXPECT_EQ(x0.tape().row_size(), 3);
-  EXPECT_EQ(x0.value().tape().row_size(), 72);
+  EXPECT_EQ(x0.value().tape().row_size(), 69);
 }
 
 TEST(Nested, Debug_op_eq_must_not_create_a_new_var_nested)
