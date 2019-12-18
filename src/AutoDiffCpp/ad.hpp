@@ -87,7 +87,7 @@ namespace AutoDiffCpp
 
    public:
     AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
-    AD(const value_type value)
+    AD(const AD_Final_Value_Type_t<value_type> value)
     noexcept  // no explicit (allows AD<float> x=5 syntax
         : _value{value}, _index_array{tape().add_variable()}
     {
@@ -105,7 +105,7 @@ namespace AutoDiffCpp
     };
 
     AD&
-    operator=(const T value) noexcept
+    operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
       _value          = value;
       _index_array[0] = tape().add_variable();
@@ -356,7 +356,7 @@ namespace AutoDiffCpp
   {
     const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
 
-    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
+    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0.impl(), g0.impl())};
   }
 
   // Nested case: with scalar partial0

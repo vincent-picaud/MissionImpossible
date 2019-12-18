@@ -104,6 +104,12 @@ TEST(Nested, Random_1)
   ASSERT_DOUBLE_EQ(y_gradient[x2].value(), 1 / 3.);
   ASSERT_DOUBLE_EQ(y_gradient[x3].value(), 1 / 6.);
 
+  auto Hessian_row_x1 = Jacobian_row(y_gradient[x1]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1.value()], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2.value()], -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3.value()], 0.);
+
   auto Hessian_row_x2 = Jacobian_row(y_gradient[x2]);
 
   ASSERT_DOUBLE_EQ(Hessian_row_x2[x1.value()], -2 / 9.);
@@ -115,4 +121,37 @@ TEST(Nested, Random_1)
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x1.value()], 0);
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x2.value()], +1 / 12.);
   ASSERT_DOUBLE_EQ(Hessian_row_x3[x3.value()], -1 / 18.);
+}
+
+TEST(Nested, test_3_order)
+{
+  AD<AD<AD<double>>> x1(1), x2(2), x3(3), y;
+
+  y = 2 * x1 + x2 * x3 / (1 + x1 * x2 + x3);
+
+  ASSERT_DOUBLE_EQ(y.value().value().value(), 3);
+
+  auto y_gradient = Jacobian_row(y);
+
+  ASSERT_DOUBLE_EQ(y_gradient[x1].value().value(), 5 / 3.);
+  ASSERT_DOUBLE_EQ(y_gradient[x2].value().value(), 1 / 3.);
+  ASSERT_DOUBLE_EQ(y_gradient[x3].value().value(), 1 / 6.);
+
+  auto Hessian_row_x1 = Jacobian_row(y_gradient[x1]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1.value()].value(), +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2.value()].value(), -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3.value()].value(), 0.);
+
+  auto Hessian_row_x2 = Jacobian_row(y_gradient[x2]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x1.value()].value(), -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x2.value()].value(), -1 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x3.value()].value(), +1 / 12.);
+
+  auto Hessian_row_x3 = Jacobian_row(y_gradient[x3]);
+
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x1.value()].value(), 0);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x2.value()].value(), +1 / 12.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x3.value()].value(), -1 / 18.);
 }
