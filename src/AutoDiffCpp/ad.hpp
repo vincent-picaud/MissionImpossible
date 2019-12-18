@@ -254,8 +254,22 @@ namespace AutoDiffCpp
     return to_return;
   }
 
-  template <typename T, typename IMPL, std::size_t N>
-  auto operator*(const AD_Crtp<T, IMPL>& ad_partialD_f, const std::array<AD<T>, N>& dg)
+
+  // template <typename T, typename IMPL, std::size_t N>
+  // auto operator*(const AD_Crtp<T, IMPL>& ad_partialD_f, const std::array<AD<T>, N>& dg)
+  // {
+  //   std::array<AD<T>, N> to_return;
+
+  //   for (std::size_t i = 0; i < N; ++i)
+  //   {
+  //     to_return[i] = ad_partialD_f * dg[i];
+  //   }
+
+  //   return to_return;
+  // }
+
+  template <typename T, std::size_t N>
+  auto operator*(const AD<T>& ad_partialD_f, const std::array<AD<T>, N>& dg)
   {
     std::array<AD<T>, N> to_return;
 
@@ -296,7 +310,7 @@ namespace AutoDiffCpp
   {
     return {f_circ_g_value, g0.index(), partial0 * g0.partialD()};
   }
-  
+
   // Nested case specialization to avoid tape-creation of useless
   // AD<T> vartiable storing constants
   //
@@ -314,7 +328,7 @@ namespace AutoDiffCpp
   //
   //   return {ad_f_circ_g_value, g0.index(), ad_partial0 * g0.partialD()};
   // }
-  
+
   // Nested case: with scalar partial0
   template <typename T, typename IMPL0, typename IMPL_A>
   inline AD_Expr<AD<T>, IMPL0::size>

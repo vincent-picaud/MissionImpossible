@@ -99,6 +99,12 @@ namespace AutoDiffCpp
       return _index_end - 1;
     };
 
+    std::size_t
+    memory_size() const
+    {
+      return _index_end * sizeof(index_type) + _index[_index_end - 1] * sizeof(Index_PartialD);
+    };
+
     // Old encoding
 
     // index_type
