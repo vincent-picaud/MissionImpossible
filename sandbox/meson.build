@@ -13,3 +13,7 @@ executable('nested_2nd_order',
 executable('misc',
 	   'misc.cpp',
 	   dependencies : [AutoDiffCpp_dep])
+
+executable('big_one',
+	   'big_one.cpp',
+	   dependencies : [AutoDiffCpp_dep])
