@@ -326,8 +326,7 @@ test_1()
   std::cout << y << std::endl;
 
   AD_Variable<AD_Variable<AD_Variable<T>>> x1{2};
-  3 * x1;
-  auto y2 = 3 * x0;
+  auto y2 = 3 * x1;
   std::cout << y2 << std::endl;
   //  create_function(x0);
   // auto y = x0 * x0;
