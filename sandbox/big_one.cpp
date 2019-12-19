@@ -365,5 +365,6 @@ main()
   auto y2 = y * x0;
   printType(y2);
 
-  std::cout << y2;
+  std::cout << y2 << std::endl;
+  std::cout << "x0 " << x0 << std::endl;
 }

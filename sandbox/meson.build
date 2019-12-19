@@ -17,3 +17,7 @@ executable('misc',
 executable('big_one',
 	   'big_one.cpp',
 	   dependencies : [AutoDiffCpp_dep])
+
+executable('big_one_2',
+	   'big_one_2.cpp',
+	   dependencies : [AutoDiffCpp_dep])
