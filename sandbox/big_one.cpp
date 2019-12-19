@@ -90,6 +90,18 @@ struct AD_Variable
 template <typename T>
 std::size_t AD_Variable<T>::global_index = 0;
 
+//****************************************************************
+// Tests
+static_assert(std::is_same_v<AD_Variable_Final_Value_Type_t<double>, double>);
+static_assert(std::is_same_v<AD_Variable_Final_Value_Type_t<AD_Variable<double>>, double>);
+
+static_assert(
+    std::is_same_v<AD_Variable_Final_Value_Type_t<AD_Variable<AD_Variable<double>>>, double>);
+struct AAA
+{
+};
+static_assert(std::is_same_v<AD_Variable_Final_Value_Type_t<AAA>, AAA>);
+//****************************************************************
 // Used for expression template/lazy
 //
 template <typename T, typename IMPL>
@@ -208,6 +220,13 @@ auto operator*(const ANY& any, const std::array<T, N>& d)
   }
   return to_return;
 }
+
+////////////////
+// Chain Rule //
+////////////////
+//
+// unary: we only have to consider α.df where α is a scalar
+//
 template <typename T, std::size_t N>
 auto
 chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Terminal<T, N>& d)
@@ -217,6 +236,14 @@ chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Term
 template <typename T, std::size_t N>
 auto
 chain_rule(const AD_Variable<T>& a, const AD_Differential_Terminal<AD_Variable<T>, N>& d)
+{
+  return create_differential(a.value() * d._df_value, d._df_index);
+}
+template <typename T, typename DIFF, std::size_t N>
+auto
+chain_rule(
+    const AD_Variable<T>& a,
+    const AD_Differential_Terminal<AD_Function<AD_Variable_Final_Value_Type_t<T>, DIFF>, N>& d)
 {
   return create_differential(a.value() * d._df_value, d._df_index);
 }
@@ -230,6 +257,12 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Variable<T>&
   differential_type diff{{a}, {x.index()}};
 
   return create_ad_function(a * x.final_value(), diff);
+}
+
+template <typename T, typename DIFF>
+auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Function<T, DIFF>& f)
+{
+  return create_ad_function(a * f.f(), chain_rule(a, f.df()));
 }
 
 template <typename T>
@@ -248,6 +281,13 @@ auto operator*(const AD_Function<AD_Variable_Final_Value_Type_t<T>, DIFF>& f0,
   auto diff = chain_rule(x1.value(), f0.df());
 
   return create_ad_function(f0.f() * x1.final_value(), diff);
+}
+
+template <typename T, typename DIFF>
+auto operator*(const AD_Variable<T>& x1,
+               const AD_Function<AD_Variable_Final_Value_Type_t<T>, DIFF>& f0)
+{
+  return f0 * x1;
 }
 // template <typename T, typename DIFF>
 // auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Function<T, DIFF>& x)
@@ -321,7 +361,7 @@ main()
   // AD_AD<T> d_x0{._value = 2, ._index = 0};
   // AD_AD<AD_AD<T>> x0{._value = d_x0, ._index = 0};
 
-  auto y  = 5 * x0;
+  auto y  = 5 * x0 * x0;
   auto y2 = y * x0;
   printType(y2);
 
