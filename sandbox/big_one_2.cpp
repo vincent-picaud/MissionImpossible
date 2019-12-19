@@ -100,6 +100,16 @@ struct AD_Differential_Tuple
 {
   std::tuple<COEF_i...> _value;
 };
+
+template <typename T>
+auto
+create_differential(const AD_Variable_Final_Value_Type_t<T> value,
+                    const AD_Variable<AD_Variable<T>>& x)
+{
+  return create_function(value,
+                         create_differential(AD_Variable_Final_Value_Type_t<T>(1), x.value()));
+}
+
 template <typename T, std::size_t N>
 struct AD_Differential_Array
 {
@@ -128,9 +138,9 @@ struct AD_Differential_Array
 
 template <typename T>
 auto
-create_differential(const T value, const std::size_t index)
+create_differential(const T value, const AD_Variable<T>& x)
 {
-  return AD_Differential_Array<T, 1>{{value}, {index}};
+  return AD_Differential_Array<T, 1>{{value}, {x.index()}};
 }
 
 //////////////////////////////////////////////////////////////////
@@ -176,6 +186,13 @@ struct AD_Function<T, AD_Differential_Array<T, N>>
   }
 };
 
+template <typename T, size_t N>
+auto
+create_function(const T f, const AD_Differential_Array<T, N>& df)
+{
+  return AD_Function<T, AD_Differential_Array<T, N>>(f, df);
+}
+
 // A function of some variable
 template <typename T, typename... COEF>
 struct AD_Function<AD_Variable<T>, AD_Differential_Tuple<T, COEF...>>
@@ -213,12 +230,17 @@ struct AD_Function<AD_Variable<T>, AD_Differential_Tuple<T, COEF...>>
 };
 
 //////////////////////////////////////////////////////////////////
-// template <typename T>
-// auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<T>& x1)
-// {
-//   return create_function(x0 * x1.final_value(),
-//                          std::make_tuple(AD_Differential_Coef<T>(1, x1.index())));
-// }
+
+template <typename T>
+auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<T>& x1)
+{
+  return create_function(x0 * x1.value(), create_differential(T(1), x1));
+}
+template <typename T>
+auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<AD_Variable<T>>& x1)
+{
+  return create_function(x0 * x1.final_value(), create_differential(T(1), x1.value()));
+}
 
 // template <typename T>
 // auto operator*(const AD_Variable<T>& x0,
@@ -268,6 +290,7 @@ test_1()
   using T = double;
 
   AD_Variable<AD_Variable<T>> x0{2};
+  3 * x0;
   //  create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
