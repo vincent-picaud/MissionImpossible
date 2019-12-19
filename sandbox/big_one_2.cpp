@@ -95,19 +95,36 @@ std::size_t AD_Variable<T>::global_index = 0;
 template <typename T, typename DIFFERENTIAL>
 struct AD_Function;
 
-template <typename... COEF_i>
-struct AD_Differential_Tuple
-{
-  std::tuple<COEF_i...> _value;
-};
+// template <typename... COEF_i>
+// struct AD_Differential_Tuple
+// {
+//  protected:
+//   std::tuple<COEF_i...> _value;
 
+//  public:
+//   AD_Differential_Tuple(const std::tuple<COEF_i...>& value) : _value(value) {}
+
+//   const std::tuple<COEF_i...>&
+//   value() const
+//   {
+//     return _value;
+//   };
+// };
+template <class Ch, class Tr, class... Args>
+auto&
+operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
+{
+  std::apply([&os](auto&&... args) { ((os << args << " "), ...); }, t);
+  return os;
+}
+//std::ostream& operator<<(std::ostream&out,std::tuple<C0,Ci...>
 template <typename T>
 auto
 create_differential(const AD_Variable_Final_Value_Type_t<T> value,
                     const AD_Variable<AD_Variable<T>>& x)
 {
-  return create_function(value,
-                         create_differential(AD_Variable_Final_Value_Type_t<T>(1), x.value()));
+  return std::make_tuple(
+      create_function(value, create_differential(AD_Variable_Final_Value_Type_t<T>(1), x.value())));
 }
 
 template <typename T, std::size_t N>
@@ -181,7 +198,12 @@ struct AD_Function<T, AD_Differential_Array<T, N>>
   friend std::ostream&
   operator<<(std::ostream& out, const AD_Function& to_print)
   {
-    out << "f=" << to_print._value << std::endl;
+    out << "f=" << to_print._value << "\tdf=[";
+    for (size_t i = 0; i < N; ++i)
+    {
+      out << "d" << to_print._df.index()[i] << "=" << to_print._df.value()[i] << ", ";
+    }
+    out << "]";
     return out;
   }
 };
@@ -195,10 +217,12 @@ create_function(const T f, const AD_Differential_Array<T, N>& df)
 
 // A function of some variable
 template <typename T, typename... COEF>
-struct AD_Function<AD_Variable<T>, AD_Differential_Tuple<T, COEF...>>
+struct AD_Function<T, std::tuple<COEF...>>
 {
-  using value_type        = AD_Variable_Final_Value_Type_t<T>;
-  using differential_type = AD_Differential_Tuple<COEF...>;
+  static_assert(std::is_same_v<T, double>);  // parano!
+
+  using value_type        = T;
+  using differential_type = std::tuple<COEF...>;
 
  protected:
   value_type _f_value;
@@ -220,14 +244,21 @@ struct AD_Function<AD_Variable<T>, AD_Differential_Tuple<T, COEF...>>
     return _df_value;
   }
 
-  // friend std::ostream&
-  // operator<<(std::ostream& out, const AD_Function& to_print)
-  // {
-  //   out << " f_value: " << to_print._f_value << std::endl;
-  //   out << "df_value: " << to_print._df_value << std::endl;
-  //   return out;
-  // }
+  friend std::ostream&
+  operator<<(std::ostream& out, const AD_Function& to_print)
+  {
+    out << "f=" << to_print.value() << "\tdf=[" << to_print.df() << "]";
+
+    return out;
+  }
 };
+
+template <typename T, typename... COEF>
+auto
+create_function(const T f, const std::tuple<COEF...>& df)
+{
+  return AD_Function<T, std::tuple<COEF...>>(f, df);
+}
 
 //////////////////////////////////////////////////////////////////
 
@@ -239,7 +270,8 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<T>&
 template <typename T>
 auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<AD_Variable<T>>& x1)
 {
-  return create_function(x0 * x1.final_value(), create_differential(T(1), x1.value()));
+  return create_function(x0 * x1.final_value(),
+                         create_differential(AD_Variable_Final_Value_Type_t<T>(1), x1));
 }
 
 // template <typename T>
@@ -275,8 +307,8 @@ test_0()
   using T = double;
 
   AD_Variable<T> x0{2};
-  3 * x0;
-
+  auto y = 3 * x0;
+  std::cout << y;
   // create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
@@ -285,12 +317,18 @@ void
 test_1()
 {
   reset_global_index();
-  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
 
   using T = double;
 
   AD_Variable<AD_Variable<T>> x0{2};
-  3 * x0;
+  auto y = 3 * x0;
+  std::cout << y << std::endl;
+
+  AD_Variable<AD_Variable<AD_Variable<T>>> x1{2};
+  3 * x1;
+  auto y2 = 3 * x0;
+  std::cout << y2 << std::endl;
   //  create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
@@ -298,4 +336,6 @@ test_1()
 int
 main()
 {
+  test_0();
+  test_1();
 }
