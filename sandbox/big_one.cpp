@@ -54,6 +54,18 @@ struct AD_Variable
   AD_Variable(){};
   AD_Variable(AD_Variable_Final_Value_Type_t<T> value) : _value(value), _index(global_index++) {}
 
+  const AD_Variable_Final_Value_Type_t<T>&
+  final_value() const
+  {
+    if constexpr (std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>)
+    {
+      return _value;
+    }
+    else
+    {
+      return _value.final_value();
+    }
+  }
   const value_type&
   value() const
   {
@@ -126,6 +138,8 @@ struct AD_Differential_Terminal
 template <typename T, typename AD_DIFFERENTIAL>
 struct AD_Function
 {
+  static_assert(std::is_same_v<T, double>);
+
   using value_type       = T;
   using final_value_type = AD_Variable_Final_Value_Type_t<value_type>;
 
@@ -165,7 +179,7 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Variable<T>&
   using differential_type = AD_Differential_Terminal<T, 1>;
   differential_type diff{{a}, {x.index()}};
 
-  return create_ad_function(a * x.value(), diff);
+  return create_ad_function(a * x.final_value(), diff);
 }
 
 template <typename T>
@@ -174,9 +188,16 @@ auto operator*(const AD_Variable<T>& x0, const AD_Variable<T>& x1)
   using differential_type = AD_Differential_Terminal<T, 2>;
   differential_type diff{{x1.value(), x0.value()}, {x0.index(), x1.index()}};
 
-  return create_ad_function(x0.value() * x1.value(), diff);
+  return create_ad_function(x0.final_value() * x1.final_value(), diff);
 }
 
+template <typename F, typename DIFF>
+auto operator*(const AD_Function<F, DIFF>& f0, const AD_Variable<typename F::value_type>& x1)
+{
+  auto diff = f0.df() * AD_Differential_Terminal{{1}, {x1.index()}};
+
+  return create_ad_function(f0.f() * x1.value(), diff);
+}
 // template <typename T, typename DIFF>
 // auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Function<T, DIFF>& x)
 // {
@@ -249,7 +270,8 @@ main()
   // AD_AD<AD_AD<T>> x0{._value = d_x0, ._index = 0};
 
   auto y = 5 * x0;
-  printType(y);
+  // auto y2 = y * x0;
+  // printType(y);
 
   std::cout << y;
 }
