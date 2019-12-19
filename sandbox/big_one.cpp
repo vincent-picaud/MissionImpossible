@@ -110,6 +110,9 @@ struct AD_Differential_Terminal;
 template <typename T, size_t N>
 struct AD_Differential_Terminal
 {
+  // T is a basic type like float, double!
+  //  static_assert(std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>);
+
   using value_type = T;
   using index_type = std::size_t;
 
@@ -132,20 +135,44 @@ struct AD_Differential_Terminal
   }
 };
 
+template <typename T, size_t N>
+AD_Differential_Terminal<T, N>
+create_differential(const std::array<T, N>& df_value, const std::array<std::size_t, N>& df_index)
+{
+  return {df_value, df_index};
+}
 // Differential operations only + and scalar * <- enough to define chain rule
 
 // Function
+// ->
 template <typename T, typename AD_DIFFERENTIAL>
 struct AD_Function
 {
-  static_assert(std::is_same_v<T, double>);
+  // T is a basic type like float, double!
+  //  static_assert(std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>);
+  static_assert(std::is_same_v<T, double>);  // parano!
 
-  using value_type       = T;
-  using final_value_type = AD_Variable_Final_Value_Type_t<value_type>;
+  using value_type = T;
 
+ protected:
   value_type _f_value;
   // AD_Differential must be AD_Differential_Crtp<T,...>
   AD_DIFFERENTIAL _df_value;
+
+ public:
+  AD_Function(){};
+  AD_Function(const value_type f, const AD_DIFFERENTIAL& df) : _f_value(f), _df_value(df) {}
+
+  value_type
+  f() const
+  {
+    return _f_value;
+  }
+  const AD_DIFFERENTIAL&
+  df() const
+  {
+    return _df_value;
+  }
 
   friend std::ostream&
   operator<<(std::ostream& out, const AD_Function& to_print)
@@ -170,6 +197,29 @@ create_ad_function(const T& value, const AD_DIFFERENTIAL& differential)
 //            const AD_Differential_Crtp<AD_AD<T>, IMPL_Gi...>& gi)
 // {
 // }
+template <typename ANY, typename T, std::size_t N>
+auto operator*(const ANY& any, const std::array<T, N>& d)
+{
+  using return_type = std::array<decltype(any * d[0]), N>;
+  return_type to_return;
+  for (std::size_t i = 0; i < N; ++i)
+  {
+    to_return[i] = any * d[i];
+  }
+  return to_return;
+}
+template <typename T, std::size_t N>
+auto
+chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Terminal<T, N>& d)
+{
+  return create_differential(a * d._df_value, d._df_index);
+}
+template <typename T, std::size_t N>
+auto
+chain_rule(const AD_Variable<T>& a, const AD_Differential_Terminal<AD_Variable<T>, N>& d)
+{
+  return create_differential(a.value() * d._df_value, d._df_index);
+}
 
 // Init computations: a scalar and AD
 // -> must also include two AD
@@ -191,12 +241,13 @@ auto operator*(const AD_Variable<T>& x0, const AD_Variable<T>& x1)
   return create_ad_function(x0.final_value() * x1.final_value(), diff);
 }
 
-template <typename F, typename DIFF>
-auto operator*(const AD_Function<F, DIFF>& f0, const AD_Variable<typename F::value_type>& x1)
+template <typename T, typename DIFF>
+auto operator*(const AD_Function<AD_Variable_Final_Value_Type_t<T>, DIFF>& f0,
+               const AD_Variable<T>& x1)
 {
-  auto diff = f0.df() * AD_Differential_Terminal{{1}, {x1.index()}};
+  auto diff = chain_rule(x1.value(), f0.df());
 
-  return create_ad_function(f0.f() * x1.value(), diff);
+  return create_ad_function(f0.f() * x1.final_value(), diff);
 }
 // template <typename T, typename DIFF>
 // auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Function<T, DIFF>& x)
@@ -251,8 +302,9 @@ test_1()
   AD_Variable<T> x0{2};
   AD_Variable<T> x1{3};
 
-  auto y = x0 * x1;
-  std::cout << y << std::endl;
+  auto y  = x0 * x1;
+  auto y2 = y * x0;
+  std::cout << y2 << std::endl;
 }
 int
 main()
@@ -269,9 +321,9 @@ main()
   // AD_AD<T> d_x0{._value = 2, ._index = 0};
   // AD_AD<AD_AD<T>> x0{._value = d_x0, ._index = 0};
 
-  auto y = 5 * x0;
-  // auto y2 = y * x0;
-  // printType(y);
+  auto y  = 5 * x0;
+  auto y2 = y * x0;
+  printType(y2);
 
-  std::cout << y;
+  std::cout << y2;
 }
