@@ -46,8 +46,13 @@ struct AD_Variable
   using value_type = T;
   using index_type = std::size_t;
 
+ protected:
   value_type _value;
   index_type _index;
+
+ public:
+  AD_Variable(){};
+  AD_Variable(AD_Variable_Final_Value_Type_t<T> value) : _value(value), _index(global_index++) {}
 
   const value_type&
   value() const
@@ -60,6 +65,9 @@ struct AD_Variable
     return _index;
   }
 
+  // For simulation index counter
+  static std::size_t global_index;
+
   friend std::ostream&
   operator<<(std::ostream& out, const AD_Variable& to_print)
   {
@@ -67,6 +75,8 @@ struct AD_Variable
     return out;
   }
 };
+template <typename T>
+std::size_t AD_Variable<T>::global_index = 0;
 
 // Used for expression template/lazy
 //
@@ -132,6 +142,13 @@ struct AD_Function
   }
 };
 
+template <typename T, typename AD_DIFFERENTIAL>
+AD_Function<T, AD_DIFFERENTIAL>
+create_ad_function(const T& value, const AD_DIFFERENTIAL& differential)
+{
+  return {value, differential};
+}
+
 // f: R^n->R
 // template <typename T, typename IMPL_F, typename... IMPL_Gi>
 // auto
@@ -153,6 +170,16 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Variable<T>&
 
   return function_type{a * x.value(), diff};
 }
+
+template <typename T>
+auto operator*(const AD_Variable<T>& x0, const AD_Variable<T>& x1)
+{
+  using differential_type = AD_Differential_Terminal<T, 2>;
+  differential_type diff{{x1.value(), x0.value()}, {x0.index(), x1.index()}};
+
+  return create_ad_function(x0.value() * x1.value(), diff);
+}
+
 // template <typename T, typename DIFF>
 // auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Function<T, DIFF>& x)
 // {
@@ -165,6 +192,15 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Variable<T>&
 //   return 0;
 // }
 
+void
+reset_global_index()
+{
+  using T = double;
+
+  AD_Variable<T>::global_index                           = 0;
+  AD_Variable<AD_Variable<T>>::global_index              = 0;
+  AD_Variable<AD_Variable<AD_Variable<T>>>::global_index = 0;
+}
 template <typename T>
 void
 printType(const T&)
@@ -175,19 +211,43 @@ printType(const T&)
 void
 test_0()
 {
+  reset_global_index();
+  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+
   using T = double;
 
-  AD_Variable<T> x0{._value = 2, ._index = 0};
+  AD_Variable<T> x0{2};
 
   auto y = 5 * x0;
-  (void)y;
+  std::cout << y << std::endl;
+}
+
+void
+test_1()
+{
+  reset_global_index();
+  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  using T = double;
+
+  AD_Variable<T> x0{2};
+  AD_Variable<T> x1{3};
+
+  auto y = x0 * x1;
+  std::cout << y << std::endl;
 }
 int
 main()
 {
+  test_0();
+  test_1();
+
+  reset_global_index();
+  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+
   using T = double;
 
-  AD_Variable<AD_Variable<T>> x0{._value = 2, ._index = 0};
+  AD_Variable<AD_Variable<T>> x0{2};
   // AD_AD<T> d_x0{._value = 2, ._index = 0};
   // AD_AD<AD_AD<T>> x0{._value = d_x0, ._index = 0};
 
