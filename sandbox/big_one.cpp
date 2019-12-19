@@ -165,10 +165,7 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T>& a, const AD_Variable<T>&
   using differential_type = AD_Differential_Terminal<T, 1>;
   differential_type diff{{a}, {x.index()}};
 
-  using T_type        = decltype(a * x.value());
-  using function_type = AD_Function<T_type, differential_type>;
-
-  return function_type{a * x.value(), diff};
+  return create_ad_function(a * x.value(), diff);
 }
 
 template <typename T>
