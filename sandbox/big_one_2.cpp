@@ -95,38 +95,40 @@ std::size_t AD_Variable<T>::global_index = 0;
 template <typename T, typename DIFFERENTIAL>
 struct AD_Function;
 
-// template <typename... COEF_i>
-// struct AD_Differential_Tuple
-// {
-//  protected:
-//   std::tuple<COEF_i...> _value;
-
-//  public:
-//   AD_Differential_Tuple(const std::tuple<COEF_i...>& value) : _value(value) {}
-
-//   const std::tuple<COEF_i...>&
-//   value() const
-//   {
-//     return _value;
-//   };
-// };
-
-// From: SO
-template <class Ch, class Tr, class... Args>
-auto&
-operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
+template <typename T, typename... COEFs>
+struct AD_Differential_Tuple : public std::tuple<COEFs...>
 {
-  std::apply([&os](auto&&... args) { ((os << args << " "), ...); }, t);
-  return os;
-}
-//std::ostream& operator<<(std::ostream&out,std::tuple<C0,Ci...>
+  using base_type = std::tuple<COEFs...>;
+
+ public:
+  //  using std::tuple<COEFs...>::tuple;
+
+  AD_Differential_Tuple(const base_type& value) : base_type(value) {}
+
+  const std::tuple<COEFs...>&
+  value() const
+  {
+    return *this;
+  };
+
+  friend auto&
+  operator<<(std::ostream& out, const AD_Differential_Tuple& to_print)
+  {
+    std::apply([&out](auto&&... args) { ((out << args << " "), ...); }, to_print.value());
+    return out;
+  }
+};
+
 template <typename T>
 auto
 create_differential(const AD_Variable_Final_Value_Type_t<T> value,
                     const AD_Variable<AD_Variable<T>>& x)
 {
-  return std::make_tuple(
-      create_function(value, create_differential(AD_Variable_Final_Value_Type_t<T>(1), x.value())));
+  auto diff_f =
+      create_function(value, create_differential(AD_Variable_Final_Value_Type_t<T>(1), x.value()));
+
+  return AD_Differential_Tuple<AD_Variable_Final_Value_Type_t<T>, decltype(diff_f)>(
+      std::make_tuple(diff_f));
 }
 
 template <typename T, std::size_t N>
@@ -220,12 +222,12 @@ create_function(const T f, const AD_Differential_Array<T, N>& df)
 
 // A function of some variable
 template <typename T, typename... COEF>
-struct AD_Function<T, std::tuple<COEF...>>
+struct AD_Function<T, AD_Differential_Tuple<T, COEF...>>
 {
   static_assert(std::is_same_v<T, double>);  // parano!
 
   using value_type        = T;
-  using differential_type = std::tuple<COEF...>;
+  using differential_type = AD_Differential_Tuple<T, COEF...>;
 
  protected:
   value_type _f_value;
@@ -258,9 +260,9 @@ struct AD_Function<T, std::tuple<COEF...>>
 
 template <typename T, typename... COEF>
 auto
-create_function(const T f, const std::tuple<COEF...>& df)
+create_function(const T f, const AD_Differential_Tuple<T, COEF...>& df)
 {
-  return AD_Function<T, std::tuple<COEF...>>(f, df);
+  return AD_Function<T, AD_Differential_Tuple<T, COEF...>>(f, df);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -304,10 +306,11 @@ namespace Detail
 
 }
 template <typename T, typename... COEFS>
-//auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const std::tuple<COEFS...>& v)
-auto operator*(const T a, const std::tuple<COEFS...>& v)
+auto operator*(const AD_Variable_Final_Value_Type_t<T> a,
+               const AD_Differential_Tuple<T, COEFS...>& v)
 {
-  return Detail::multiply_tuple_elements(a, v, std::make_index_sequence<sizeof...(COEFS)>());
+  return AD_Differential_Tuple<T, COEFS...>(
+      Detail::multiply_tuple_elements(a, v, std::make_index_sequence<sizeof...(COEFS)>()));
 }
 
 template <typename T, std::size_t N>
@@ -319,8 +322,7 @@ chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Arra
 
 template <typename T, typename... DIFF>
 auto
-//chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const std::tuple<DIFF...>& diff)
-chain_rule(const T a, const std::tuple<DIFF...>& diff)
+chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Tuple<T, DIFF...>& diff)
 {
   return a * diff;
 }
