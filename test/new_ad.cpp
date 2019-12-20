@@ -1,4 +1,4 @@
-#include "AutoDiffCpp/ad_new.hpp"
+#include "AutoDiffCpp/new_ad.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>

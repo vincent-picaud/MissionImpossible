@@ -6,7 +6,7 @@ test_array = [
   ['final_value_type_test','final_value_type_exe','final_value_type.cpp'],
   ['nested_2nd_order_test','nested_2nd_order_exe','nested_2nd_order.cpp'],
 
-  ['ad_new_test','ad_new_exe','ad_new.cpp'],
+  ['new_ad_test','new_ad_exe','new_ad.cpp'],
 ]
 
 foreach test : test_array

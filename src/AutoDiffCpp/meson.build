@@ -9,7 +9,7 @@ AutoDiffCpp_headers = [
   'always.hpp',
   'final_value_type.hpp',
 
-  'ad_new.hpp',
+  'new_ad.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']
