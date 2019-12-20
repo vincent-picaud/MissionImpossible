@@ -162,12 +162,12 @@ struct AD_Differential_Tuple
   {
   }
 
-  const std::tuple<COEFs...>&
+  const value_array_type&
   value() const
   {
     return _value_array;
   };
-  const std::tuple<COEFs...>&
+  const index_array_type&
   index() const
   {
     return _index_array;
@@ -405,6 +405,7 @@ create_function(const AD_Variable<AD_Variable<T>>& x)
 
 //////////////////////////////////////////////////////////////////
 
+// Array chain rule
 template <typename T, size_t N>
 std::array<T, N> operator*(const T a, const std::array<T, N>& v)
 {
@@ -421,6 +422,32 @@ auto
 chain_rule(const T a, const AD_Differential_Array<T, N>& df)
 {
   return AD_Differential_Array<T, N>(a * df.value(), df.index());
+}
+
+// Tuple chain rule
+namespace Detail
+{
+  template <typename T, typename... COEFs, size_t... Is>
+  auto
+  multiply_tuple_elements(const T a,
+                          const std::tuple<COEFs...>& tuple,
+                          const std::index_sequence<Is...>)
+  {
+    return std::make_tuple(a * std::get<Is>(tuple)...);
+  }
+
+}
+template <typename T, typename... COEFS>
+auto operator*(const T a, const std::tuple<COEFS...>& v)
+{
+  return Detail::multiply_tuple_elements(a, v, std::make_index_sequence<sizeof...(COEFS)>());
+}
+
+template <typename T, typename... COEFS>
+auto
+chain_rule(const T a, const AD_Differential_Tuple<COEFS...>& df)
+{
+  return AD_Differential_Tuple<COEFS...>(a * df.value(), df.index());
 }
 
 template <typename T, typename D1>
@@ -516,20 +543,20 @@ test_4()
 
   std::cout << y;
 }
-// void
-// test_4b()
-// {
-//   reset_global_index();
-//   std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+void
+test_4b()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
 
-//   AD_Variable<double>::global_index = 100;
+  AD_Variable<double>::global_index = 100;
 
-//   AD_Variable<AD_Variable<AD_Variable<double>>> x1(3);
+  AD_Variable<AD_Variable<AD_Variable<double>>> x1(3);
 
-//   auto y = 2 * create_function(x1);
+  auto y = 2 * create_function(x1);
 
-//   std::cout << y;
-// }
+  std::cout << y;
+}
 int
 main()
 {
@@ -538,4 +565,5 @@ main()
   test_2();
   test_3();
   test_4();
+  test_4b();
 }
