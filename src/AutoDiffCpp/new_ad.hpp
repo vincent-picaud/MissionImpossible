@@ -11,8 +11,13 @@
 
 namespace AutoDiffCpp
 {
+  template <typename T, size_t N>
+  struct AD_Function;
+  template <typename T, size_t N>
+  struct AD_Differential;
+
   template <typename T>
-  class New_AD
+  class AD
   {
    public:
     using tape_type  = Tape<T>;
@@ -24,10 +29,10 @@ namespace AutoDiffCpp
     index_type _index;
 
    public:
-    New_AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
-    New_AD(const AD_Final_Value_Type_t<value_type> value) noexcept : New_AD() { (*this) = value; }
+    AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
+    AD(const AD_Final_Value_Type_t<value_type> value) noexcept : AD() { (*this) = value; }
 
-    New_AD&
+    AD&
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
       _value = value;
@@ -35,6 +40,7 @@ namespace AutoDiffCpp
       return *this;
     }
 
+    operator AD_Function<T, 1>() const { return {_value, AD_Differential<T, 1>{{T(1)}, {_index}}}; }
     // Remplace AD_Expr by function
     // template <std::size_t N>
     //  AD&
@@ -95,7 +101,7 @@ namespace AutoDiffCpp
     }
 
     friend std::ostream&
-    operator<<(std::ostream& out, const New_AD& to_print)
+    operator<<(std::ostream& out, const AD& to_print)
     {
       out << to_print.value() << "_" << to_print.index();
       return out;
@@ -137,7 +143,7 @@ namespace AutoDiffCpp
   template <typename T, size_t N>
   struct AD_Function
   {
-    using tape_type  = Tape<T>;
+    using tape_type = Tape<T>;
     //    using index_type = typename tape_type::index_type;
     using value_type = typename tape_type::value_type;
 
@@ -171,6 +177,15 @@ namespace AutoDiffCpp
     }
   };
 
+  //////////////////////////////////////////////////////////////////
 
-  
+  ///////////////
+  // operator* //
+  ///////////////
+  //
+  template <typename T, size_t N>
+  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Function<T, N>& g1) noexcept
+  {
+    return chain_rule(g0 * g1.value(), g0, g1);
+  }
 }
