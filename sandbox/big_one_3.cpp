@@ -4,6 +4,18 @@
 #include <tuple>
 
 //////////////////////////////////////////////////////////////////
+// Some meta programming tools
+//////////////////////////////////////////////////////////////////
+
+template <class T>
+struct type_identity
+{
+  using type = T;
+};
+template <class T>
+using type_identity_t = typename type_identity<T>::type;
+
+//////////////////////////////////////////////////////////////////
 
 template <typename T>
 struct Always_True : std::true_type
@@ -199,6 +211,78 @@ struct AD_Differential_Array
     return out;
   }
 };
+//////////////////////////////////////////////////////////////////
+// Define Function with its gradient
+//////////////////////////////////////////////////////////////////
+
+template <typename T, typename AD_DIFFERENTIAL>
+struct AD_Function;
+
+// Specialization Terminal Node:
+// -> this is when differential coefficients are scalar constants
+//
+template <typename T, size_t N>
+struct AD_Function<T, AD_Differential_Array<T, N>>
+{
+  // T is a basic type like float, double!
+  //  static_assert(std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>);
+  static_assert(std::is_same_v<T, double>);  // parano!
+
+  using differential_type = AD_Differential_Array<T, N>;
+  using value_type        = T;
+
+ protected:
+  value_type _value;
+  differential_type _df;
+
+ public:
+  AD_Function(){};
+  AD_Function(const value_type value, const differential_type& df) : _value(value), _df(df) {}
+
+  value_type
+  value() const
+  {
+    return _value;
+  }
+  const differential_type&
+  df() const
+  {
+    return _df;
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& out, const AD_Function& to_print)
+  {
+    out << "f=" << to_print._value << "\tdf=[";
+    for (size_t i = 0; i < N; ++i)
+    {
+      out << "d" << to_print._df.index()[i] << "=" << to_print._df.value()[i] << ", ";
+    }
+    out << "]";
+    return out;
+  }
+};
+
+template <typename T, size_t N>
+auto
+create_function(const T f, const AD_Differential_Array<T, N>& df)
+{
+  return AD_Function<T, AD_Differential_Array<T, N>>(f, df);
+}
+
+// Create a function from an AD_Variable
+// Note: this function must only catch AD_Variable<T> with T = double, float,
+//
+// Test:
+// - test_2()
+//
+template <typename T,
+          typename = std::enable_if_t<std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>>>
+auto
+create_function(const AD_Variable<T>& x)
+{
+  return create_function(x.final_value(), AD_Differential_Array<T, 1>{{1}, {x.index()}});
+}
 
 //////////////////////////////////////////////////////////////////
 // Helpers
@@ -244,9 +328,22 @@ test_1()
   std::cout << diff;
 }
 
+void
+test_2()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<double> x(3);
+  auto f = create_function(x);
+
+  std::cout << f;
+}
+
 int
 main()
 {
   test_0();
   test_1();
+  test_2();
 }
