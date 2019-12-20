@@ -104,6 +104,30 @@ std::size_t AD_Variable<T>::global_index = 0;
 template <typename T, typename DIFFERENTIAL>
 struct AD_Function;
 
+template <typename... COEFs>
+struct AD_Differential_Tuple;
+
+template <typename T, std::size_t N>
+struct AD_Differential_Array;
+
+//================
+
+template <typename T>
+struct Is_AD_Function : std::false_type
+{
+};
+
+template <typename T, std::size_t N>
+struct Is_AD_Function<AD_Function<T, AD_Differential_Array<T, N>>> : std::true_type
+{
+};
+template <typename T, typename... COEFF>
+struct Is_AD_Function<AD_Function<T, AD_Differential_Tuple<COEFF...>>> : std::true_type
+{
+};
+template <typename T>
+inline constexpr bool Is_AD_Function_v = Is_AD_Function<T>::value;
+
 // Store a differential with components:
 //
 //   ---------
@@ -119,6 +143,10 @@ struct AD_Function;
 template <typename... COEFs>
 struct AD_Differential_Tuple
 {
+  // Commented how because test_0 fails here (and this would be normal)
+  //
+  // static_assert((Is_AD_Function_v<COEFs> && ...));
+
  public:
   using index_type       = std::size_t;
   using value_array_type = std::tuple<COEFs...>;
@@ -215,10 +243,10 @@ struct AD_Differential_Array
 // Define Function with its gradient
 //////////////////////////////////////////////////////////////////
 
-template <typename T, typename AD_DIFFERENTIAL>
-struct AD_Function;
-
+//////////////////////////////////////////////////////////////////
+//
 // Specialization Terminal Node:
+//
 // -> this is when differential coefficients are scalar constants
 //
 template <typename T, size_t N>
@@ -253,12 +281,12 @@ struct AD_Function<T, AD_Differential_Array<T, N>>
   friend std::ostream&
   operator<<(std::ostream& out, const AD_Function& to_print)
   {
-    out << "f=" << to_print._value << "\tdf=[";
+    out << "{ f=" << to_print._value << "\tdf=[ ";
     for (size_t i = 0; i < N; ++i)
     {
       out << "d" << to_print._df.index()[i] << "=" << to_print._df.value()[i] << ", ";
     }
-    out << "]";
+    out << "] }";
     return out;
   }
 };
@@ -279,9 +307,126 @@ create_function(const T f, const AD_Differential_Array<T, N>& df)
 template <typename T,
           typename = std::enable_if_t<std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>>>
 auto
+create_partial_derivative(const T coef_value, const AD_Variable<T>& x)
+{
+  // not x is only use to get the index
+  return AD_Differential_Array<T, 1>{{coef_value}, {x.index()}};
+}
+
+template <typename T,
+          typename = std::enable_if_t<std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>>>
+auto
 create_function(const AD_Variable<T>& x)
 {
-  return create_function(x.final_value(), AD_Differential_Array<T, 1>{{1}, {x.index()}});
+  //  return create_function(x.final_value(), AD_Differential_Array<T, 1>{{1}, {x.index()}});
+  return create_function(x.final_value(), create_partial_derivative(T(1), x));
+}
+
+//////////////////////////////////////////////////////////////////
+//
+// Specialization when differential coefficients are them self functions
+//
+template <typename T, typename... COEF>
+struct AD_Function<T, AD_Differential_Tuple<COEF...>>
+{
+  static_assert(std::is_same_v<T, double>);  // parano!
+  static_assert((Is_AD_Function_v<COEF> && ...));
+
+  using value_type        = T;
+  using differential_type = AD_Differential_Tuple<COEF...>;
+
+ protected:
+  value_type _f_value;
+  differential_type _df_value;
+
+ public:
+  AD_Function(){};
+  AD_Function(const value_type f, const differential_type& df) : _f_value(f), _df_value(df) {}
+
+  value_type
+  value() const
+  {
+    return _f_value;
+  }
+  const differential_type&
+  df() const
+  {
+    return _df_value;
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& out, const AD_Function& to_print)
+  {
+    out << "{ f=" << to_print.value() << "\tdf=[ " << to_print.df() << "] }";
+
+    return out;
+  }
+};
+
+template <typename T, typename... COEF>
+auto
+create_function(const T f, const AD_Differential_Tuple<COEF...>& df)
+{
+  static_assert(std::is_same_v<T, double>);  // parano!
+  return AD_Function<T, AD_Differential_Tuple<COEF...>>(f, df);
+}
+
+// Create a function from an high order AD_Variable
+//
+// Test:
+// - test_3()
+//
+// template <typename T>
+// auto
+// create_null_partial(const AD_Variable<AD_Variable<T>>& x)
+// {
+// return create_function(AD_Variable_Final_Value_Type_t<T>(0)x.final_value(),
+// }
+template <typename T>
+auto
+create_partial_derivative(const AD_Variable_Final_Value_Type_t<T> coef_value,
+                          const AD_Variable<AD_Variable<T>>& x)
+{
+  // not x is only use to get the index
+  // Ai un doute sur l'ordre
+  auto df_func = create_function(
+      coef_value, create_partial_derivative(AD_Variable_Final_Value_Type_t<T>(0), x.value()));
+  auto df = AD_Differential_Tuple<decltype(df_func)>{std::make_tuple(df_func), {x.index()}};
+
+  return df;
+}
+template <typename T>
+auto
+create_function(const AD_Variable<AD_Variable<T>>& x)
+{
+  return create_function(x.final_value(),
+                         create_partial_derivative(AD_Variable_Final_Value_Type_t<T>(1), x));
+}
+
+//////////////////////////////////////////////////////////////////
+
+template <typename T, size_t N>
+std::array<T, N> operator*(const T a, const std::array<T, N>& v)
+{
+  std::array<T, N> a_v;
+  for (size_t i = 0; i < N; ++i)
+  {
+    a_v[i] = a * v[i];
+  }
+  return a_v;
+}
+
+template <typename T, size_t N>
+auto
+chain_rule(const T a, const AD_Differential_Array<T, N>& df)
+{
+  return AD_Differential_Array<T, N>(a * df.value(), df.index());
+}
+
+template <typename T, typename D1>
+auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const AD_Function<T, D1>& f1)
+{
+  return create_function(a * f1.value(), chain_rule(a, f1.df()));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -340,10 +485,57 @@ test_2()
   std::cout << f;
 }
 
+void
+test_3()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<double>::global_index = 100;
+
+  AD_Variable<AD_Variable<AD_Variable<double>>> x(3);
+
+  std::cout << x << std::endl;
+
+  auto f = create_function(x);
+
+  std::cout << f;
+}
+
+void
+test_4()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<double>::global_index = 100;
+
+  AD_Variable<double> x1(3);
+
+  auto y = 2 * create_function(x1);
+
+  std::cout << y;
+}
+// void
+// test_4b()
+// {
+//   reset_global_index();
+//   std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+//   AD_Variable<double>::global_index = 100;
+
+//   AD_Variable<AD_Variable<AD_Variable<double>>> x1(3);
+
+//   auto y = 2 * create_function(x1);
+
+//   std::cout << y;
+// }
 int
 main()
 {
   test_0();
   test_1();
   test_2();
+  test_3();
+  test_4();
 }
