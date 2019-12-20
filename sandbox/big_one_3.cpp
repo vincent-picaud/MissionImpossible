@@ -307,10 +307,10 @@ create_function(const T f, const AD_Differential_Array<T, N>& df)
 template <typename T,
           typename = std::enable_if_t<std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>>>
 auto
-create_partial_derivative(const T coef_value, const AD_Variable<T>& x)
+create_partial_derivative(const AD_Variable<T>& x)
 {
   // not x is only use to get the index
-  return AD_Differential_Array<T, 1>{{coef_value}, {x.index()}};
+  return AD_Differential_Array<T, 1>{{T(1)}, {x.index()}};
 }
 
 template <typename T,
@@ -318,8 +318,7 @@ template <typename T,
 auto
 create_function(const AD_Variable<T>& x)
 {
-  //  return create_function(x.final_value(), AD_Differential_Array<T, 1>{{1}, {x.index()}});
-  return create_function(x.final_value(), create_partial_derivative(T(1), x));
+  return create_function(x.final_value(), create_partial_derivative(x));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -384,13 +383,10 @@ create_function(const T f, const AD_Differential_Tuple<COEF...>& df)
 // }
 template <typename T>
 auto
-create_partial_derivative(const AD_Variable_Final_Value_Type_t<T> coef_value,
-                          const AD_Variable<AD_Variable<T>>& x)
+create_partial_derivative(const AD_Variable<AD_Variable<T>>& x)
 {
-  // not x is only use to get the index
-  // Ai un doute sur l'ordre
-  auto df_func = create_function(
-      coef_value, create_partial_derivative(AD_Variable_Final_Value_Type_t<T>(0), x.value()));
+  auto df_func =
+      create_function(AD_Variable_Final_Value_Type_t<T>(0), create_partial_derivative(x.value()));
   auto df = AD_Differential_Tuple<decltype(df_func)>{std::make_tuple(df_func), {x.index()}};
 
   return df;
@@ -399,8 +395,7 @@ template <typename T>
 auto
 create_function(const AD_Variable<AD_Variable<T>>& x)
 {
-  return create_function(x.final_value(),
-                         create_partial_derivative(AD_Variable_Final_Value_Type_t<T>(1), x));
+  return create_function(x.final_value(), create_partial_derivative(x));
 }
 
 //////////////////////////////////////////////////////////////////
