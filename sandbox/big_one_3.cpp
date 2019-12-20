@@ -87,7 +87,98 @@ struct AD_Variable
 template <typename T>
 std::size_t AD_Variable<T>::global_index = 0;
 
+//////////////////////////////////////////////////////////////////
+
+template <typename T, typename DIFFERENTIAL>
+struct AD_Function;
+
+// Store a differential with components:
+//
+// ---------
+// | COEF  |
+// | index |
+// ---------
+//
+
+template <typename T, typename... COEFs>
+struct AD_Differential_Tuple
+{
+  static_assert(std::is_same_v<double, T>);
+
+  using index_type       = std::size_t;
+  using value_array_type = std::tuple<COEFs...>;
+  using index_array_type = std::array<index_type, sizeof...(COEFs)>;
+
+  value_array_type _value_array;
+  index_array_type _index_array;
+
+  AD_Differential_Tuple(const value_array_type& value_array, const index_array_type& index_array)
+      : _value_array(value_array), _index_array(index_array)
+  {
+  }
+
+  const std::tuple<COEFs...>&
+  value() const
+  {
+    return _value_array;
+  };
+  const std::tuple<COEFs...>&
+  index() const
+  {
+    return _index_array;
+  };
+
+  friend auto&
+  operator<<(std::ostream& out, const AD_Differential_Tuple& to_print)
+  {
+    std::size_t i = 0;
+    out << "[ ";
+    std::apply(
+        [&out, &i, &to_print](auto&&... args) {
+          ((out << "d" << to_print._index_array[i++] << "=" << args << ", "), ...);
+        },
+        to_print.value());
+    out << "]";
+    return out;
+  }
+};
+
+//////////////////////////////////////////////////////////////////
+// Helpers
+//////////////////////////////////////////////////////////////////
+void
+reset_global_index()
+{
+  using T = double;
+
+  AD_Variable<T>::global_index                           = 0;
+  AD_Variable<AD_Variable<T>>::global_index              = 0;
+  AD_Variable<AD_Variable<AD_Variable<T>>>::global_index = 0;
+}
+
+template <typename T>
+void
+printType(const T&)
+{
+  std::cerr << __PRETTY_FUNCTION__ << std::endl;
+}
+
+//////////////////////////////////////////////////////////////////
+// Tests
+//////////////////////////////////////////////////////////////////
+void
+test_0()
+{
+  reset_global_index();
+  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Differential_Tuple<double, double, double> diff(std::make_tuple(4., 5.), {0, 1});
+
+  std::cout << diff;
+}
+
 int
 main()
 {
+  test_0();
 }
