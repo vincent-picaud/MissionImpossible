@@ -73,15 +73,13 @@ namespace AutoDiffCpp
   class AD : public AD_Crtp<T, AD<T>>
   {
    public:
-    using base_type           = AD_Crtp<T, AD<T>>;
-    using tape_type           = typename base_type::tape_type;
-    using index_type          = typename base_type::index_type;
-    using value_type          = typename base_type::value_type;
-    using index_array_type    = typename base_type::index_array_type;
-    using partialD_array_type = typename base_type::partialD_array_type;
+    using base_type        = AD_Crtp<T, AD<T>>;
+    using tape_type        = typename base_type::tape_type;
+    using index_type       = typename base_type::index_type;
+    using value_type       = typename base_type::value_type;
+    using index_array_type = typename base_type::index_array_type;
 
    private:
-    //   static thread_local tape_type _tape;
     value_type _value;
     index_array_type _index_array;
 
@@ -92,6 +90,8 @@ namespace AutoDiffCpp
         : _value{value}, _index_array{tape().add_variable()}
     {
     }
+
+    operator AD_Expr<T, 1>() const { return {_value, {1}, _index_array}; }
 
     const value_type&
     value() const noexcept
