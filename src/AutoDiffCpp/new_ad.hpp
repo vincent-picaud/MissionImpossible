@@ -212,6 +212,33 @@ namespace AutoDiffCpp
     {
       return AD_Differential{d0f * dg0.value(), dg0.index()};
     }
+
+    //================================================================
+
+    template <typename T, size_t N0, size_t N1>
+    inline auto
+    join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
+    {
+      std::array<T, N0 + N1> to_return;
+
+      for (std::size_t i = 0; i < N0; ++i)
+      {
+        to_return[i] = v0[i];
+      }
+      for (std::size_t i = 0; i < N1; ++i)
+      {
+        to_return[N0 + i] = v1[i];
+      }
+
+      return to_return;
+    }
+    template <typename T, std::size_t N0, std::size_t N1>
+    inline auto
+    operator+(const AD_Differential<T, N0>& dg0, const AD_Differential<T, N1>& dg1) noexcept
+    {
+      return AD_Differential{join(dg0.value(), dg1.value()), join(dg0.index(), dg1.index())};
+    }
+
   }
 
   //////////////////////////////////////////////////////////////////
@@ -225,7 +252,12 @@ namespace AutoDiffCpp
   {
     using namespace Detail;
 
-    return AD_Function<T, N>(g0 * g1.value(), g0 * g1.df());
+    return AD_Function<T, N>{g0 * g1.value(), g0 * g1.df()};
+  }
+  template <typename T, size_t N>
+  inline auto operator*(const AD_Function<T, N>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
+  {
+    return g0 * g1;
   }
   template <typename T>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD<T>& g1) noexcept
@@ -233,4 +265,26 @@ namespace AutoDiffCpp
     // Can be optimized: directly create a function with value=g0*g1.value and dx=g0
     return g0 * g1.to_function();
   }
+  template <typename T>
+  inline auto operator*(const AD<T>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
+  {
+    // Can be optimized: directly create a function with value=g0*g1.value and dx=g0
+    return g0 * g1.to_function();
+  }
+
+  //================================================================
+
+  template <typename T, size_t N0, size_t N1>
+  inline auto operator*(const AD_Function<T, N0>& g0, const AD_Function<T, N1>& g1) noexcept
+  {
+    using namespace Detail;
+
+    return AD_Function<T, N0 + N1>(g0.value() * g1.value(), g1.value() * g0.df() + g0.value() * g1.df());
+  }
+  template <typename T>
+  inline auto operator*(const AD<T>& g0, const AD<T>& g1) noexcept
+  {
+    return g0.to_function() * g1.to_function();
+  }
+
 }
