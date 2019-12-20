@@ -110,6 +110,8 @@ struct AD_Function;
 //     return _value;
 //   };
 // };
+
+// From: SO
 template <class Ch, class Tr, class... Args>
 auto&
 operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
@@ -289,12 +291,38 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const std::array<T, N>
   }
   return a_v;
 }
+namespace Detail
+{
+  template <typename T, typename... COEFs, size_t... Is>
+  auto
+  multiply_tuple_elements(const T a,
+                          const std::tuple<COEFs...>& tuple,
+                          const std::index_sequence<Is...>)
+  {
+    return std::make_tuple(a * std::get<Is>(tuple)...);
+  }
+
+}
+template <typename T, typename... COEFS>
+//auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const std::tuple<COEFS...>& v)
+auto operator*(const T a, const std::tuple<COEFS...>& v)
+{
+  return Detail::multiply_tuple_elements(a, v, std::make_index_sequence<sizeof...(COEFS)>());
+}
 
 template <typename T, std::size_t N>
 auto
 chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Array<T, N>& diff)
 {
   return AD_Differential_Array<T, N>{a * diff.value(), diff.index()};
+}
+
+template <typename T, typename... DIFF>
+auto
+//chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const std::tuple<DIFF...>& diff)
+chain_rule(const T a, const std::tuple<DIFF...>& diff)
+{
+  return a * diff;
 }
 
 template <typename T, typename DIFF>
@@ -361,7 +389,8 @@ test_1()
   auto y2 = 3 * x1;
   std::cout << y2 << std::endl;
 
-  //  auto y3 = 4 * y2;
+  auto y3 = 4 * y2;
+  std::cout << y3 << std::endl;
   //  create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
