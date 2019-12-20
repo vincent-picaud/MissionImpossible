@@ -94,24 +94,29 @@ struct AD_Function;
 
 // Store a differential with components:
 //
-// ---------
-// | COEF  |
-// | index |
-// ---------
+//   ---------
+//   | COEF  |
+// < | index | .... >
+//   ---------
 //
-
-template <typename T, typename... COEFs>
+// Here as COEF can be function of different types, we use a tuple
+//
+// Test:
+// - test_0()
+//
+template <typename... COEFs>
 struct AD_Differential_Tuple
 {
-  static_assert(std::is_same_v<double, T>);
-
+ public:
   using index_type       = std::size_t;
   using value_array_type = std::tuple<COEFs...>;
   using index_array_type = std::array<index_type, sizeof...(COEFs)>;
 
+ protected:
   value_array_type _value_array;
   index_array_type _index_array;
 
+ public:
   AD_Differential_Tuple(const value_array_type& value_array, const index_array_type& index_array)
       : _value_array(value_array), _index_array(index_array)
   {
@@ -138,6 +143,58 @@ struct AD_Differential_Tuple
           ((out << "d" << to_print._index_array[i++] << "=" << args << ", "), ...);
         },
         to_print.value());
+    out << "]";
+    return out;
+  }
+};
+
+//================================================================
+
+// The same but with array (when COEF are all scalars)
+//
+// Test:
+// - test_1()
+//
+template <typename T, std::size_t N>
+struct AD_Differential_Array
+{
+  static_assert(std::is_same_v<T, double>);
+
+ public:
+  using index_type       = std::size_t;
+  using value_array_type = std::array<T, N>;
+  using index_array_type = std::array<std::size_t, N>;
+
+ protected:
+  std::array<T, N> _value_array;
+  std::array<std::size_t, N> _index_array;
+
+ public:
+  AD_Differential_Array(){};
+  AD_Differential_Array(const value_array_type& value_array, const index_array_type& index_array)
+      : _value_array(value_array), _index_array(index_array)
+  {
+  }
+
+  const value_array_type&
+  value() const
+  {
+    return _value_array;
+  }
+  const index_array_type&
+  index() const
+  {
+    return _index_array;
+  }
+
+  friend auto&
+  operator<<(std::ostream& out, const AD_Differential_Array& to_print)
+  {
+    out << "[ ";
+    for (std::size_t i = 0; i < N; i++)
+    {
+      out << "d" << to_print._index_array[i] << "=" << to_print._index_array[i] << ", ";
+    }
     out << "]";
     return out;
   }
@@ -170,9 +227,19 @@ void
 test_0()
 {
   reset_global_index();
-  std::cout << "===> " << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
 
-  AD_Differential_Tuple<double, double, double> diff(std::make_tuple(4., 5.), {0, 1});
+  AD_Differential_Tuple<double, double> diff(std::make_tuple(4., 5.), {0, 1});
+
+  std::cout << diff;
+}
+void
+test_1()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Differential_Array<double, 3> diff({4., 5., 6.}, {0, 1, 2});
 
   std::cout << diff;
 }
@@ -181,4 +248,5 @@ int
 main()
 {
   test_0();
+  test_1();
 }
