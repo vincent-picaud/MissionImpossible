@@ -11,12 +11,12 @@ using namespace AutoDiffCpp;
 int
 main()
 {
-  AD<AD<double>> x0(3), x1(4), y;
+  AD<AD<double>> x0(2), x1(3), y;
 
   std::cout << "Tape memory " << x0.tape().memory_size() << "\t" << x0.value().tape().memory_size()
             << std::endl;
 
-  y = x0 + 2 * x1;
+  y = x0 * x1 * x1;
 
   std::cout << "Tape memory " << x0.tape().memory_size() << "\t" << x0.value().tape().memory_size()
             << std::endl;

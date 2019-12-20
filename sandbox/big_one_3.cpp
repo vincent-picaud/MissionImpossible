@@ -188,6 +188,14 @@ struct AD_Differential_Tuple
   }
 };
 
+template <typename... COEFs>
+auto
+create_differential(const std::tuple<COEFs...>& partial_idx_f,
+                    const std::array<std::size_t, sizeof...(COEFs)>& idx)
+{
+  return AD_Differential_Tuple<COEFs...>{partial_idx_f, idx};
+}
+
 //================================================================
 
 // The same but with array (when COEF are all scalars)
@@ -307,10 +315,10 @@ create_function(const T f, const AD_Differential_Array<T, N>& df)
 template <typename T,
           typename = std::enable_if_t<std::is_same_v<T, AD_Variable_Final_Value_Type_t<T>>>>
 auto
-create_partial_derivative(const AD_Variable<T>& x)
+create_partial_derivative(const AD_Variable_Final_Value_Type_t<T> val, const AD_Variable<T>& x)
 {
   // not x is only use to get the index
-  return AD_Differential_Array<T, 1>{{T(1)}, {x.index()}};
+  return AD_Differential_Array<T, 1>{{val}, {x.index()}};
 }
 
 template <typename T,
@@ -318,7 +326,7 @@ template <typename T,
 auto
 create_function(const AD_Variable<T>& x)
 {
-  return create_function(x.final_value(), create_partial_derivative(x));
+  return create_function(x.final_value(), create_partial_derivative(1, x));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -383,10 +391,12 @@ create_function(const T f, const AD_Differential_Tuple<COEF...>& df)
 // }
 template <typename T>
 auto
-create_partial_derivative(const AD_Variable<AD_Variable<T>>& x)
+create_partial_derivative(const AD_Variable_Final_Value_Type_t<T> val,
+                          const AD_Variable<AD_Variable<T>>& x)
 {
   auto df_func =
-      create_function(AD_Variable_Final_Value_Type_t<T>(0), create_partial_derivative(x.value()));
+      create_function(AD_Variable_Final_Value_Type_t<T>(val),
+                      create_partial_derivative(AD_Variable_Final_Value_Type_t<T>(0), x.value()));
   auto df = AD_Differential_Tuple<decltype(df_func)>{std::make_tuple(df_func), {x.index()}};
 
   return df;
@@ -395,7 +405,7 @@ template <typename T>
 auto
 create_function(const AD_Variable<AD_Variable<T>>& x)
 {
-  return create_function(x.final_value(), create_partial_derivative(x));
+  return create_function(x.final_value(), create_partial_derivative(1, x));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -442,7 +452,8 @@ template <typename T, typename... COEFS>
 auto
 chain_rule(const T a, const AD_Differential_Tuple<COEFS...>& df)
 {
-  return AD_Differential_Tuple<COEFS...>(a * df.value(), df.index());
+  return create_differential(a * df.value(), df.index());
+  //  return AD_Differential_Tuple<COEFS...>(a * df.value(), df.index());
 }
 
 template <typename T, typename D1>
@@ -451,9 +462,63 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const AD_Function<T, D
   return create_function(a * f1.value(), chain_rule(a, f1.df()));
 }
 
+//================================================================
+
+// Array chain rule
+
+template <typename T, size_t N0, size_t N1>
+inline auto
+join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
+{
+  std::array<T, N0 + N1> to_return;
+
+  for (std::size_t i = 0; i < N0; ++i)
+  {
+    to_return[i] = v0[i];
+  }
+  for (std::size_t i = 0; i < N1; ++i)
+  {
+    to_return[N0 + i] = v1[i];
+  }
+
+  return to_return;
+}
+
+template <typename T, size_t N0, size_t N1>
+auto
+chain_rule(const T a0,
+           const T a1,
+           const AD_Differential_Array<T, N0>& df0,
+           const AD_Differential_Array<T, N1>& df1)
+{
+  return AD_Differential_Array<T, N0 + N1>(join(a0 * df0.value(), a1 * df1.value()),
+                                           join(df0.index(), df1.index()));
+}
+
+template <typename T, typename... D0, typename... D1>
+auto
+chain_rule(const T a0,
+           const T a1,
+           const AD_Differential_Tuple<D0...>& df0,
+           const AD_Differential_Tuple<D1...>& df1)
+{
+  return create_differential(std::tuple_cat(a0 * df0.value(), a1 * df1.value()),
+                             join(df0.index(), df1.index()));
+  // return AD_Differential_Tuple<D0..., D1...>(std::tuple_cat(a0 * df0.value(), a1 * df1.value()),
+  //                                            join(df0.index(), df1.index()));
+}
+
+template <typename T, typename D0, typename D1>
+auto operator*(const AD_Function<T, D0>& f0, const AD_Function<T, D1>& f1)
+{
+  return create_function(f0.value() * f1.value(),
+                         chain_rule(f1.value(), f0.value(), f0.df(), f1.df()));
+}
+
 //////////////////////////////////////////////////////////////////
 // Helpers
 //////////////////////////////////////////////////////////////////
+
 void
 reset_global_index()
 {
@@ -552,6 +617,62 @@ test_4b()
 
   std::cout << y;
 }
+void
+test_5()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<double>::global_index = 100;
+
+  AD_Variable<double> x0(2);
+  AD_Variable<double> x1(3);
+
+  auto y = create_function(x0) * create_function(x1) * create_function(x1);
+
+  std::cout << y;
+}
+void
+test_5b()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<AD_Variable<AD_Variable<double>>>::global_index = 100;
+  AD_Variable<AD_Variable<double>>::global_index              = 10;
+  AD_Variable<double>::global_index                           = 0;
+
+  AD_Variable<AD_Variable<AD_Variable<double>>> x0(2);
+  AD_Variable<AD_Variable<AD_Variable<double>>> x1(3);
+
+  auto y = create_function(x0) * create_function(x1) * create_function(x1);
+
+  std::cout << y;
+}
+
+// Try to understand bug...
+void
+test_6()
+{
+  reset_global_index();
+  std::cout << "\n\n===> " << __PRETTY_FUNCTION__ << std::endl;
+
+  AD_Variable<AD_Variable<double>>::global_index = 0;
+  AD_Variable<double>::global_index              = 100;
+
+  AD_Variable<AD_Variable<double>> x0(3);
+  //  AD_Variable<AD_Variable<double>> x1(3);
+
+  auto y0 = create_function(x0);
+  //  auto y1 = create_function(x1);
+
+  // std::cout << y0 << std::endl;
+  std::cout << y0 << std::endl;
+
+  auto y = (y0 * y0);
+
+  std::cout << y << std::endl;
+}
 int
 main()
 {
@@ -561,4 +682,8 @@ main()
   test_3();
   test_4();
   test_4b();
+  test_5();
+  test_5b();
+
+  test_6();
 }
