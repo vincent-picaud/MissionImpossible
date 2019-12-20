@@ -186,6 +186,36 @@ namespace AutoDiffCpp
 
   //////////////////////////////////////////////////////////////////
 
+  //  Chain rule
+  //
+  //  df○g = ∂0f.dg^0 + ...
+  //
+  namespace Detail
+  {
+    template <typename U, typename T, std::size_t N>
+    inline auto operator*(const U& u, const std::array<T, N>& a)
+    {
+      std::array<decltype(u * a[0]), N> to_return;
+
+      for (std::size_t i = 0; i < N; ++i)
+      {
+        to_return[i] = u * a[i];
+      }
+
+      return to_return;
+    }
+
+    //  Returns the differential of df○g = ∂0f.dg^0
+    //
+    template <typename D0F, typename T, std::size_t N>
+    inline auto operator*(const D0F& d0f, const AD_Differential<T, N>& dg0) noexcept
+    {
+      return AD_Differential{d0f * dg0.value(), dg0.index()};
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////
+
   ///////////////
   // operator* //
   ///////////////
@@ -193,12 +223,14 @@ namespace AutoDiffCpp
   template <typename T, size_t N>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Function<T, N>& g1) noexcept
   {
-    //return chain_rule(g0 * g1.value(), g0, g1);
-    return 0;
+    using namespace Detail;
+
+    return AD_Function<T, N>(g0 * g1.value(), g0 * g1.df());
   }
   template <typename T>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD<T>& g1) noexcept
   {
+    // Can be optimized: directly create a function with value=g0*g1.value and dx=g0
     return g0 * g1.to_function();
   }
 }
