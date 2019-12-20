@@ -5,7 +5,7 @@
 
 using namespace AutoDiffCpp;
 
-TEST(AD, basic)
+TEST(New_AD, basic)
 {
   AD<double> x1(1), x2(2);
 
@@ -16,19 +16,19 @@ TEST(AD, basic)
   EXPECT_EQ(x2.value(), 2);
 }
 
-// TEST(AD, product)
-// {
-//   AD<double> x(2);
+TEST(New_AD, product)
+{
+  AD<double> x(2);
 
-//   auto z0 = 3 * x;
+  auto z0 = 3 * x;
 
-//   EXPECT_EQ(z0.value(), 6);
+  EXPECT_EQ(z0.value(), 6);
 
-//   auto z1 = x * x;
+  // auto z1 = x * x;
 
-//   EXPECT_EQ(z1.value(), 4);
+  // EXPECT_EQ(z1.value(), 4);
 
-//   auto z2 = (x * x) * (x * x);
+  // auto z2 = (x * x) * (x * x);
 
-//   EXPECT_EQ(z2.value(), 16);
-// }
+  // EXPECT_EQ(z2.value(), 16);
+}

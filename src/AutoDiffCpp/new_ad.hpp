@@ -41,6 +41,13 @@ namespace AutoDiffCpp
     }
 
     operator AD_Function<T, 1>() const { return {_value, AD_Differential<T, 1>{{T(1)}, {_index}}}; }
+
+    auto
+    to_function() const
+    {
+      return static_cast<AD_Function<T, 1>>(*this);
+    };
+
     // Remplace AD_Expr by function
     // template <std::size_t N>
     //  AD&
@@ -186,6 +193,12 @@ namespace AutoDiffCpp
   template <typename T, size_t N>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Function<T, N>& g1) noexcept
   {
-    return chain_rule(g0 * g1.value(), g0, g1);
+    //return chain_rule(g0 * g1.value(), g0, g1);
+    return 0;
+  }
+  template <typename T>
+  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD<T>& g1) noexcept
+  {
+    return g0 * g1.to_function();
   }
 }
