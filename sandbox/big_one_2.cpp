@@ -136,6 +136,7 @@ struct AD_Differential_Array
   std::array<std::size_t, N> _index;
 
  public:
+  AD_Differential_Array(){};
   AD_Differential_Array(const std::array<T, N>& value, const std::array<std::size_t, N>& index)
       : _value(value), _index(index)
   {
@@ -274,6 +275,34 @@ auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Variable<AD_
                          create_differential(AD_Variable_Final_Value_Type_t<T>(1), x1));
 }
 
+//////////////////////
+// Unary chain rule //
+//////////////////////
+//
+template <typename T, std::size_t N>
+auto operator*(const AD_Variable_Final_Value_Type_t<T> a, const std::array<T, N>& v)
+{
+  std::array<T, N> a_v;
+  for (size_t i = 0; i < N; ++i)
+  {
+    a_v[i] = a * v[i];
+  }
+  return a_v;
+}
+
+template <typename T, std::size_t N>
+auto
+chain_rule(const AD_Variable_Final_Value_Type_t<T> a, const AD_Differential_Array<T, N>& diff)
+{
+  return AD_Differential_Array<T, N>{a * diff.value(), diff.index()};
+}
+
+template <typename T, typename DIFF>
+auto operator*(const AD_Variable_Final_Value_Type_t<T> x0, const AD_Function<T, DIFF>& f1)
+{
+  return create_function(x0 * f1.value(), chain_rule(x0, f1.df()));
+}
+
 // template <typename T>
 // auto operator*(const AD_Variable<T>& x0,
 //                const AD_Variable<T>& x1)
@@ -308,7 +337,10 @@ test_0()
 
   AD_Variable<T> x0{2};
   auto y = 3 * x0;
-  std::cout << y;
+  std::cout << y << std::endl;
+
+  auto y2 = 4 * y;
+  std::cout << y2 << std::endl;
   // create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
@@ -328,6 +360,8 @@ test_1()
   AD_Variable<AD_Variable<AD_Variable<T>>> x1{2};
   auto y2 = 3 * x1;
   std::cout << y2 << std::endl;
+
+  //  auto y3 = 4 * y2;
   //  create_function(x0);
   // auto y = x0 * x0;
   // std::cout << y << std::endl;
