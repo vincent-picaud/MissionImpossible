@@ -9,6 +9,7 @@ AutoDiffCpp_headers = [
   'always.hpp',
   'final_value_type.hpp',
 
+  'new_ad_fwd.hpp',
   'new_ad.hpp',
 ]
 

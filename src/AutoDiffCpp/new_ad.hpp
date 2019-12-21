@@ -11,6 +11,8 @@
 
 namespace AutoDiffCpp
 {
+  //////////////////////////////////////////////////////////////////
+
   template <typename T>
   struct AD_Types
   {
@@ -95,6 +97,81 @@ namespace AutoDiffCpp
       return _index_array;
     }
   };
+
+  //  To implement chain rule
+  //
+  //  df○g = ∂0f.dg^0 +  ∂1f.dg^1 + ...
+  //
+  // It is enough to define:
+  // a. differential + differential
+  // b. scalar * differential
+  //
+  namespace Detail
+  {
+    template <typename U, typename T, std::size_t N>
+    inline auto operator*(const U& u, const std::array<T, N>& a)
+    {
+      std::array<decltype(u * a[0]), N> to_return;
+
+      for (std::size_t i = 0; i < N; ++i)
+      {
+        to_return[i] = u * a[i];
+      }
+
+      return to_return;
+    }
+
+    //================================================================
+
+    template <typename T, size_t N0, size_t N1>
+    inline auto
+    join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
+    {
+      std::array<T, N0 + N1> to_return;
+
+      for (std::size_t i = 0; i < N0; ++i)
+      {
+        to_return[i] = v0[i];
+      }
+      for (std::size_t i = 0; i < N1; ++i)
+      {
+        to_return[N0 + i] = v1[i];
+      }
+
+      return to_return;
+    }
+
+  }
+
+  // fwd declaration
+  template <typename T>
+  struct AD;
+
+  template <typename T, std::size_t N>
+  inline auto operator*(const AD<T>& v, const AD_Differential<T, N>& dg0) noexcept
+  {
+    using Detail::operator*;
+
+    return AD_Differential{v * dg0.value(), dg0.index()};
+  }
+  template <typename T, std::size_t N>
+  inline auto operator*(const AD_Final_Value_Type_t<T> v, const AD_Differential<T, N>& dg0) noexcept
+  {
+    using namespace Detail;
+
+    return AD_Differential{v * dg0.value(), dg0.index()};
+  }
+
+  template <typename T, std::size_t N0, std::size_t N1>
+  inline auto
+  operator+(const AD_Differential<T, N0>& dg0, const AD_Differential<T, N1>& dg1) noexcept
+  {
+    using Detail::join;
+
+    return AD_Differential{join(dg0.value(), dg1.value()), join(dg0.index(), dg1.index())};
+  }
+
+  //////////////////////////////////////////////////////////////////
 
   template <typename T, size_t N>
   struct AD_Function;
@@ -227,63 +304,6 @@ namespace AutoDiffCpp
       return out;
     }
   };
-
-  //////////////////////////////////////////////////////////////////
-
-  //  Chain rule
-  //
-  //  df○g = ∂0f.dg^0 + ...
-  //
-  namespace Detail
-  {
-    template <typename U, typename T, std::size_t N>
-    inline auto operator*(const U& u, const std::array<T, N>& a)
-    {
-      std::array<decltype(u * a[0]), N> to_return;
-
-      for (std::size_t i = 0; i < N; ++i)
-      {
-        to_return[i] = u * a[i];
-      }
-
-      return to_return;
-    }
-
-    //  Returns the differential of df○g = ∂0f.dg^0
-    //
-    template <typename D0F, typename T, std::size_t N>
-    inline auto operator*(const D0F& d0f, const AD_Differential<T, N>& dg0) noexcept
-    {
-      return AD_Differential{d0f * dg0.value(), dg0.index()};
-    }
-
-    //================================================================
-
-    template <typename T, size_t N0, size_t N1>
-    inline auto
-    join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
-    {
-      std::array<T, N0 + N1> to_return;
-
-      for (std::size_t i = 0; i < N0; ++i)
-      {
-        to_return[i] = v0[i];
-      }
-      for (std::size_t i = 0; i < N1; ++i)
-      {
-        to_return[N0 + i] = v1[i];
-      }
-
-      return to_return;
-    }
-    template <typename T, std::size_t N0, std::size_t N1>
-    inline auto
-    operator+(const AD_Differential<T, N0>& dg0, const AD_Differential<T, N1>& dg1) noexcept
-    {
-      return AD_Differential{join(dg0.value(), dg1.value()), join(dg0.index(), dg1.index())};
-    }
-
-  }
 
   //////////////////////////////////////////////////////////////////
 
