@@ -196,9 +196,8 @@ namespace AutoDiffCpp
     AD&
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
-      _value                 = value;
-      const index_type index = this->tape().add_variable();
-      _dvalue                = differential_type{{value_type(1)}, {index}};
+      _value  = value;
+      _dvalue = differential_type{{value_type(1)}, {this->tape().add_variable()}};
       return *this;
     }
 
@@ -210,21 +209,22 @@ namespace AutoDiffCpp
       return static_cast<AD_Function<T, 1>>(*this);
     };
 
-    // Remplace AD_Expr by function
-    // template <std::size_t N>
-    //  AD&
-    // //    operator=(const AD_Expr<T, N>& ad)
-    //  {
-    //    assert((void*)this != (void*)&ad);
+    template <std::size_t N>
+    AD&
+    operator=(const AD_Function<T, N>& ad)
+    {
+      assert((void*)this != (void*)&ad);
 
-    //    _value          = ad.value();
-    //    _index_array[0] = tape().row_size();
+      _value  = ad.value();
+      _dvalue = differential_type{{value_type(1)}, {this->tape().row_size()}};
 
-    //    tape().add_row(
-    //        std::integral_constant<std::size_t, N>(), ad.index().data(), ad.partialD().data());
+      //      TODO rename: add_row > add_differential
+      this->tape().add_row(std::integral_constant<std::size_t, N>(),
+                           ad.differential().index().data(),
+                           ad.differential().value().data());
 
-    //    return *this;
-    //  }
+      return *this;
+    }
 
     //     // +=, -= etc...
     // //
@@ -246,6 +246,12 @@ namespace AutoDiffCpp
     //   return *this;
     // }
 
+    const index_type&
+    index() const noexcept
+    {
+      return _dvalue.index()[0];
+    }
+
     const value_type&
     value() const noexcept
     {
@@ -256,12 +262,6 @@ namespace AutoDiffCpp
     {
       return _dvalue;
     }
-    const index_type&
-    index() const noexcept
-    {
-      return _dvalue.index()[0];
-    }
-
     friend std::ostream&
     operator<<(std::ostream& out, const AD& to_print)
     {
