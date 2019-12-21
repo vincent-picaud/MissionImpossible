@@ -311,45 +311,21 @@ namespace AutoDiffCpp
   // operator* //
   ///////////////
   //
-  template <typename T, size_t N>
-  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Function<T, N>& g1) noexcept
+  template <typename T, typename IMPL>
+  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL>& g1) noexcept
   {
-    using namespace Detail;
-
-    return AD_Function<T, N>{g0 * g1.value(), g0 * g1.differential()};
+    return AD_Function{g0 * g1.value(), g0 * g1.differential()};
   }
-  template <typename T, size_t N>
-  inline auto operator*(const AD_Function<T, N>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
+  template <typename T, typename IMPL>
+  inline auto operator*(const AD_Crtp<T, IMPL>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
   {
     return g0 * g1;
   }
-  template <typename T>
-  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD<T>& g1) noexcept
-  {
-    // Can be optimized: directly create a function with value=g0*g1.value and dx=g0
-    return g0 * g1.to_function();
-  }
-  template <typename T>
-  inline auto operator*(const AD<T>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
-  {
-    // Can be optimized: directly create a function with value=g0*g1.value and dx=g0
-    return g0 * g1.to_function();
-  }
 
-  //================================================================
-
-  template <typename T, size_t N0, size_t N1>
-  inline auto operator*(const AD_Function<T, N0>& g0, const AD_Function<T, N1>& g1) noexcept
+  template <typename T, typename IMPL0, typename IMPL1>
+  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    using namespace Detail;
-
-    return AD_Function<T, N0 + N1>(g0.value() * g1.value(),
-                                   g1.value() * g0.differential() + g0.value() * g1.differential());
+    return AD_Function(g0.value() * g1.value(),
+                       g1.value() * g0.differential() + g0.value() * g1.differential());
   }
-  template <typename T>
-  inline auto operator*(const AD<T>& g0, const AD<T>& g1) noexcept
-  {
-    return g0.to_function() * g1.to_function();
-  }
-
 }
