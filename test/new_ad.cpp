@@ -28,7 +28,7 @@ TEST(New_AD, product)
 
   EXPECT_EQ(z1.value(), 4);
 
-  // auto z2 = (x * x) * (x * x);
+  auto z2 = (x * x) * (x * x);
 
-  // EXPECT_EQ(z2.value(), 16);
+  EXPECT_EQ(z2.value(), 16);
 }
