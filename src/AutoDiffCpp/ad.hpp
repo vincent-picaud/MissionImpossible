@@ -210,6 +210,7 @@ namespace AutoDiffCpp
     AD_Function(){};
     AD_Function(const value_type& f, const differential_type& df) : _f_value(f), _df_value(df) {}
 
+    // XXX Premature reduction
     operator AD<T>() const
     {
       AD<T> y;
@@ -249,8 +250,9 @@ namespace AutoDiffCpp
     template <typename U, typename T, std::size_t N>
     inline auto operator*(const U& u, const std::array<T, N>& a)
     {
-      //std::array<decltype(u * a[0]), N> to_return;
+      // XXX Premature reduction
       std::array<T, N> to_return;
+      //      std::array<decltype(u * a[0]), N> to_return;
 
       for (std::size_t i = 0; i < N; ++i)
       {
@@ -287,7 +289,7 @@ namespace AutoDiffCpp
   {
     using Detail::operator*;
 
-    return AD_Differential<T, N>{v * dg0.value(), dg0.index()};
+    return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
   template <typename T, typename IMPL, std::size_t N>
@@ -303,7 +305,7 @@ namespace AutoDiffCpp
   {
     using namespace Detail;
 
-    return AD_Differential<T, N>{v * dg0.value(), dg0.index()};
+    return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
   template <typename T, std::size_t N0, std::size_t N1>
@@ -312,8 +314,7 @@ namespace AutoDiffCpp
   {
     using Detail::join;
 
-    return AD_Differential<T, N0 + N1>{join(dg0.value(), dg1.value()),
-                                       join(dg0.index(), dg1.index())};
+    return AD_Differential{join(dg0.value(), dg1.value()), join(dg0.index(), dg1.index())};
   }
 
   //////////////////////////////////////////////////////////////////
