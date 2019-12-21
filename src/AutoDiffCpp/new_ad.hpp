@@ -11,6 +11,67 @@
 
 namespace AutoDiffCpp
 {
+  template <typename T>
+  struct AD_Types
+  {
+    using tape_type  = Tape<T>;
+    using index_type = typename tape_type::index_type;
+    using value_type = typename tape_type::value_type;
+  };
+
+#define AD_TYPES(T)                                  \
+  using types_type = AD_Types<T>;                    \
+  using tape_type  = typename types_type::tape_type; \
+  using index_type = typename tape_type::index_type; \
+  using value_type = typename tape_type::value_type;
+
+  template <typename T, typename IMPL>
+  struct AD_Crtp : AD_Types<T>
+  {
+    IMPL&
+    impl()
+    {
+      return static_cast<IMPL&>(*this);
+    }
+    const IMPL&
+    impl() const
+    {
+      return static_cast<const IMPL&>(*this);
+    }
+  };
+
+  template <typename T, std::size_t N>
+  class AD_Differential : public AD_Types<T>
+  {
+   public:
+    AD_TYPES(T);
+
+    using value_array_type = std::array<T, N>;
+    using index_array_type = std::array<index_type, N>;
+
+   protected:
+    value_array_type _value_array;
+    index_array_type _index_array;
+
+   public:
+    AD_Differential() {}
+    AD_Differential(const value_array_type& value_array, const index_array_type& index_array)
+        : _value_array(value_array), _index_array(index_array)
+    {
+    }
+
+    const value_array_type&
+    value() const
+    {
+      return _value_array;
+    };
+    const index_array_type&
+    index() const
+    {
+      return _index_array;
+    }
+  };
+
   template <typename T, size_t N>
   struct AD_Function;
   template <typename T, size_t N>
@@ -20,13 +81,14 @@ namespace AutoDiffCpp
   class AD
   {
    public:
-    using tape_type  = Tape<T>;
-    using index_type = typename tape_type::index_type;
-    using value_type = typename tape_type::value_type;
+    using tape_type         = Tape<T>;
+    using index_type        = typename tape_type::index_type;
+    using value_type        = typename tape_type::value_type;
+    using differential_type = AD_Differential<T, 1>;
 
    protected:
     value_type _value;
-    index_type _index;
+    differential_type _dvalue;
 
    public:
     AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
@@ -35,12 +97,13 @@ namespace AutoDiffCpp
     AD&
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
-      _value = value;
-      _index = tape().add_variable();
+      _value                 = value;
+      const index_type index = tape().add_variable();
+      _dvalue                = differential_type{{value_type(1)}, {index}};
       return *this;
     }
 
-    operator AD_Function<T, 1>() const { return {_value, AD_Differential<T, 1>{{T(1)}, {_index}}}; }
+    operator AD_Function<T, 1>() const { return {_value, _dvalue}; };
 
     auto
     to_function() const
@@ -92,7 +155,7 @@ namespace AutoDiffCpp
     const index_type&
     index() const noexcept
     {
-      return _index;
+      return _dvalue.index()[0];
     }
 
     const tape_type&
@@ -112,38 +175,6 @@ namespace AutoDiffCpp
     {
       out << to_print.value() << "_" << to_print.index();
       return out;
-    }
-  };
-
-  template <typename T, std::size_t N>
-  class AD_Differential
-  {
-   public:
-    using tape_type        = Tape<T>;
-    using index_type       = typename tape_type::index_type;
-    using value_type       = typename tape_type::value_type;
-    using value_array_type = std::array<T, N>;
-    using index_array_type = std::array<index_type, N>;
-
-   protected:
-    value_array_type _value_array;
-    index_array_type _index_array;
-
-   public:
-    AD_Differential(const value_array_type& value_array, const index_array_type& index_array)
-        : _value_array(value_array), _index_array(index_array)
-    {
-    }
-
-    const value_array_type&
-    value() const
-    {
-      return _value_array;
-    };
-    const index_array_type&
-    index() const
-    {
-      return _index_array;
     }
   };
 
@@ -279,7 +310,8 @@ namespace AutoDiffCpp
   {
     using namespace Detail;
 
-    return AD_Function<T, N0 + N1>(g0.value() * g1.value(), g1.value() * g0.df() + g0.value() * g1.df());
+    return AD_Function<T, N0 + N1>(g0.value() * g1.value(),
+                                   g1.value() * g0.df() + g0.value() * g1.df());
   }
   template <typename T>
   inline auto operator*(const AD<T>& g0, const AD<T>& g1) noexcept
