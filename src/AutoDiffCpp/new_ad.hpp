@@ -74,16 +74,12 @@ namespace AutoDiffCpp
 
   template <typename T, size_t N>
   struct AD_Function;
-  template <typename T, size_t N>
-  struct AD_Differential;
 
   template <typename T>
-  class AD
+  class AD : public AD_Crtp<T, AD<T>>
   {
    public:
-    using tape_type         = Tape<T>;
-    using index_type        = typename tape_type::index_type;
-    using value_type        = typename tape_type::value_type;
+    AD_TYPES(T);
     using differential_type = AD_Differential<T, 1>;
 
    protected:
@@ -179,12 +175,10 @@ namespace AutoDiffCpp
   };
 
   template <typename T, size_t N>
-  struct AD_Function
+  struct AD_Function : public AD_Crtp<T, AD<T>>
   {
-    using tape_type = Tape<T>;
-    //    using index_type = typename tape_type::index_type;
-    using value_type = typename tape_type::value_type;
-
+   public:
+    AD_TYPES(T);
     using differential_type = AD_Differential<T, N>;
 
    protected:
