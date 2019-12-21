@@ -28,15 +28,39 @@ namespace AutoDiffCpp
   template <typename T, typename IMPL>
   struct AD_Crtp : AD_Types<T>
   {
+    AD_TYPES(T);
+
     IMPL&
-    impl()
+    impl() noexcept
     {
       return static_cast<IMPL&>(*this);
     }
     const IMPL&
-    impl() const
+    impl() const noexcept
     {
       return static_cast<const IMPL&>(*this);
+    }
+
+    // Static interface
+    decltype(auto)
+    value() const noexcept
+    {
+      return impl().value();
+    }
+    decltype(auto)
+    differential() const noexcept
+    {
+      return impl().differential();
+    }
+    const tape_type&
+    tape() const noexcept
+    {
+      return AutoDiffCpp::tape<T>();
+    }
+    tape_type&
+    tape() noexcept
+    {
+      return AutoDiffCpp::tape<T>();
     }
   };
 
@@ -80,6 +104,7 @@ namespace AutoDiffCpp
   {
    public:
     AD_TYPES(T);
+
     using differential_type = AD_Differential<T, 1>;
 
    protected:
@@ -94,7 +119,7 @@ namespace AutoDiffCpp
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
       _value                 = value;
-      const index_type index = tape().add_variable();
+      const index_type index = this->tape().add_variable();
       _dvalue                = differential_type{{value_type(1)}, {index}};
       return *this;
     }
@@ -148,22 +173,15 @@ namespace AutoDiffCpp
     {
       return _value;
     }
+    const differential_type&
+    differential() const noexcept
+    {
+      return _dvalue;
+    }
     const index_type&
     index() const noexcept
     {
       return _dvalue.index()[0];
-    }
-
-    const tape_type&
-    tape() const noexcept
-    {
-      return AutoDiffCpp::tape<T>();
-    }
-
-    tape_type&
-    tape() noexcept
-    {
-      return AutoDiffCpp::tape<T>();
     }
 
     friend std::ostream&
@@ -175,10 +193,11 @@ namespace AutoDiffCpp
   };
 
   template <typename T, size_t N>
-  struct AD_Function : public AD_Crtp<T, AD<T>>
+  struct AD_Function : public AD_Crtp<T, AD_Function<T, N>>
   {
    public:
     AD_TYPES(T);
+
     using differential_type = AD_Differential<T, N>;
 
    protected:
@@ -195,7 +214,7 @@ namespace AutoDiffCpp
       return _f_value;
     }
     const differential_type&
-    df() const
+    differential() const noexcept
     {
       return _df_value;
     }
@@ -277,7 +296,7 @@ namespace AutoDiffCpp
   {
     using namespace Detail;
 
-    return AD_Function<T, N>{g0 * g1.value(), g0 * g1.df()};
+    return AD_Function<T, N>{g0 * g1.value(), g0 * g1.differential()};
   }
   template <typename T, size_t N>
   inline auto operator*(const AD_Function<T, N>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
@@ -305,7 +324,7 @@ namespace AutoDiffCpp
     using namespace Detail;
 
     return AD_Function<T, N0 + N1>(g0.value() * g1.value(),
-                                   g1.value() * g0.df() + g0.value() * g1.df());
+                                   g1.value() * g0.differential() + g0.value() * g1.differential());
   }
   template <typename T>
   inline auto operator*(const AD<T>& g0, const AD<T>& g1) noexcept
