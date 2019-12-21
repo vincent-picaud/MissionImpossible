@@ -9,7 +9,7 @@ using namespace AutoDiffCpp;
 
 TEST(Tape_Vector, demo)
 {
-  using T = float;
+  using T = double;
 
   [[maybe_unused]] AD<T> x;
   x = 1;

@@ -71,13 +71,13 @@ namespace AutoDiffCpp
 
     const T& operator[](const AD<T>& var) const
     {
-      const auto i = var.index()[0];
+      const auto i = var.index();
       assert(check_AD_index(i));
       return data()[i - _offset];
     }
     T& operator[](const AD<T>& var)
     {
-      const auto i = var.index()[0];
+      const auto i = var.index();
       assert(check_AD_index(i));
       return data()[i - _offset];
     }

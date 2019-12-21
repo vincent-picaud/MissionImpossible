@@ -2,7 +2,6 @@
 
 #include "AutoDiffCpp/ad_fwd.hpp"
 #include "AutoDiffCpp/always.hpp"
-#include "AutoDiffCpp/new_ad_fwd.hpp"
 
 #include <type_traits>
 
@@ -23,18 +22,11 @@ namespace AutoDiffCpp
 
   template <typename T, std::size_t N>
   struct AD_Final_Value_Type<
-      AD_Expr<T, N>,
-      std::enable_if_t<Always_True<typename AD_Expr<T, N>::value_type>::value>>
-  {
-    using value_type = typename AD_Final_Value_Type<typename AD_Expr<T, N>::value_type>::value_type;
-  };
-  // New
-  template <typename T, std::size_t N>
-  struct AD_Final_Value_Type<
       AD_Function<T, N>,
-      std::enable_if_t<Always_True<typename AD_Expr<T, N>::value_type>::value>>
+      std::enable_if_t<Always_True<typename AD_Function<T, N>::value_type>::value>>
   {
-    using value_type = typename AD_Final_Value_Type<typename AD_Expr<T, N>::value_type>::value_type;
+    using value_type =
+        typename AD_Final_Value_Type<typename AD_Function<T, N>::value_type>::value_type;
   };
 
   template <typename T, typename IMPL>

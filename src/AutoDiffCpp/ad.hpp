@@ -7,122 +7,143 @@
 #include "AutoDiffCpp/type_traits.hpp"
 
 #include <array>
+#include <tuple>
 
 namespace AutoDiffCpp
 {
-  /////////////
-  // AD_Crtp //
-  /////////////
-  //
-  template <typename T, typename IMPL>
-  class AD_Crtp
+  //////////////////////////////////////////////////////////////////
+
+  template <typename T>
+  struct AD_Types
   {
-   public:
     using tape_type  = Tape<T>;
     using index_type = typename tape_type::index_type;
     using value_type = typename tape_type::value_type;
+  };
 
-    using type_traits          = Type_Traits<IMPL>;
-    static constexpr auto size = type_traits::size;
-    using index_array_type     = std::array<index_type, size>;
-    using partialD_array_type  = std::array<value_type, size>;
+#define AD_TYPES(T)                                  \
+  using types_type = AD_Types<T>;                    \
+  using tape_type  = typename types_type::tape_type; \
+  using index_type = typename tape_type::index_type; \
+  using value_type = typename tape_type::value_type;
 
-   public:  //protected:
+  template <typename T, typename IMPL>
+  class AD_Crtp : AD_Types<T>
+  {
+   public:
+    AD_TYPES(T);
+
     IMPL&
     impl() noexcept
     {
       return static_cast<IMPL&>(*this);
-    };
+    }
     const IMPL&
     impl() const noexcept
     {
       return static_cast<const IMPL&>(*this);
-    };
+    }
 
-   public:
-    const value_type&
+    // Static interface
+    decltype(auto)
     value() const noexcept
     {
       return impl().value();
     }
-    const index_array_type&
-    index() const noexcept
+    decltype(auto)
+    differential() const noexcept
     {
-      return impl().index();
+      return impl().differential();
     }
-
-    friend std::ostream&
-    operator<<(std::ostream& out, const AD_Crtp<T, IMPL>& to_print)
+    const tape_type&
+    tape() const noexcept
     {
-      out << to_print.value();
-      return out;
+      return AutoDiffCpp::tape<T>();
+    }
+    tape_type&
+    tape() noexcept
+    {
+      return AutoDiffCpp::tape<T>();
     }
   };
 
-  ////////
-  // AD //
-  ////////
-
-  template <typename T>
-  struct Type_Traits<AD<T>>
+  template <typename T, std::size_t N>
+  class AD_Differential : public AD_Types<T>
   {
-    static constexpr std::size_t size = 1;
+    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
+
+   public:
+    AD_TYPES(T);
+
+    using value_array_type = std::array<T, N>;
+    using index_array_type = std::array<index_type, N>;
+
+   protected:
+    value_array_type _value_array;
+    index_array_type _index_array;
+
+   public:
+    AD_Differential() {}
+    AD_Differential(const value_array_type& value_array, const index_array_type& index_array)
+        : _value_array(value_array), _index_array(index_array)
+    {
+    }
+
+    const value_array_type&
+    value() const
+    {
+      return _value_array;
+    };
+    const index_array_type&
+    index() const
+    {
+      return _index_array;
+    }
   };
+  //////////////////////////////////////////////////////////////////
+
+  template <typename T, size_t N>
+  class AD_Function;
 
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
   {
-   public:
-    using base_type        = AD_Crtp<T, AD<T>>;
-    using tape_type        = typename base_type::tape_type;
-    using index_type       = typename base_type::index_type;
-    using value_type       = typename base_type::value_type;
-    using index_array_type = typename base_type::index_array_type;
+    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
 
-   private:
+   public:
+    AD_TYPES(T);
+
+    using differential_type = AD_Differential<T, 1>;
+
+   protected:
     value_type _value;
-    index_array_type _index_array;
+    differential_type _dvalue;
 
    public:
     AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
-    AD(const AD_Final_Value_Type_t<value_type> value)
-    noexcept  // no explicit (allows AD<float> x=5 syntax
-        : _value{value}, _index_array{tape().add_variable()}
-    {
-    }
-
-    operator AD_Expr<T, 1>() const { return {_value, {1}, _index_array}; }
-
-    const value_type&
-    value() const noexcept
-    {
-      return _value;
-    };
-    const index_array_type&
-    index() const noexcept
-    {
-      return _index_array;
-    };
+    AD(const AD_Final_Value_Type_t<value_type> value) noexcept : AD() { (*this) = value; }
 
     AD&
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
     {
-      _value          = value;
-      _index_array[0] = tape().add_variable();
+      _value  = value;
+      _dvalue = differential_type{{value_type(1)}, {this->tape().add_variable()}};
       return *this;
     }
 
     template <std::size_t N>
     AD&
-    operator=(const AD_Expr<T, N>& ad)
+    operator=(const AD_Function<T, N>& ad)
     {
       assert((void*)this != (void*)&ad);
 
-      _value          = ad.value();
-      _index_array[0] = tape().row_size();
+      _value  = ad.value();
+      _dvalue = differential_type{{value_type(1)}, {this->tape().row_size()}};
 
-      tape().add_row(
-          std::integral_constant<std::size_t, N>(), ad.index().data(), ad.partialD().data());
+      //      TODO rename: add_row > add_differential
+      this->tape().add_row(std::integral_constant<std::size_t, N>(),
+                           ad.differential().index().data(),
+                           ad.differential().value().data());
 
       return *this;
     }
@@ -146,328 +167,177 @@ namespace AutoDiffCpp
       *this = *this - y;
       return *this;
     }
-    const tape_type&
-    tape() const noexcept
+
+    const index_type&
+    index() const noexcept
     {
-      return AutoDiffCpp::tape<T>();
-    }
-
-    tape_type&
-    tape() noexcept
-    {
-      return AutoDiffCpp::tape<T>();
-    }
-  };
-
-  /////////////
-  // AD_Expr //
-  /////////////
-
-  template <typename T, size_t N>
-  struct Type_Traits<AD_Expr<T, N>>
-  {
-    static constexpr std::size_t size = N;
-  };
-
-  template <typename T, size_t N>
-  class AD_Expr : public AD_Crtp<T, AD_Expr<T, N>>
-  {
-   public:
-    using base_type           = AD_Crtp<T, AD_Expr<T, N>>;
-    using index_type          = typename base_type::index_type;
-    using value_type          = typename base_type::value_type;
-    using index_array_type    = typename base_type::index_array_type;
-    using partialD_array_type = typename base_type::partialD_array_type;
-
-   protected:
-    value_type _value;
-    index_array_type _index_array;
-    partialD_array_type _partialD_array;
-
-   public:
-    AD_Expr(const value_type value,
-            const index_array_type& index_array,
-            const partialD_array_type& partialD_array) noexcept
-        : _value(value), _index_array(index_array), _partialD_array(partialD_array)
-    {
-    }
-
-    operator AD<T>() const noexcept
-    {
-      AD<T> _this;
-      _this = *this;
-      return _this;
+      return _dvalue.index()[0];
     }
 
     const value_type&
     value() const noexcept
     {
       return _value;
-    };
-
-    const index_array_type&
-    index() const noexcept
-    {
-      return _index_array;
     }
-
-    const partialD_array_type&
-    partialD() const noexcept
+    const differential_type&
+    differential() const noexcept
     {
-      return _partialD_array;
+      return _dvalue;
+    }
+    friend std::ostream&
+    operator<<(std::ostream& out, const AD& to_print)
+    {
+      out << to_print.value() << "_" << to_print.index();
+      return out;
     }
   };
 
-  // Overloading of U*std::array<T>
-  // -> used by chain rule
-  // Role: provides two specializations,
-  // - U is a scalar
-  // - U=AD<T> (when std::array<AD<T>>
-  //
-  // -> IMPORTANT: this avoid artificial creation of AD<T> in nested
-  //    case (when std::array<AD<T>>)
-  //
-  template <typename T, std::size_t N>
-  auto operator*(const AD_Final_Value_Type_t<T> scalar_partialD_f, const std::array<T, N>& dg)
-  {
-    std::array<T, N> to_return;
-
-    for (std::size_t i = 0; i < N; ++i)
-    {
-      to_return[i] = scalar_partialD_f * dg[i];
-    }
-
-    return to_return;
-  }
-
-  template <typename T, std::size_t N>
-  auto operator*(const AD<T>& ad_partialD_f, const std::array<AD<T>, N>& dg)
-  {
-    std::array<AD<T>, N> to_return;
-
-    for (std::size_t i = 0; i < N; ++i)
-    {
-      to_return[i] = ad_partialD_f * dg[i];
-    }
-
-    return to_return;
-  }
-
-  // New approach that locally manage the partialD() problem
-  //
-  // Role: computes scale_factor * dg <-> scale_factor* g.partialD
-  //       that arise from df○g = ∂0f.dg^0 + ... (where ∂0f is scalar_factor)
-  //
-  // Facts:
-  // - it returns decltype(dg.partialD)
-  // - scale_factor is a scalar, OR an AD_Expr<> in nested case
-  // - g is
-  //    - AD<>   <- this is the problematic case as we must not use partialD (in nested case)
-  //      or
-  //    - AD_Expr<>
-  //
-  template <typename T>
-  inline typename AD<T>::partialD_array_type
-  chain_rule_helper(const AD_Final_Value_Type_t<T> partial0, const AD<T>& g0) noexcept
-  {
-    using return_type = decltype(chain_rule_helper(partial0, g0));
-    return return_type{partial0};
-  }
   template <typename T, size_t N>
-  inline typename AD_Expr<T, N>::partialD_array_type
-  chain_rule_helper(const AD_Final_Value_Type_t<T> partial0, const AD_Expr<T, N>& g0) noexcept
+  class AD_Function : public AD_Crtp<T, AD_Function<T, N>>
   {
-    return partial0 * g0.partialD();
-  }
-  template <typename T>
-  inline typename AD<AD<T>>::partialD_array_type
-  chain_rule_helper(const AD<T>& partial0, const AD<AD<T>>& g0) noexcept
-  {
-    using return_type = decltype(chain_rule_helper(partial0, g0));
-    return return_type{partial0};
-  }
-  template <typename T, size_t N>
-  inline typename AD_Expr<AD<T>, N>::partialD_array_type
-  chain_rule_helper(const AD<T>& partial0, const AD_Expr<AD<T>, N>& g0) noexcept
-  {
-    return partial0 * g0.partialD();
-  }
+    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
 
-  // NOTE: reduction to a common factor OK
-  // -> remember "FACTS": it returns decltype(dg.partialD)
-  //    this is mandatory a we also indendently return dg.index (both must stay coherent)
-  template <typename T, size_t N_A>
-  inline auto
-  chain_rule_helper(const AD_Expr<T, N_A>& partial0, const AD<AD<T>>& g0) noexcept
-  {
-    AD<T> factor = partial0;
-    return chain_rule_helper(factor, g0);
-  }
-  template <typename T, size_t N_A, size_t N_B>
-  inline auto
-  chain_rule_helper(const AD_Expr<T, N_A>& partial0, const AD_Expr<AD<T>, N_B>& g0) noexcept
-  {
-    AD<T> factor = partial0;
-    return chain_rule_helper(factor, g0);
-  }
+   public:
+    AD_TYPES(T);
 
-  // f:R->R
-  //
-  // df○g = ∂0f.dg^0
-  //
-  // inline auto
-  // join(const std::array<T, N0>& v0) noexcept
-  // {
-  //   return v0;
-  // }
+    using differential_type = AD_Differential<T, N>;
 
-  // Original:
-  //
-  // concise and works, but can lead to AD creation in nested mode
-  //
-  // template <typename T, typename IMPL0>
-  // inline AD_Expr<T, IMPL0::size>
-  // chain_rule(const Identity_t<T> f_circ_g_value,
-  //            const Identity_t<T> partial0,
-  //            const AD_Crtp<T, IMPL0>& g0) noexcept
-  // {
-  //   return {f_circ_g_value, join(g0.index()), partial0 * g0.partialD()};
-  // }
+   protected:
+    value_type _f_value;
+    differential_type _df_value;
 
-  // First order case
-  //
-  template <typename T, typename IMPL0>
-  inline AD_Expr<T, IMPL0::size>
-  chain_rule(const AD_Final_Value_Type_t<T> f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Crtp<T, IMPL0>& g0) noexcept
-  {
-    return {f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
-  }
+   public:
+    AD_Function(){};
+    AD_Function(const value_type& f, const differential_type& df) : _f_value(f), _df_value(df) {}
 
-  // CAVEAT: certainly usefully however I do not understand why it is
-  // not used for the moment
-  //
-  template <typename T, typename IMPL0, typename IMPL_A, typename IMPL_B>
-  inline AD_Expr<AD<T>, IMPL0::size>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Crtp<T, IMPL_B>& partial0,
-             const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
-  {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-
-    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0.impl(), g0.impl())};
-  }
-
-  // Nested case: with scalar partial0
-  template <typename T, typename IMPL0, typename IMPL_A>
-  inline AD_Expr<AD<T>, IMPL0::size>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Crtp<AD<T>, IMPL0>& g0) noexcept
-  {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
-
-    return {ad_f_circ_g_value, g0.index(), chain_rule_helper(partial0, g0.impl())};
-  }
-
-  // f:R2->R
-  //
-  // df○g = ∂0f.dg^0 + ∂1f.dg^1
-  //
-  template <typename T, size_t N0, size_t N1>
-  inline auto
-  join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
-  {
-    std::array<T, N0 + N1> to_return;
-
-    for (std::size_t i = 0; i < N0; ++i)
+    operator AD<T>() const
     {
-      to_return[i] = v0[i];
+      AD<T> y;
+      y = *this;
+      return y;
     }
-    for (std::size_t i = 0; i < N1; ++i)
+    value_type
+    value() const
     {
-      to_return[N0 + i] = v1[i];
+      return _f_value;
+    }
+    const differential_type&
+    differential() const noexcept
+    {
+      return _df_value;
     }
 
-    return to_return;
-  }
+    friend std::ostream&
+    operator<<(std::ostream& out, const AD_Function& to_print)
+    {
+      out << "{ f=" << to_print.value() << "\tdf=[ " << to_print.df() << "] }";
 
-  // First order case
+      return out;
+    }
+  };
+
+  //  To implement chain rule
   //
-  template <typename T, typename IMPL0, typename IMPL1>
-  inline AD_Expr<T, IMPL0::size + IMPL1::size>
-  chain_rule(const AD_Final_Value_Type_t<T> f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Final_Value_Type_t<T> partial1,
-             const AD_Crtp<T, IMPL0>& g0,
-             const AD_Crtp<T, IMPL1>& g1) noexcept
-  {
-    return {f_circ_g_value,
-            join(g0.index(), g1.index()),
-            join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
-    // OK
-  }
-
-  // Nested case specialization to avoid tape-creation of useless
-  // AD<T> variable storing constants
+  //  df○g = ∂0f.dg^0 +  ∂1f.dg^1 + ...
   //
-  template <typename T,
-            typename IMPL0,
-            typename IMPL1,
-            typename IMPL_A,
-            typename IMPL_B,
-            typename IMPL_C>
-  inline AD_Expr<AD<T>, IMPL0::size + IMPL1::size>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Crtp<T, IMPL_B>& partial0,
-             const AD_Crtp<T, IMPL_C>& partial1,
-             const AD_Crtp<AD<T>, IMPL0>& g0,
-             const AD_Crtp<AD<T>, IMPL1>& g1) noexcept
+  // It is enough to define:
+  // a. differential + differential
+  // b. scalar * differential
+  //
+  namespace Detail
   {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
+    template <typename U, typename T, std::size_t N>
+    inline auto operator*(const U& u, const std::array<T, N>& a)
+    {
+      //std::array<decltype(u * a[0]), N> to_return;
+      std::array<T, N> to_return;
 
-    return {ad_f_circ_g_value,
-            join(g0.index(), g1.index()),
-            join(chain_rule_helper(partial0.impl(), g0.impl()),
-                 chain_rule_helper(partial1.impl(), g1.impl()))};
-    // OK
+      for (std::size_t i = 0; i < N; ++i)
+      {
+        to_return[i] = u * a[i];
+      }
+
+      return to_return;
+    }
+
+    //================================================================
+
+    template <typename T, size_t N0, size_t N1>
+    inline auto
+    join(const std::array<T, N0>& v0, const std::array<T, N1>& v1) noexcept
+    {
+      std::array<T, N0 + N1> to_return;
+
+      for (std::size_t i = 0; i < N0; ++i)
+      {
+        to_return[i] = v0[i];
+      }
+      for (std::size_t i = 0; i < N1; ++i)
+      {
+        to_return[N0 + i] = v1[i];
+      }
+
+      return to_return;
+    }
+
   }
 
-  template <typename T, typename IMPL0, typename IMPL1, typename IMPL_A>
-  inline AD_Expr<AD<T>, IMPL0::size + IMPL1::size>
-  chain_rule(const AD_Crtp<T, IMPL_A>& f_circ_g_value,
-             const AD_Final_Value_Type_t<T> partial0,
-             const AD_Final_Value_Type_t<T> partial1,
-             const AD_Crtp<AD<T>, IMPL0>& g0,
-             const AD_Crtp<AD<T>, IMPL1>& g1) noexcept
+  template <typename T, typename IMPL, std::size_t N>
+  inline auto operator*(const AD_Crtp<T, IMPL>& v, const AD_Differential<T, N>& dg0) noexcept
   {
-    const AD<T> ad_f_circ_g_value = f_circ_g_value.impl();
+    using Detail::operator*;
 
-    return {ad_f_circ_g_value,
-            join(g0.index(), g1.index()),
-            join(chain_rule_helper(partial0, g0.impl()), chain_rule_helper(partial1, g1.impl()))};
-    // OK
+    return AD_Differential<T, N>{v * dg0.value(), dg0.index()};
   }
+
+  template <typename T, typename IMPL, std::size_t N>
+  inline auto operator*(const AD_Crtp<T, IMPL>& v, const AD_Differential<AD<T>, N>& dg0) noexcept
+  {
+    using Detail::operator*;
+
+    return AD_Differential<AD<T>, N>{v * dg0.value(), dg0.index()};
+  }
+
+  template <typename T, std::size_t N>
+  inline auto operator*(const AD_Final_Value_Type_t<T> v, const AD_Differential<T, N>& dg0) noexcept
+  {
+    using namespace Detail;
+
+    return AD_Differential<T, N>{v * dg0.value(), dg0.index()};
+  }
+
+  template <typename T, std::size_t N0, std::size_t N1>
+  inline auto
+  operator+(const AD_Differential<T, N0>& dg0, const AD_Differential<T, N1>& dg1) noexcept
+  {
+    using Detail::join;
+
+    return AD_Differential<T, N0 + N1>{join(dg0.value(), dg1.value()),
+                                       join(dg0.index(), dg1.index())};
+  }
+
+  //////////////////////////////////////////////////////////////////
 
   ///////////////
   // operator* //
   ///////////////
   //
-  template <typename T, typename IMPL1>
-  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  template <typename T, typename IMPL>
+  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL>& g1) noexcept
   {
-    return chain_rule(g0 * g1.value(), g0, g1);
+    return AD_Function{g0 * g1.value(), g0 * g1.differential()};
   }
-  template <typename T, typename IMPL0>
-  inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  template <typename T, typename IMPL>
+  inline auto operator*(const AD_Crtp<T, IMPL>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
   {
-    return chain_rule(g0.value() * g1, g1, g0);
+    return g0 * g1;
   }
+
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto operator*(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() * g1.value(), g1.value(), g0.value(), g0, g1);
+    return AD_Function{g0.value() * g1.value(),
+                       g1.value() * g0.differential() + g0.value() * g1.differential()};
   }
 
   ///////////////
@@ -478,20 +348,21 @@ namespace AutoDiffCpp
   inline auto
   operator/(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 / g1.value(), -g0 / (g1.value() * g1.value()), g1);
+    return AD_Function(g0 / g1.value(), (-g0 / (g1.value() * g1.value())) * g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() / g1, 1 / g1, g0);
+    return AD_Function(g0.value() / g1, (1 / g1) * g0.differential());
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(
-        g0.value() / g1.value(), 1 / g1.value(), -g0.value() / (g1.value() * g1.value()), g0, g1);
+    return AD_Function(g0.value() / g1.value(),
+                       (1 / g1.value()) * g0.differential() +
+                           (-g0.value() / (g1.value() * g1.value())) * g1.differential());
   }
 
   ///////////////
@@ -502,19 +373,19 @@ namespace AutoDiffCpp
   inline auto
   operator+(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 + g1.value(), +1, g1);
+    return AD_Function(g0 + g1.value(), g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() + g1, +1, g0);
+    return AD_Function(g0.value() + g1, g0.differential());
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() + g1.value(), 1, +1, g0, g1);
+    return AD_Function(g0.value() + g1.value(), g0.differential() + g1.differential());
   }
 
   //////////////////////
@@ -525,7 +396,7 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0) noexcept
   {
-    return chain_rule(-g0.value(), -1, g0);
+    return AD_Function(-g0.value(), (-1) * g0.differential());
   }
 
   ///////////////
@@ -536,19 +407,19 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0 - g1.value(), -1, g1);
+    return AD_Function(g0 - g1.value(), (-1) * g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
   {
-    return chain_rule(g0.value() - g1, +1, g0);
+    return AD_Function(g0.value() - g1, g0.differential());
   }
   template <typename T, typename IMPL0, typename IMPL1>
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return chain_rule(g0.value() - g1.value(), 1, -1, g0, g1);
+    return AD_Function(g0.value() - g1.value(), g0.differential() + (-1) * g1.differential());
   }
 
   ////////////////////////////////////////////////////////////////
@@ -606,4 +477,5 @@ namespace AutoDiffCpp
   {
     return g0.value() != g1.value();
   }
+
 }

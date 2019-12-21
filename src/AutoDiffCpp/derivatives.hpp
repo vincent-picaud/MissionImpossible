@@ -12,7 +12,7 @@ namespace AutoDiffCpp
   Jacobian_row(const AD<T>& f)
   {
     Tape_Vector<T> row(f.tape().row_size());
-    row.assign_ei(f.index()[0]);
+    row.assign_ei(f.index());
     f.tape().reverse(0, row.data());
     return row;
   }
@@ -31,7 +31,7 @@ namespace AutoDiffCpp
   Jacobian_column(const AD<T>& f)
   {
     Tape_Vector<T> column(f.tape().row_size());
-    column.assign_ei(f.index()[0]);
+    column.assign_ei(f.index());
     f.tape().forward(0, column.data());
     return column;
   }
