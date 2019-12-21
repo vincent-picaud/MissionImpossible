@@ -28,8 +28,9 @@ namespace AutoDiffCpp
   using value_type = typename tape_type::value_type;
 
   template <typename T, typename IMPL>
-  struct AD_Crtp : AD_Types<T>
+  class AD_Crtp : AD_Types<T>
   {
+   public:
     AD_TYPES(T);
 
     IMPL&
@@ -145,7 +146,7 @@ namespace AutoDiffCpp
 
   // fwd declaration
   template <typename T>
-  struct AD;
+  class AD;
 
   template <typename T, std::size_t N>
   inline auto operator*(const AD<T>& v, const AD_Differential<T, N>& dg0) noexcept
@@ -174,7 +175,7 @@ namespace AutoDiffCpp
   //////////////////////////////////////////////////////////////////
 
   template <typename T, size_t N>
-  struct AD_Function;
+  class AD_Function;
 
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
@@ -270,7 +271,7 @@ namespace AutoDiffCpp
   };
 
   template <typename T, size_t N>
-  struct AD_Function : public AD_Crtp<T, AD_Function<T, N>>
+  class AD_Function : public AD_Crtp<T, AD_Function<T, N>>
   {
    public:
     AD_TYPES(T);
