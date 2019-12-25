@@ -125,6 +125,22 @@ namespace AutoDiffCpp
       return to_return;
     }
 
+    template <typename T, std::size_t N>
+    inline auto
+    operator-(const std::array<T, N>& a)
+    {
+      // XXX Premature reduction
+      std::array<T, N> to_return;
+      //      std::array<decltype(u * a[0]), N> to_return;
+
+      for (std::size_t i = 0; i < N; ++i)
+      {
+        to_return[i] = -a[i];
+      }
+
+      return to_return;
+    }
+
     //================================================================
 
     template <typename T, size_t N0, size_t N1>
@@ -145,7 +161,7 @@ namespace AutoDiffCpp
       return to_return;
     }
 
-  }
+  }  // Detail
 
   template <typename T, typename IMPL, std::size_t N>
   inline auto operator*(const AD_Crtp<T, IMPL>& v, const AD_Differential<T, N>& dg0) noexcept
@@ -160,7 +176,7 @@ namespace AutoDiffCpp
   {
     using Detail::operator*;
 
-    return AD_Differential<AD<T>, N>{v * dg0.value(), dg0.index()};
+    return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
   template <typename T, std::size_t N>
@@ -169,6 +185,14 @@ namespace AutoDiffCpp
     using namespace Detail;
 
     return AD_Differential{v * dg0.value(), dg0.index()};
+  }
+  template <typename T, std::size_t N>
+  inline auto
+  operator-(const AD_Differential<T, N>& dg0) noexcept
+  {
+    using Detail::operator-;
+
+    return AD_Differential{-dg0.value(), dg0.index()};
   }
 
   template <typename T, std::size_t N0, std::size_t N1>
@@ -397,7 +421,7 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0) noexcept
   {
-    return AD_Function(-g0.value(), (-1) * g0.differential());
+    return AD_Function(-g0.value(), -g0.differential());
   }
 
   ///////////////
@@ -408,7 +432,7 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return AD_Function(g0 - g1.value(), (-1) * g1.differential());
+    return AD_Function(g0 - g1.value(), -g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
@@ -420,7 +444,7 @@ namespace AutoDiffCpp
   inline auto
   operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
-    return AD_Function(g0.value() - g1.value(), g0.differential() + (-1) * g1.differential());
+    return AD_Function(g0.value() - g1.value(), g0.differential() + (-g1.differential()));
   }
 
   ////////////////////////////////////////////////////////////////
