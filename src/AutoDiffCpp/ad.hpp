@@ -206,7 +206,13 @@ namespace AutoDiffCpp
     return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
-  // TODO explain?
+  // TODO explain? OK
+  //
+  // This is used by op* for instance:
+  //
+  // return AD_Function{g0.value() * g1.value(),
+  //                   g1.value() * g0.differential() + g0.value() * g1.differential()};
+  //
   template <typename T, typename IMPL, std::size_t N>
   inline auto operator*(const AD_Crtp<T, IMPL>& v, const AD_Differential<AD<T>, N>& dg0) noexcept
   {
