@@ -67,6 +67,40 @@ namespace AutoDiffCpp
     }
   };
 
+  // Ok but not used for the moment
+  //
+  // template <typename T, typename... COEFS>
+  // class AD_Differential_Tuple : public AD_Types<T>
+  // {
+  //  public:
+  //   AD_TYPES(T);
+
+  //   using value_array_type = std::tuple<T, COEFS...>;
+  //   using index_array_type = std::array<index_type, sizeof...(COEFS)>;
+
+  //  protected:
+  //   value_array_type _value_array;
+  //   index_array_type _index_array;
+
+  //  public:
+  //   AD_Differential_Tuple() {}
+  //   AD_Differential_Tuple(const value_array_type& value_array, const index_array_type& index_array)
+  //       : _value_array(value_array), _index_array(index_array)
+  //   {
+  //   }
+
+  //   const value_array_type&
+  //   value() const
+  //   {
+  //     return _value_array;
+  //   };
+  //   const index_array_type&
+  //   index() const
+  //   {
+  //     return _index_array;
+  //   }
+  // };
+
   template <typename T, std::size_t N>
   class AD_Differential : public AD_Types<T>
   {
@@ -100,6 +134,7 @@ namespace AutoDiffCpp
       return _index_array;
     }
   };
+
   //  To implement chain rule
   //
   //  df○g = ∂0f.dg^0 +  ∂1f.dg^1 + ...
@@ -171,6 +206,7 @@ namespace AutoDiffCpp
     return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
+  // TODO explain?
   template <typename T, typename IMPL, std::size_t N>
   inline auto operator*(const AD_Crtp<T, IMPL>& v, const AD_Differential<AD<T>, N>& dg0) noexcept
   {
