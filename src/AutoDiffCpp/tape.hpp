@@ -209,6 +209,9 @@ namespace AutoDiffCpp
         //
         if (diff_i_m_1 != 0)
         {
+	  // this is important for nested computation
+	  // TODO: when not nested skip me (if constexpr)
+	  //
           if (diff_i_m_1 == 1)
           {
             for (std::size_t j = partial_begin; j < partial_end; ++j)

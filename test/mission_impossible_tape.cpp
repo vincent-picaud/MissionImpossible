@@ -38,8 +38,8 @@ TEST(Mission_Impossible_Tape, local)
 
     c = 2 * a * b;
 
-    // auto grad = gradient(self_destructing_tape, c);
-    auto grad = gradient(c);
+     auto grad = gradient(self_destructing_tape, c);
+    // auto grad = gradient(c);
 
     EXPECT_EQ(grad.size(), 3);
   }

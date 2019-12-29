@@ -22,7 +22,7 @@ namespace AutoDiffCpp
   {
     Tape_Vector<T> row(tape);
     row.assign_ei(f);
-    f.tape().reverse(0, row.data());
+    f.tape().reverse(tape.index_begin(), row.data() - tape.index_begin());
     return row;
   }
 
@@ -31,6 +31,13 @@ namespace AutoDiffCpp
   gradient(const AD<T>& f)
   {
     return Jacobian_row(f);
+  }
+
+  template <typename T>
+  Tape_Vector<T>
+  gradient(const Mission_Impossible_Tape<T>& tape, const AD<T>& f)
+  {
+    return Jacobian_row(tape, f);
   }
 
   //================
