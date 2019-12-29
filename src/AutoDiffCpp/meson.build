@@ -1,5 +1,4 @@
 AutoDiffCpp_headers = [
-  'tape_fwd.hpp',
   'tape.hpp',
   'ad_fwd.hpp',
   'ad.hpp',
@@ -9,6 +8,7 @@ AutoDiffCpp_headers = [
   'derivatives.hpp',
   'always.hpp',
   'final_value_type.hpp',
+  'mission_impossible_tape.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']

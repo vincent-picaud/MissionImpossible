@@ -1,7 +1,5 @@
 #pragma once
 
-#include "AutoDiffCpp/tape_fwd.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -15,7 +13,7 @@ namespace AutoDiffCpp
   class Tape
   {
    public:
-    using index_type = tape_index_type;
+    using index_type = uint_fast32_t;
     using value_type = T;
 
     struct JamesBond_Mark;
@@ -330,7 +328,7 @@ namespace AutoDiffCpp
 
   template <typename T>
   inline Tape<T>&
-  tape()
+  tape() noexcept
   {
     thread_local static Tape<T> _tape;
 

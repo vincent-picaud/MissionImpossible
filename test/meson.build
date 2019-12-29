@@ -5,6 +5,7 @@ test_array = [
   ['derivatives_test','derivatives_exe','derivatives.cpp'],
   ['final_value_type_test','final_value_type_exe','final_value_type.cpp'],
   ['nested_2nd_order_test','nested_2nd_order_exe','nested_2nd_order.cpp'],
+  ['mission_impossible_tape_test','mission_impossible_tape_exe','mission_impossible_tape.cpp'],
 ]
 
 foreach test : test_array
