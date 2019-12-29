@@ -83,12 +83,35 @@ namespace AutoDiffCpp
       assert(check_AD_index(i));
       return data()[i - _offset];
     }
+    // Syntaxic sugar for nested case
+    //
+    // Allows:
+    //
+    // Hessian_row[x]
+    //
+    // intead of
+    //
+    // Hessian_row[x.value()]
+    //
+    template <typename U, typename = std::enable_if_t<Is_AD_v<U>>>
+    const auto& operator[](const AD<U>& var) const
+    {
+      return (*this)[var.value()];
+    }
+
     T& operator[](const AD<T>& var)
     {
       const auto i = var.index();
       assert(check_AD_index(i));
       return data()[i - _offset];
     }
+    // Syntaxic sugar for nested case
+    template <typename U, typename = std::enable_if_t<Is_AD_v<U>>>
+    auto& operator[](const AD<U>& var)
+    {
+      return (*this)[var.value()];
+    }
+
     const T& operator[](const typename AD<T>::index_type i) const
     {
       assert(check_index(i));

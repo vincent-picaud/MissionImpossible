@@ -66,5 +66,6 @@ namespace AutoDiffCpp
 
    public:
     Mission_Impossible_Tape() : base_type(), _recursive() {}
+    operator const Mission_Impossible_Tape<T>&() const noexcept { return _recursive; };
   };
 }

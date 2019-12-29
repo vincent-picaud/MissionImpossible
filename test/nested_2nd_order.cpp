@@ -84,7 +84,7 @@ TEST(Nested, Simple_Polynomial)
 
   auto Hessian_x_row = Jacobian_row(y_gradient[x]);
 
-  EXPECT_EQ(Hessian_x_row[x.value()], 3 * 2 * 4);
+  EXPECT_EQ(Hessian_x_row[x], 3 * 2 * 4);
 
   EXPECT_EQ(1, x.tape().row_size() - n_1);
   EXPECT_EQ(17, x.value().tape().row_size() - nn_1);
@@ -106,21 +106,21 @@ TEST(Nested, Random_1)
 
   auto Hessian_row_x1 = Jacobian_row(y_gradient[x1]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1.value()], +2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2.value()], -2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3.value()], 0.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2], -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3], 0.);
 
   auto Hessian_row_x2 = Jacobian_row(y_gradient[x2]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x1.value()], -2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x2.value()], -1 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x3.value()], +1 / 12.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x1], -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x2], -1 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x3], +1 / 12.);
 
   auto Hessian_row_x3 = Jacobian_row(y_gradient[x3]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x1.value()], 0);
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x2.value()], +1 / 12.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x3.value()], -1 / 18.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x1], 0);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x2], +1 / 12.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x3], -1 / 18.);
 }
 
 TEST(Nested, test_3_order)
@@ -137,41 +137,47 @@ TEST(Nested, test_3_order)
 
   auto y_gradient = Jacobian_row(y);
 
+  // NOTE: one normally can use y_gradient[x1] == 5 / 3.
+  //
+  // -> this is invoked by EXPECT_EQ, but *NOT* ASSERT_DOUBLE_EQ,
+  //    hence we must stick to y_gradient[x1].value().value() to
+  //    provide a *double* value as argument
+  //
   ASSERT_DOUBLE_EQ(y_gradient[x1].value().value(), 5 / 3.);
   ASSERT_DOUBLE_EQ(y_gradient[x2].value().value(), 1 / 3.);
   ASSERT_DOUBLE_EQ(y_gradient[x3].value().value(), 1 / 6.);
 
   auto Hessian_row_x1 = Jacobian_row(y_gradient[x1]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1.value()].value(), +2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2.value()].value(), -2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3.value()].value(), 0.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x1].value(), +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x2].value(), -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1[x3].value(), 0.);
 
   auto Hessian_row_x2 = Jacobian_row(y_gradient[x2]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x1.value()].value(), -2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x2.value()].value(), -1 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x2[x3.value()].value(), +1 / 12.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x1].value(), -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x2].value(), -1 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x2[x3].value(), +1 / 12.);
 
   auto Hessian_row_x3 = Jacobian_row(y_gradient[x3]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x1.value()].value(), 0);
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x2.value()].value(), +1 / 12.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x3[x3.value()].value(), -1 / 18.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x1].value(), 0);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x2].value(), +1 / 12.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x3[x3].value(), -1 / 18.);
 
   //////////////////
 
-  auto Hessian_row_x1_x1 = Jacobian_row(Hessian_row_x1[x1.value()]);
+  auto Hessian_row_x1_x1 = Jacobian_row(Hessian_row_x1[x1]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x1.value().value()], -2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x2.value().value()], +2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x3.value().value()], -1 / 27.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x1], -2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x2], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x1[x3], -1 / 27.);
 
-  auto Hessian_row_x1_x2 = Jacobian_row(Hessian_row_x1[x2.value()]);
+  auto Hessian_row_x1_x2 = Jacobian_row(Hessian_row_x1[x2]);
 
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x1.value().value()], +2 / 9.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x2.value().value()], 0.);
-  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x3.value().value()], -1 / 54.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x1], +2 / 9.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x2], 0.);
+  ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x3], -1 / 54.);
 
   //
   EXPECT_EQ(x1.tape().row_size() - n_1, 1);

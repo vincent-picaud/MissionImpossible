@@ -39,6 +39,22 @@ namespace AutoDiffCpp
   {
     return Jacobian_row(tape, f);
   }
+  // Syntaxic sugar for nested case
+  //
+  // Allows:
+  //
+  // auto Hessian_row = gradient(grad[x])
+  //
+  // intead of
+  //
+  // auto Hessian_row = gradient(grad[x].value())
+  //
+  template <typename T, typename U, typename = std::enable_if_t<Is_AD_v<U>>>
+  Tape_Vector<T>
+  gradient(const Mission_Impossible_Tape<U>& tape, const AD<T>& f)
+  {
+    return gradient(static_cast<const Mission_Impossible_Tape<typename U::value_type>&>(tape), f);
+  }
 
   //================
 
