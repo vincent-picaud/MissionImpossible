@@ -42,10 +42,10 @@ TEST(Nested, Rosenbrock)
   // Check tape length
   //
   EXPECT_EQ(x0.tape().row_size(), 3);
-  EXPECT_EQ(x0.value().tape().row_size(), 48);
+  EXPECT_EQ(x0.value().tape().row_size(), 39);
 
   EXPECT_EQ(x0.tape().memory_size(), 288);
-  EXPECT_EQ(x0.value().tape().memory_size(), 1448);
+  EXPECT_EQ(x0.value().tape().memory_size(), 1424);
 }
 
 TEST(Nested, Debug_op_eq_must_not_create_a_new_var_nested)
@@ -87,7 +87,7 @@ TEST(Nested, Simple_Polynomial)
   EXPECT_EQ(Hessian_x_row[x.value()], 3 * 2 * 4);
 
   EXPECT_EQ(1, x.tape().row_size() - n_1);
-  EXPECT_EQ(18, x.value().tape().row_size() - nn_1);
+  EXPECT_EQ(17, x.value().tape().row_size() - nn_1);
 }
 
 TEST(Nested, Random_1)
@@ -175,6 +175,6 @@ TEST(Nested, test_3_order)
 
   //
   EXPECT_EQ(x1.tape().row_size() - n_1, 1);
-  EXPECT_EQ(x1.value().tape().row_size() - nn_1, 29);
-  EXPECT_EQ(x1.value().value().tape().row_size() - nnn_1, 292);
+  EXPECT_EQ(x1.value().tape().row_size() - nn_1, 23);
+  EXPECT_EQ(x1.value().value().tape().row_size() - nnn_1, 295);
 }

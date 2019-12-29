@@ -67,40 +67,6 @@ namespace AutoDiffCpp
     }
   };
 
-  // Ok but not used for the moment
-  //
-  // template <typename T, typename... COEFS>
-  // class AD_Differential_Tuple : public AD_Types<T>
-  // {
-  //  public:
-  //   AD_TYPES(T);
-
-  //   using value_array_type = std::tuple<T, COEFS...>;
-  //   using index_array_type = std::array<index_type, sizeof...(COEFS)>;
-
-  //  protected:
-  //   value_array_type _value_array;
-  //   index_array_type _index_array;
-
-  //  public:
-  //   AD_Differential_Tuple() {}
-  //   AD_Differential_Tuple(const value_array_type& value_array, const index_array_type& index_array)
-  //       : _value_array(value_array), _index_array(index_array)
-  //   {
-  //   }
-
-  //   const value_array_type&
-  //   value() const
-  //   {
-  //     return _value_array;
-  //   };
-  //   const index_array_type&
-  //   index() const
-  //   {
-  //     return _index_array;
-  //   }
-  // };
-
   template <typename T, std::size_t N>
   class AD_Differential : public AD_Types<T>
   {
@@ -248,7 +214,7 @@ namespace AutoDiffCpp
 
   //////////////////////////////////////////////////////////////////
 
-  template <typename T, size_t N>
+  template <typename T, typename VALUE_TYPE, size_t N>
   class AD_Function;
 
   template <typename T>
@@ -277,9 +243,9 @@ namespace AutoDiffCpp
       return *this;
     }
 
-    template <std::size_t N>
+    template <typename VALUE_TYPE, std::size_t N>
     AD&
-    operator=(const AD_Function<T, N>& ad)
+    operator=(const AD_Function<T, VALUE_TYPE, N>& ad)
     {
       assert((void*)this != (void*)&ad);
 
@@ -338,8 +304,8 @@ namespace AutoDiffCpp
     }
   };
 
-  template <typename T, size_t N>
-  class AD_Function : public AD_Crtp<T, AD_Function<T, N>>
+  template <typename T, typename VALUE_TYPE, size_t N>
+  class AD_Function : public AD_Crtp<T, AD_Function<T, VALUE_TYPE, N>>
   {
     static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
 
@@ -349,21 +315,22 @@ namespace AutoDiffCpp
     using differential_type = AD_Differential<T, N>;
 
    protected:
-    value_type _f_value;
+    VALUE_TYPE _f_value;
     differential_type _df_value;
 
    public:
     AD_Function(){};
-    AD_Function(const value_type& f, const differential_type& df) : _f_value(f), _df_value(df) {}
+    AD_Function(const VALUE_TYPE& f, const differential_type& df) : _f_value(f), _df_value(df) {}
 
-    // XXX Premature reduction
+    // A priori do not force arbitrary reduction as AD_Function
+    // construction use arbitrary VALUE_TYPE
     operator AD<T>() const
     {
       AD<T> y;
       y = *this;
       return y;
     }
-    value_type
+    const VALUE_TYPE
     value() const
     {
       return _f_value;

@@ -20,13 +20,13 @@ namespace AutoDiffCpp
     using value_type = typename AD_Final_Value_Type<typename AD<T>::value_type>::value_type;
   };
 
-  template <typename T, std::size_t N>
+  template <typename T, typename VALUE_TYPE, std::size_t N>
   struct AD_Final_Value_Type<
-      AD_Function<T, N>,
-      std::enable_if_t<Always_True<typename AD_Function<T, N>::value_type>::value>>
+      AD_Function<T, VALUE_TYPE, N>,
+      std::enable_if_t<Always_True<typename AD_Function<T, VALUE_TYPE, N>::value_type>::value>>
   {
-    using value_type =
-        typename AD_Final_Value_Type<typename AD_Function<T, N>::value_type>::value_type;
+    using value_type = typename AD_Final_Value_Type<
+        typename AD_Function<T, VALUE_TYPE, N>::value_type>::value_type;
   };
 
   template <typename T, typename IMPL>

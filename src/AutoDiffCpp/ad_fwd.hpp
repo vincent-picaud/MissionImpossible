@@ -11,7 +11,7 @@ namespace AutoDiffCpp
   template <typename T>
   class AD;
 
-  template <typename T, std::size_t N>
+  template <typename T, typename VALUE_TYPE, std::size_t N>
   class AD_Function;
 
   //================
