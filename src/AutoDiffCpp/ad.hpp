@@ -344,7 +344,7 @@ namespace AutoDiffCpp
     friend std::ostream&
     operator<<(std::ostream& out, const AD_Function& to_print)
     {
-      out << "{ f=" << to_print.value() << "\tdf=[ " << to_print.df() << "] }";
+      out << "{ f=" << to_print.value() << "\tdf=[ " << to_print.differential() << "] }";
 
       return out;
     }
