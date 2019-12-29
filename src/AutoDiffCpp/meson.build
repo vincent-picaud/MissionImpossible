@@ -1,4 +1,5 @@
 AutoDiffCpp_headers = [
+  'tape_fwd.hpp',
   'tape.hpp',
   'ad_fwd.hpp',
   'ad.hpp',

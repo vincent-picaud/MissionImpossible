@@ -1,8 +1,9 @@
 #pragma once
 
+#include "AutoDiffCpp/tape_fwd.hpp"
+
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -14,7 +15,7 @@ namespace AutoDiffCpp
   class Tape
   {
    public:
-    using index_type = uint_fast32_t;
+    using index_type = tape_index_type;
     using value_type = T;
 
     struct JamesBond_Mark;
@@ -219,7 +220,7 @@ namespace AutoDiffCpp
             continue;
           }
 
-	  // does not reduce tape size
+          // does not reduce tape size
           // if (diff_i_m_1 == -1)
           // {
           //   for (std::size_t j = partial_begin; j < partial_end; ++j)
