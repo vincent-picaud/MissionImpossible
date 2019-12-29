@@ -24,7 +24,6 @@ namespace AutoDiffCpp
       index_type index;
       value_type value;
     };
-    static_assert(std::is_trivially_copyable_v<Index_PartialD>);
 
    private:
     bool
@@ -49,7 +48,17 @@ namespace AutoDiffCpp
 
         const auto new_p = new P[new_size];
 
-        std::memcpy(new_p, p, new_size * sizeof(decltype(*p)));
+        if constexpr (std::is_trivially_copyable_v<P>)
+        {
+          std::memcpy(new_p, p, new_size * sizeof(decltype(*p)));
+        }
+        else
+        {
+          for (size_t i = 0; i < new_size; ++i)
+          {
+            new_p[i] = p[i];
+          }
+        }
         capacity = new_size;
         delete[] p;
         p = new_p;
