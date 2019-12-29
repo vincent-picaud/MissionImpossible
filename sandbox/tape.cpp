@@ -1,4 +1,5 @@
 #include "AutoDiffCpp/ad.hpp"
+#include "AutoDiffCpp/mission_impossible_tape.hpp"
 
 #include <iomanip>
 #include <vector>
@@ -26,7 +27,7 @@ main()
   y = 3 * x * x;
   std::cout << "\n tape before \n" << tape<T>();
   {
-    auto mark = tape<T>().JamesBond_mark();
+    Mission_Impossible_Tape<T> mark;
 
     y = x * y;
     std::cout << tape<T>();
@@ -42,7 +43,7 @@ main()
   std::cout << "\n tape after \n" << tape<T>();
 
   {
-    auto mark = tape<T>().JamesBond_mark();
+    Mission_Impossible_Tape<T> mark;
 
     y = x * y;
     std::cout << tape<T>();

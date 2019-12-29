@@ -1,6 +1,7 @@
 #include "AutoDiffCpp/tape_vector.hpp"
 #include "AutoDiffCpp/ad.hpp"
 #include "AutoDiffCpp/tape.hpp"
+#include "AutoDiffCpp/mission_impossible_tape.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
@@ -20,7 +21,7 @@ TEST(Tape_Vector, demo)
 
   EXPECT_EQ(tape<T>().row_size(), 2);
 
-  auto jb_tape = tape<T>().JamesBond_mark();
+  auto jb_tape = Mission_Impossible_Tape<T>();
 
   EXPECT_EQ(tape<T>().row_size(), 2);
 
