@@ -319,14 +319,17 @@ namespace AutoDiffCpp
     AD_Function(){};
     AD_Function(const VALUE_TYPE& f, const differential_type& df) : _f_value(f), _df_value(df) {}
 
-    // A priori do not force arbitrary reduction as AD_Function
-    // construction use arbitrary VALUE_TYPE
-    operator AD<T>() const
-    {
-      AD<T> y;
-      y = *this;
-      return y;
-    }
+    // A priori do not define such conversion operator as it opens the
+    // door to multiple creation of the same AD<T> var that fills the
+    // tape with redundant rows.
+
+    // operator AD<T>() const
+    // {
+    //   AD<T> y;
+    //   y = *this;
+    //   return y;
+    // }
+
     const VALUE_TYPE
     value() const
     {

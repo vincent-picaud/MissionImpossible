@@ -14,6 +14,7 @@ namespace AutoDiffCpp
    private:
     std::size_t _offset;
     std::size_t _size;
+    // IMPORTANT:
     // principe of least surprise,  _data[i] must be valid for 0 <= i < size
     // CAVEAT: op[AD<T>x] ok, but internally use [x.index()-offset]
     std::shared_ptr<T[]> _data;
