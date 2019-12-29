@@ -1,6 +1,8 @@
 #pragma once
 
 #include "AutoDiffCpp/ad.hpp"
+#include "AutoDiffCpp/mission_impossible_tape.hpp"
+#include "AutoDiffCpp/tape.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -31,13 +33,11 @@ namespace AutoDiffCpp
     }
 
    public:
-    Tape_Vector(const std::size_t size) : _offset(0), _size(size), _data(new T[_size]) {}
-
-    // TODO: to keep until moved into another place
-    // Tape_Vector(const typename TAPE::JamesBond_Mark& jb_tape)
-    //     : _offset(jb_tape.index_begin()), _size(jb_tape.size()), _data(new T[_size])
-    // {
-    // }
+    Tape_Vector(const Tape<T>& tape) : _offset(0), _size(tape.row_size()), _data(new T[_size]) {}
+    Tape_Vector(const Mission_Impossible_Tape<T>& tape)
+        : _offset(tape.index_begin()), _size(tape.size()), _data(new T[_size])
+    {
+    }
 
     // data[i], 0 <= i < size
     const T*
@@ -68,6 +68,13 @@ namespace AutoDiffCpp
         p[i] = 0;
       }
       p[i_star] = 1;
+    }
+    void
+    assign_ei(const AD<T>& var_star)
+    {
+      const auto i_star = var_star.index();
+      assert(check_AD_index(i_star));
+      assign_ei(i_star - _offset);
     }
 
     const T& operator[](const AD<T>& var) const
