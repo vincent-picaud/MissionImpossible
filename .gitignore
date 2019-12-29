@@ -3,3 +3,5 @@ build/
 subprojects/googletest-release-1.8.0
 subprojects/packagecache/
 /tutorial/tutorial.html
+build-release
+subprojects/benchmark-1.4.1

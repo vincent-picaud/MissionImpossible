@@ -25,3 +25,7 @@ executable('big_one_2',
 executable('big_one_3',
 	   'big_one_3.cpp',
 	   dependencies : [AutoDiffCpp_dep])
+
+executable('ad_benchmark',
+	   'ad_benchmark.cpp',
+	   dependencies : [AutoDiffCpp_dep,google_benchmark_dep])
