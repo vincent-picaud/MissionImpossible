@@ -83,19 +83,20 @@ namespace AutoDiffCpp
     index_array_type _index_array;
 
    public:
-    AD_Differential() {}
-    AD_Differential(const value_array_type& value_array, const index_array_type& index_array)
+    AD_Differential() noexcept {}
+    AD_Differential(const value_array_type& value_array,
+                    const index_array_type& index_array) noexcept
         : _value_array(value_array), _index_array(index_array)
     {
     }
 
     const value_array_type&
-    value() const
+    value() const noexcept
     {
       return _value_array;
     };
     const index_array_type&
-    index() const
+    index() const noexcept
     {
       return _index_array;
     }
@@ -112,7 +113,7 @@ namespace AutoDiffCpp
   namespace Detail
   {
     template <typename U, typename T, std::size_t N>
-    inline auto operator*(const U& u, const std::array<T, N>& a)
+    inline auto operator*(const U& u, const std::array<T, N>& a) noexcept
     {
       // XXX Premature reduction
       std::array<T, N> to_return;
@@ -128,7 +129,7 @@ namespace AutoDiffCpp
 
     template <typename T, std::size_t N>
     inline auto
-    operator-(const std::array<T, N>& a)
+    operator-(const std::array<T, N>& a) noexcept
     {
       // XXX Premature reduction
       std::array<T, N> to_return;

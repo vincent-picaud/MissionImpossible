@@ -12,22 +12,22 @@ main()
 
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  assert(y.value().value() == 254);
+  assert(y == 254);
 
   auto y_gradient = Jacobian_row(y);
 
-  assert(y_gradient[x0].value() == 604);
-  assert(y_gradient[x1].value() == -100);
+  assert(y_gradient[x0] == 604);
+  assert(y_gradient[x1] == -100);
 
   auto Hessian_x0_row = Jacobian_row(y_gradient[x0]);
 
-  assert(Hessian_x0_row[x0.value()] == 922);
-  assert(Hessian_x0_row[x1.value()] == -120);
+  assert(Hessian_x0_row[x0] == 922);
+  assert(Hessian_x0_row[x1] == -120);
 
   auto Hessian_x1_row = Jacobian_row(y_gradient[x1]);
 
-  assert(Hessian_x1_row[x0.value()] == -120);
-  assert(Hessian_x1_row[x1.value()] == 20);
+  assert(Hessian_x1_row[x0] == -120);
+  assert(Hessian_x1_row[x1] == 20);
 
   // Check tape length
   //
