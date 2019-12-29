@@ -214,9 +214,6 @@ namespace AutoDiffCpp
 
   //////////////////////////////////////////////////////////////////
 
-  template <typename T, typename VALUE_TYPE, size_t N>
-  class AD_Function;
-
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
   {
