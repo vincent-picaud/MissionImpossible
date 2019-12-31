@@ -11,6 +11,7 @@ AutoDiffCpp_headers = [
   'mission_impossible_tape.hpp',
   # main header 
   'Mission_Impossible.hpp',
+  'functions.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']
