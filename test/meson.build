@@ -7,6 +7,7 @@ test_array = [
   ['nested_2nd_order_test','nested_2nd_order_exe','nested_2nd_order.cpp'],
   ['mission_impossible_tape_test','mission_impossible_tape_exe','mission_impossible_tape.cpp'],
   ['functions_test','functions_exe','functions.cpp'],
+  ['forward_mode_test','forward_mode_exe','forward_mode.cpp'],
 ]
 
 foreach test : test_array
