@@ -1,0 +1,5 @@
+* Compilation
+** Release
+#+BEGIN_SRC sh :eval never
+meson --buildtype=release -Db_ndebug=on build-release
+#+END_SRC
