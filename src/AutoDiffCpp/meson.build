@@ -9,6 +9,8 @@ AutoDiffCpp_headers = [
   'always.hpp',
   'final_value_type.hpp',
   'mission_impossible_tape.hpp',
+  # main header 
+  'Mission_Impossible.hpp',
 ]
 
 AutoDiffCpp_sources = ['tape.cpp']
