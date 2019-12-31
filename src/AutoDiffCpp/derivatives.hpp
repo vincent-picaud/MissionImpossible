@@ -67,4 +67,14 @@ namespace AutoDiffCpp
     f.tape().forward(0, column.data());
     return column;
   }
+
+  template <typename T>
+  Tape_Vector<T>
+  Jacobian_column(const Mission_Impossible_Tape<T>& tape, const AD<T>& f)
+  {
+    Tape_Vector<T> column(tape);
+    column.assign_ei(f);
+    f.tape().forward(tape.index_begin(), column.data() - tape.index_begin());
+    return column;
+  }
 }
