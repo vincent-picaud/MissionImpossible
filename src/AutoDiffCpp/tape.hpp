@@ -44,15 +44,15 @@ namespace AutoDiffCpp
       {
         new_size = std::max(new_size, growth_factor * capacity);
 
-        const auto new_p = new P[new_size];
+        P* const new_p = new P[new_size];
 
         if constexpr (std::is_trivially_copyable_v<P>)
         {
-          std::memcpy(new_p, p, new_size * sizeof(decltype(*p)));
+          std::memcpy(new_p, p, capacity * sizeof(decltype(*new_p)));
         }
         else
         {
-          for (size_t i = 0; i < new_size; ++i)
+          for (size_t i = 0; i < capacity; ++i)
           {
             new_p[i] = p[i];
           }
@@ -209,9 +209,9 @@ namespace AutoDiffCpp
         //
         if (diff_i_m_1 != 0)
         {
-	  // this is important for nested computation
-	  // TODO: when not nested skip me (if constexpr)
-	  //
+          // this is important for nested computation
+          // TODO: when not nested skip me (if constexpr)
+          //
           if (diff_i_m_1 == 1)
           {
             for (std::size_t j = partial_begin; j < partial_end; ++j)
