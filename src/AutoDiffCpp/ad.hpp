@@ -321,9 +321,9 @@ namespace AutoDiffCpp
     AD_Function(const VALUE_TYPE& f, const differential_type& df) : _f_value(f), _df_value(df) {}
 
     // A priori do not define such conversion operator as it opens the
-    // door to multiple creation of the same AD<T> var that fills the
+    // door to multiple creations of the same AD<T> var that fills the
     // tape with redundant rows.
-
+    //
     // operator AD<T>() const
     // {
     //   AD<T> y;
