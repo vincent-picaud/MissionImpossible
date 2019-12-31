@@ -21,7 +21,18 @@ namespace AutoDiffCpp
   sin(const AD_Crtp<T, IMPL>& x) noexcept
   {
     using std::sin;
+    using std::cos;
 
     return AD_Function(sin(x.value()), cos(x.value()) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  cos(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::cos;
+    using std::sin;
+
+    return AD_Function(cos(x.value()), -sin(x.value()) * x.differential());
   }
 }
