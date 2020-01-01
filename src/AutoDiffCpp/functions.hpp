@@ -99,4 +99,15 @@ namespace AutoDiffCpp
     return AD_Function(cos(x.value()), -sin(x.value()) * x.differential());
   }
 
+  // TO TEST
+  template <typename T, typename IMPL>
+  inline auto
+  tan(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::cos;
+    using std::tan;
+
+    return AD_Function(tan(x.value()), 1 / pow(cos(x.value()), 2) * x.differential());
+  }
+
 }
