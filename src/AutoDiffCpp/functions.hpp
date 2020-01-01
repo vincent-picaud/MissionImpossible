@@ -53,6 +53,8 @@ namespace AutoDiffCpp
     return type_reduction;
   }
 
+  // TODO: max
+
   //////////////////////////
   // Elementary functions //
   //////////////////////////
@@ -65,6 +67,16 @@ namespace AutoDiffCpp
 
     const auto v = exp(x.value());
     return AD_Function(v, v * x.differential());
+  }
+
+  // TO TEST
+  template <typename T, typename IMPL>
+  inline auto
+  log(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::log;
+
+    return AD_Function(log(x.value()), (1 / x.value()) * x.differential());
   }
 
   template <typename T, typename IMPL>
@@ -86,4 +98,5 @@ namespace AutoDiffCpp
 
     return AD_Function(cos(x.value()), -sin(x.value()) * x.differential());
   }
+
 }
