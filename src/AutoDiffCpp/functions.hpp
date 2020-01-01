@@ -10,6 +10,25 @@ namespace AutoDiffCpp
   // Min/max like functions //
   ////////////////////////////
 
+  // TO TEST
+  template <typename T, typename IMPL>
+  inline AD<T>
+  abs(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::abs;
+
+    AD<T> type_reduction;
+    if (x.value() < 0)
+    {
+      type_reduction = AD_Function(-x.value(), -x.differential());
+    }
+    else
+    {
+      type_reduction = x;
+    }
+    return type_reduction;
+  }
+
   // Explain why it also works for NaN
   //
   template <typename T, typename IMPL>
