@@ -78,6 +78,16 @@ namespace AutoDiffCpp
   // Elementary functions //
   //////////////////////////
 
+  // TO TEST + TODO float exponent
+  template <typename T, typename IMPL>
+  inline auto
+  pow(const AD_Crtp<T, IMPL>& x, const int iexp) noexcept
+  {
+    using std::pow;
+
+    return AD_Function(pow(x.value(), iexp), pow(x.value(), iexp - 1) * x.differential());
+  }
+
   template <typename T, typename IMPL>
   inline auto
   exp(const AD_Crtp<T, IMPL>& x) noexcept
