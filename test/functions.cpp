@@ -6,6 +6,18 @@
 
 using namespace AutoDiffCpp;
 
+//////////////////////////////////////////////////////////////////
+
+TEST(Function, min)
+{
+  AD<double> x0 = 2, x1 = 3, y;
+  y         = min(2 * x0, x0 + x1);
+  auto grad = gradient(y);
+  // ASSERT_DOUBLE_EQ(y.value(), exp(x.value()));
+  // ASSERT_DOUBLE_EQ(grad[x], exp(x.value()));
+}
+
+//////////////////////////////////////////////////////////////////
 TEST(Function, exp)
 {
   AD<double> x = 2, y;
