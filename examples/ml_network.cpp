@@ -361,14 +361,32 @@ main()
   const size_t n_data = XY.first.size();
   std::uniform_int_distribution<size_t> random_sample(0, n_data - 1);
 
-  const T eta = 0.05;
+  const T eta = 0.1;
 
-  for (std::size_t iter = 0; iter < 20; ++iter)
+  for (std::size_t iter = 0; iter < 1e5; ++iter)
   {
     const size_t sample_idx = random_sample(gen);
+    [[maybe_unused]] const auto cost =
+        iterate(eta, W2, b2, W3, b3, W4, b4, XY.first[sample_idx], XY.second[sample_idx]);
 
-    std::cerr << "\n"
-              << iter << " " << sample_idx << " "
-              << iterate(eta, W2, b2, W3, b3, W4, b4, XY.first[sample_idx], XY.second[sample_idx]);
+    std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
+  }
+
+  return 0;
+
+  // Classifier output
+  //
+  std::cout << std::endl;
+  const double grid_N = 60;
+  const double grid_M = 60;
+  for (std::size_t j = 0; j <= grid_M; ++j)
+  {
+    for (std::size_t i = 0; i <= grid_N; ++i)
+    {
+      TinyVector<T, 2> x{i / grid_N, j / grid_M};
+      const auto y = network(W2, b2, W3, b3, W4, b4, x);
+      std::cout << (y[0] > y[1] ? 1 : 0) << " ";
+    }
+    std::cout << std::endl;
   }
 }
