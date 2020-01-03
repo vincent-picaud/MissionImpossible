@@ -9,3 +9,8 @@ meson --buildtype=release -Db_ndebug=on build-release
 
 * Examples
 ** Hessian action $H.v$
+
+Observe that
+$$
+H.v=\nabla_w v.\nabla f
+$$
