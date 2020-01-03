@@ -8,7 +8,7 @@ namespace AutoDiffCpp
   namespace Detail
   {
     template <typename T>
-    class Mission_Impossible_Tape_Base
+    class Mission_Impossible_Tape_Data
     {
      public:
       using index_type = typename Tape<T>::index_type;
@@ -22,12 +22,10 @@ namespace AutoDiffCpp
         return AutoDiffCpp::tape<T>();
       }
 
-      Mission_Impossible_Tape_Base() : _index_begin(tape().row_size()) {}
-
-      Mission_Impossible_Tape_Base operator=(const Mission_Impossible_Tape_Base&) = delete;
+      Mission_Impossible_Tape_Data() : _index_begin(tape().row_size()) {}
 
      public:
-      ~Mission_Impossible_Tape_Base() { tape().rewind(_index_begin); }
+      ~Mission_Impossible_Tape_Data() { tape().rewind(_index_begin); }
 
       std::size_t
       size() const
@@ -43,29 +41,35 @@ namespace AutoDiffCpp
     };
   }
 
-  // First order case
+  // Recursive implementation to smoothly support nested AD<AD<...>>
+  //
   template <typename T>
-  struct Mission_Impossible_Tape : public Detail::Mission_Impossible_Tape_Base<T>
+  class Mission_Impossible_Tape;
+
+  template <typename T>
+  class Mission_Impossible_Tape : public Detail::Mission_Impossible_Tape_Data<T>
   {
    protected:
-    using base_type = Detail::Mission_Impossible_Tape_Base<T>;
+    using base_type = Detail::Mission_Impossible_Tape_Data<T>;
 
    public:
     Mission_Impossible_Tape() : base_type() {}
   };
 
-  // Nested tape cases
   template <typename T>
-  struct Mission_Impossible_Tape<AD<T>> : public Detail::Mission_Impossible_Tape_Base<AD<T>>
+  class Mission_Impossible_Tape<AD<T>> : public Mission_Impossible_Tape<T>,
+                                         public Detail::Mission_Impossible_Tape_Data<AD<T>>
   {
    protected:
-    Mission_Impossible_Tape<T> _recursive;
-
-   protected:
-    using base_type = Detail::Mission_Impossible_Tape_Base<AD<T>>;
+    using recursion_type = Mission_Impossible_Tape<T>;
+    using base_type      = Detail::Mission_Impossible_Tape_Data<AD<T>>;
 
    public:
-    Mission_Impossible_Tape() : base_type(), _recursive() {}
-    operator const Mission_Impossible_Tape<T>&() const noexcept { return _recursive; };
+    using base_type::index_begin;
+    using base_type::size;
+    using base_type::tape;
+
+    Mission_Impossible_Tape() : recursion_type(), base_type() {}
   };
+
 }

@@ -16,9 +16,22 @@ namespace AutoDiffCpp
     f.tape().reverse(0, row.data());
     return row;
   }
+  // Note:
+  //
+  // The reucrsive implementation of Mission_Impossible_Tape<...> is
+  // there to support syntaxic sugar for nested case
+  //
+  // By example, it allows:
+  //
+  // auto Hessian_row = gradient(grad[x])
+  //
+  // instead of
+  //
+  // auto Hessian_row = gradient(grad[x].value())
+  //
   template <typename T>
   Tape_Vector<T>
-  Jacobian_row(const Mission_Impossible_Tape<T>& tape, const AD<T>& f)
+  Jacobian_row(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     Tape_Vector<T> row(tape);
     row.assign_ei(f);
@@ -35,25 +48,9 @@ namespace AutoDiffCpp
 
   template <typename T>
   Tape_Vector<T>
-  gradient(const Mission_Impossible_Tape<T>& tape, const AD<T>& f)
+  gradient(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     return Jacobian_row(tape, f);
-  }
-  // Syntaxic sugar for nested case
-  //
-  // Allows:
-  //
-  // auto Hessian_row = gradient(grad[x])
-  //
-  // intead of
-  //
-  // auto Hessian_row = gradient(grad[x].value())
-  //
-  template <typename T, typename U, typename = std::enable_if_t<Is_AD_v<U>>>
-  Tape_Vector<T>
-  gradient(const Mission_Impossible_Tape<U>& tape, const AD<T>& f)
-  {
-    return gradient(static_cast<const Mission_Impossible_Tape<typename U::value_type>&>(tape), f);
   }
 
   //================
@@ -70,7 +67,7 @@ namespace AutoDiffCpp
 
   template <typename T>
   Tape_Vector<T>
-  Jacobian_column(const Mission_Impossible_Tape<T>& tape, const AD<T>& f)
+  Jacobian_column(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     Tape_Vector<T> column(tape);
     column.assign_ei(f);
