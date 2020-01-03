@@ -232,6 +232,11 @@ namespace AutoDiffCpp
    public:
     AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
     AD(const AD_Final_Value_Type_t<value_type> value) noexcept : AD() { (*this) = value; }
+    template <typename VALUE_TYPE, std::size_t N>
+    AD(const AD_Function<T, VALUE_TYPE, N>& ad)
+    {
+      (*this) = ad;
+    }
 
     AD&
     operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
