@@ -1,4 +1,3 @@
-#+OPTIONS: toc:nil num:nil todo:nil pri:nil tags:nil tex:dvipng
 #+TITLE: Mission : impossible, Automatic Differentiation
 
 * Compilation
@@ -12,7 +11,15 @@ meson --buildtype=release -Db_ndebug=on build-release
 
 Observe that
 $$
-H.v=\nabla_w v.\nabla f
+H.v=\nabla_X \langle v,\nabla_X f \rangle
 $$
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=H.v" target="_blank"><img src="https://latex.codecogs.com/gif.latex?H.v" title="H.v" /></a>
+Check:
+
+$$
+\nabla_X v . \nabla_X f = \nabla_X  \langle v, \sum_j \partial_j f \rangle =\sum_{ij} v_i \partial_{ij}f = H.v
+$$
+
+The associated code is
+
+#+INCLUDE: "./test/Hv.cpp" src cpp
