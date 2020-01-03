@@ -336,6 +336,9 @@ data_XY()
 
   return std::pair(X, Y);
 }
+
+
+
 int
 main()
 {
@@ -372,7 +375,7 @@ main()
     std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
   }
 
-  return 0;
+  //  return 0;
 
   // Classifier output
   //
