@@ -8,6 +8,7 @@ test_array = [
   ['mission_impossible_tape_test','mission_impossible_tape_exe','mission_impossible_tape.cpp'],
   ['functions_test','functions_exe','functions.cpp'],
   ['forward_mode_test','forward_mode_exe','forward_mode.cpp'],
+  ['Hv_test','Hv_exe','Hv.cpp'],
 ]
 
 foreach test : test_array
