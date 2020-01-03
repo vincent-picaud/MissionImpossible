@@ -13,31 +13,21 @@ TEST(Nested, Rosenbrock)
   y = (1 - x0) * (1 - x0) +
       10 * (x1 - x0 * x0) * (x1 - x0 * x0);  // remark: y[x0] type is  AD<AD<T>>
 
-  EXPECT_EQ(y, 254);  // TOFIX: overload == to avoid value().value() <- CREAT AN EXTRA INSTANCE
-                      // So far, fixed with Final_Value_Type
+  EXPECT_EQ(y, 254);
   auto y_gradient = Jacobian_row(y);
 
-  EXPECT_EQ(y_gradient[x0].value(), 604);  // remark: y_gradient[x0] type is AD<T>
-  EXPECT_EQ(y_gradient[x1].value(), -100);
+  EXPECT_EQ(y_gradient[x0], 604);  // remark: y_gradient[x0] type is AD<T>
+  EXPECT_EQ(y_gradient[x1], -100);
 
   auto Hessian_x0_row = Jacobian_row(y_gradient[x0]);  // remark: Hessian_x0_row[x0] type is T
 
-  EXPECT_EQ(Hessian_x0_row[x0.value()], 922);  // CAVEAT: Concerning
-                                               // the ugly syntax
-                                               // [x0.value()] for the
-                                               // moment I do not
-                                               // think we must
-                                               // redefine a
-                                               // Tape_Vector::op[]()
-                                               // BUT one must define
-                                               // a new Tape_Matrix
-                                               // type instead
-  EXPECT_EQ(Hessian_x0_row[x1.value()], -120);
+  EXPECT_EQ(Hessian_x0_row[x0], 922);
+  EXPECT_EQ(Hessian_x0_row[x1], -120);
 
   auto Hessian_x1_row = Jacobian_row(y_gradient[x1]);
 
-  EXPECT_EQ(Hessian_x1_row[x0.value()], -120);
-  EXPECT_EQ(Hessian_x1_row[x1.value()], 20);
+  EXPECT_EQ(Hessian_x1_row[x0], -120);
+  EXPECT_EQ(Hessian_x1_row[x1], 20);
 
   // Check tape length
   //
@@ -80,7 +70,7 @@ TEST(Nested, Simple_Polynomial)
 
   auto y_gradient = Jacobian_row(y);
 
-  EXPECT_EQ(y_gradient[x].value(), 3 * 4 * 4);
+  EXPECT_EQ(y_gradient[x], 3 * 4 * 4);
 
   auto Hessian_x_row = Jacobian_row(y_gradient[x]);
 
@@ -90,6 +80,11 @@ TEST(Nested, Simple_Polynomial)
   EXPECT_EQ(17, x.value().tape().row_size() - nn_1);
 }
 
+// NOTE: when using ASSERT_DOUBLE_EQ instead of EXPECT_EQ, the
+// overloaded ==(AD,AD) operator is not used anymore and one must
+// provide a double. This force us to use the ugly syntax
+// y.value().value().value()...
+//
 TEST(Nested, Random_1)
 {
   AD<AD<double>> x1(1), x2(2), x3(3), y;
@@ -137,12 +132,6 @@ TEST(Nested, test_3_order)
 
   auto y_gradient = Jacobian_row(y);
 
-  // NOTE: one normally can use y_gradient[x1] == 5 / 3.
-  //
-  // -> this is invoked by EXPECT_EQ, but *NOT* ASSERT_DOUBLE_EQ,
-  //    hence we must stick to y_gradient[x1].value().value() to
-  //    provide a *double* value as argument
-  //
   ASSERT_DOUBLE_EQ(y_gradient[x1].value().value(), 5 / 3.);
   ASSERT_DOUBLE_EQ(y_gradient[x2].value().value(), 1 / 3.);
   ASSERT_DOUBLE_EQ(y_gradient[x3].value().value(), 1 / 6.);

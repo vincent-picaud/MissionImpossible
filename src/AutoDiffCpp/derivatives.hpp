@@ -18,8 +18,8 @@ namespace AutoDiffCpp
   }
   // Note:
   //
-  // The reucrsive implementation of Mission_Impossible_Tape<...> is
-  // there to support syntaxic sugar for nested case
+  // The recursive implementation of Mission_Impossible_Tape<...> is
+  // there to support syntactic sugar for nested case
   //
   // By example, it allows:
   //
