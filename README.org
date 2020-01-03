@@ -14,3 +14,5 @@ Observe that
 $$
 H.v=\nabla_w v.\nabla f
 $$
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=H.v" target="_blank"><img src="https://latex.codecogs.com/gif.latex?H.v" title="H.v" /></a>
