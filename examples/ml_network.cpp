@@ -266,7 +266,28 @@ network(const TinyMatrix<T, 3, 2>& W2,
   return cost;
 }
 
-template <typename T>
+// CAVEAT: for gradient use ONE sample, but plot GLOBAL cost
+template <typename T, std::size_t N>
+T
+global_cost(const TinyMatrix<T, 3, 2>& W2,
+            const TinyVector<T, 3>& b2,
+            const TinyMatrix<T, 2, 3>& W3,
+            const TinyVector<T, 2>& b3,
+            const TinyMatrix<T, 2, 2>& W4,
+            const TinyVector<T, 2>& b4,
+            const TinyMatrix<T, N, 2>& X,
+            const TinyMatrix<T, N, 2>& y)
+{
+  T sum = 0;
+  for (size_t i = 0; i < N; ++i)
+  {
+    const auto pred = network(W2, b2, W3, b3, W4, b4, X[i]);
+    sum += pow(pred[0] - y[i][0], 2) + pow(pred[1] - y[i][1], 2);
+  }
+  return sum;
+}
+
+template <typename T, std::size_t N>
 T
 iterate(const T& eta,
         TinyMatrix<T, 3, 2>& W2,
@@ -275,8 +296,9 @@ iterate(const T& eta,
         TinyVector<T, 2>& b3,
         TinyMatrix<T, 2, 2>& W4,
         TinyVector<T, 2>& b4,
-        const TinyVector<T, 2>& x,
-        const TinyVector<T, 2>& y)
+        const TinyMatrix<T, N, 2>& X,
+        const TinyMatrix<T, N, 2>& y,
+        const std::size_t sample_idx)
 {
   Mission_Impossible_Tape<T> local_tape;
 
@@ -286,8 +308,8 @@ iterate(const T& eta,
   auto ad_b2 = to_AD(b2);
   auto ad_b3 = to_AD(b3);
   auto ad_b4 = to_AD(b4);
-  auto ad_x  = to_AD(x);
-  auto ad_y  = to_AD(y);
+  auto ad_x  = to_AD(X[sample_idx]);
+  auto ad_y  = to_AD(y[sample_idx]);
 
   auto cost = network(ad_W2, ad_b2, ad_W3, ad_b3, ad_W4, ad_b4, ad_x, ad_y);
 
@@ -302,7 +324,7 @@ iterate(const T& eta,
   b3 = b3 - eta * extract_grad(ad_b3, grad_cost);
   b4 = b4 - eta * extract_grad(ad_b4, grad_cost);
 
-  return cost.value();
+  return global_cost(W2, b2, W3, b3, W4, b4, X, y);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -337,8 +359,6 @@ data_XY()
   return std::pair(X, Y);
 }
 
-
-
 int
 main()
 {
@@ -364,18 +384,22 @@ main()
   const size_t n_data = XY.first.size();
   std::uniform_int_distribution<size_t> random_sample(0, n_data - 1);
 
-  const T eta = 0.1;
+  const T eta = 1.5;
 
   for (std::size_t iter = 0; iter < 1e5; ++iter)
   {
     const size_t sample_idx = random_sample(gen);
     [[maybe_unused]] const auto cost =
-        iterate(eta, W2, b2, W3, b3, W4, b4, XY.first[sample_idx], XY.second[sample_idx]);
+        iterate(eta, W2, b2, W3, b3, W4, b4, XY.first, XY.second, sample_idx);
 
+    // Gnuplot:
+    // gnuplot> set logscale y 10
+    // gnuplot> plot "cv.txt" u 1:3 w l
+    
     std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
   }
 
-  //  return 0;
+  return 0;
 
   // Classifier output
   //
