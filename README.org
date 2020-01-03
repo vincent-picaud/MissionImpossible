@@ -17,9 +17,9 @@ $$
 H.v=\nabla_{X} \langle v,\nabla_{X} f \rangle
 $$
 
-$$
+\begin{equation}
 \nabla_{X} v . \nabla_{X} f = \nabla_{X}  \langle v, \sum_{j} \partial_{j} f \rangle =\sum_{ij} v_i \partial_{ij}f = H.v
-$$
+\end{equation}
 
 The associated code is
 
