@@ -1,5 +1,11 @@
+#+OPTIONS: toc:nil num:nil todo:nil pri:nil tags:nil tex:dvipng
+#+TITLE: Mission : impossible, Automatic Differentiation
+
 * Compilation
 ** Release
 #+BEGIN_SRC sh :eval never
 meson --buildtype=release -Db_ndebug=on build-release
 #+END_SRC
+
+* Examples
+** Hessian action $H.v$

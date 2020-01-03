@@ -5,3 +5,4 @@ subprojects/packagecache/
 /tutorial/tutorial.html
 build-release
 subprojects/benchmark-1.4.1
+/README.html
