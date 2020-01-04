@@ -2,7 +2,7 @@
 
 Check:
 
-#+RESULTS:
+
 * Compilation
 ** Release
 #+BEGIN_SRC sh :eval never
@@ -28,7 +28,8 @@ The associated code is
 cat $(pwd)/test/Hv.cpp
 #+END_SRC
 
-#+begin_src cpp :eval never
+#+RESULTS:
+#+BEGIN_src cpp :eval never
 #include "AutoDiffCpp/ad.hpp"
 #include "AutoDiffCpp/derivatives.hpp"
 
@@ -51,7 +52,8 @@ TEST(Nested, Hv)
   assert(y_gradient[x0] == 604);
   assert(y_gradient[x1] == -100);
 
-  AD<double> v0(5), v1(6), z;
+  AD<double> z;
+  double v0(5), v1(6);
   z = v0 * y_gradient[x0] + v1 * y_gradient[x1];  // Compute v.∇_w f
 
   auto z_gradient = Jacobian_row(z);  // Compute ∇_w(v.∇_w f) = H.v
@@ -59,4 +61,5 @@ TEST(Nested, Hv)
   assert(z_gradient[x0] == 3890);
   assert(z_gradient[x1] == -480);
 }
-#+end_src
+#+END_src
+

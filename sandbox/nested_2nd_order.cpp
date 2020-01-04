@@ -26,7 +26,9 @@ directional()
   assert(y_gradient[x0] == 604);
   assert(y_gradient[x1] == -100);
 
-  AD<double> v0(5), v1(6), z;
+  AD<double> z;
+  double v0(5), v1(6);
+
   z = v0 * y_gradient[x0] + v1 * y_gradient[x1];
 
   auto z_gradient = Jacobian_row(z);
