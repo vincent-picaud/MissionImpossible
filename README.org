@@ -1,5 +1,4 @@
-#+TITLE: Mission : Impossible,
-#+SUBTITLE:  Automatic Differentiation with self-destructing tape...
+#+TITLE: Mission : Impossible (autodiff with self-destructing tape...)
 
 * What is it?
 
@@ -9,7 +8,30 @@ general purpose small to mid size problems. For repeated calculations
 it is very easy to define an auto-destructive local tape , hence the
 wink to the series "Mission: Impossible".
 
+#+begin_center
 [[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
+#+end_center
+
+#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/self_destructing_tape.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+template <typename T>
+T
+Rosenbrock(const T& x0, const T& x1)
+{
+  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+}
+
+template <typename T>
+T
+Rosenbrock_grad(const T& x0, const T& x1)
+{
+  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+}
+#+end_src
 
 ** News
 
