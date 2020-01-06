@@ -13,12 +13,12 @@ TEST(Nested, Hv)
   AD<AD<double>> x0(3), x1(4), y;
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  assert(y == 254);
+  EXPECT_EQ(y, 254);
 
   auto y_gradient = Jacobian_row(y);  // Compute ∇_w f
 
-  assert(y_gradient[x0] == 604);
-  assert(y_gradient[x1] == -100);
+  EXPECT_EQ(y_gradient[x0], 604);
+  EXPECT_EQ(y_gradient[x1], -100);
 
   AD<double> z;
   double v0(5), v1(6);
@@ -26,6 +26,6 @@ TEST(Nested, Hv)
 
   auto z_gradient = Jacobian_row(z);  // Compute ∇_w(v.∇_w f) = H.v
 
-  assert(z_gradient[x0] == 3890);
-  assert(z_gradient[x1] == -480);
+  EXPECT_EQ(z_gradient[x0], 3890);
+  EXPECT_EQ(z_gradient[x1], -480);
 }
