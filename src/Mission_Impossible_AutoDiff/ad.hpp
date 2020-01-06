@@ -301,7 +301,6 @@ namespace Mission_Impossible_AutoDiff
     friend std::ostream&
     operator<<(std::ostream& out, const AD& to_print)
     {
-      //      out << to_print.value() << "_" << to_print.index();
       out << std::showpos << to_print.value();
       return out;
     }
@@ -350,8 +349,7 @@ namespace Mission_Impossible_AutoDiff
     friend std::ostream&
     operator<<(std::ostream& out, const AD_Function& to_print)
     {
-      out << "{ f=" << to_print.value() << "\tdf=[ " << to_print.differential() << "] }";
-
+      out << to_print._f_value;
       return out;
     }
   };
