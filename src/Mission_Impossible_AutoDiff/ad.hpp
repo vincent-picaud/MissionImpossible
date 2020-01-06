@@ -301,7 +301,8 @@ namespace Mission_Impossible_AutoDiff
     friend std::ostream&
     operator<<(std::ostream& out, const AD& to_print)
     {
-      out << to_print.value() << "_" << to_print.index();
+      //      out << to_print.value() << "_" << to_print.index();
+      out << std::showpos << to_print.value();
       return out;
     }
   };

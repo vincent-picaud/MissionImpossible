@@ -59,4 +59,88 @@ TEST(Nested, Hv)
   assert(z_gradient[x1] == -480);
 }
 #+END_src
+** Third order example 
 
+The library supports the nested calculation of higher order
+derivatives. Note however, that it has not been specially optimized
+for this use, especially when taking into account symmetries.
+
+#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/nested.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
+
+#include <iostream>
+
+using namespace Mission_Impossible_AutoDiff;
+
+template <typename T>
+auto
+Rosenbrock(const T& x0, const T& x1)
+{
+  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+}
+
+// Third order demo
+int
+main()
+{
+  AD<AD<AD<double>>> x0(3), x1(4), y;
+
+  y = Rosenbrock(x0, x1);
+
+  auto grad = gradient(y);
+
+  auto Hessian_x0_row = gradient(grad[x0]);
+  auto Hessian_x1_row = gradient(grad[x1]);
+
+  auto third_order_x0_x0_row = gradient(Hessian_x0_row[x0]);
+  auto third_order_x0_x1_row = gradient(Hessian_x0_row[x1]);
+  auto third_order_x1_x0_row = gradient(Hessian_x1_row[x0]);
+  auto third_order_x1_x1_row = gradient(Hessian_x1_row[x1]);
+
+  std::cout << "f     = " << y << std::endl;
+  std::cout << std::endl;
+  std::cout << "∂₀f   = " << grad[x0] << std::endl;
+  std::cout << "∂₁f   = " << grad[x1] << std::endl;
+  std::cout << std::endl;
+  std::cout << "∂²₀₀f = " << Hessian_x0_row[x0] << std::endl;
+  std::cout << "∂²₀₁f = " << Hessian_x0_row[x1] << std::endl;
+  std::cout << "∂²₁₀f = " << Hessian_x1_row[x0] << std::endl;
+  std::cout << "∂²₁₁f = " << Hessian_x1_row[x1] << std::endl;
+  std::cout << std::endl;
+  std::cout << "∂³₀₀₀f = " << third_order_x0_x0_row[x0] << std::endl;
+  std::cout << "∂³₀₀₁f = " << third_order_x0_x0_row[x1] << std::endl;
+  std::cout << "∂³₀₁₀f = " << third_order_x0_x1_row[x0] << std::endl;
+  std::cout << "∂³₀₁₁f = " << third_order_x0_x1_row[x1] << std::endl;
+  std::cout << "∂³₁₀₀f = " << third_order_x1_x0_row[x0] << std::endl;
+  std::cout << "∂³₁₀₁f = " << third_order_x1_x0_row[x1] << std::endl;
+  std::cout << "∂³₁₁₀f = " << third_order_x1_x1_row[x0] << std::endl;
+  std::cout << "∂³₁₁₁f = " << third_order_x1_x1_row[x1] << std::endl;
+}
+#+end_src
+
+which prints
+#+begin_example
+f     = +254
+
+∂₀f   = +604
+∂₁f   = -100
+
+∂²₀₀f = +922
+∂²₀₁f = -120
+∂²₁₀f = -120
+∂²₁₁f = +20
+
+∂³₀₀₀f = +720
+∂³₀₀₁f = -40
+∂³₀₁₀f = -40
+∂³₀₁₁f = +0
+∂³₁₀₀f = -40
+∂³₁₀₁f = +0
+∂³₁₁₀f = +0
+∂³₁₁₁f = +0
+#+end_example
