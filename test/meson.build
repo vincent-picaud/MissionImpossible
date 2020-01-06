@@ -9,6 +9,7 @@ test_array = [
   ['functions_test','functions_exe','functions.cpp'],
   ['forward_mode_test','forward_mode_exe','forward_mode.cpp'],
   ['Hv_test','Hv_exe','Hv.cpp'],
+  ['third_order_test','third_order_exe','third_order.cpp'],
 ]
 
 foreach test : test_array
