@@ -1,8 +1,5 @@
 #+TITLE: Mission : impossible, Automatic Differentiation
 
-Check:
-
-
 * Compilation
 ** Release
 #+BEGIN_SRC sh :eval never
