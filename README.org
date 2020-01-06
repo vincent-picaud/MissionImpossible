@@ -1,10 +1,20 @@
-#+TITLE: Mission : impossible, Automatic Differentiation
+#+TITLE: Mission : Impossible,
+#+SUBTITLE:  Automatic Differentiation with self-destructing tape...
 
-* Compilation
-** Release
-#+BEGIN_SRC sh :eval never
+* What is it?
+
+*Mission : Impossible* is a concise C++17 implementation of automatic
+ differentiation based on operator overloading. It is adapted for
+ general purpose small to mid size problems. For repeated calculations
+ it is very easy to define an auto-destructive local tape , hence the
+ wink to the series "Mission: Impossible".
+[[file:figures/tape.jpeg][file:~/GitHub/MissionImpossible/figures/tape.jpeg]]
+
+** Compilation
+*** Release
+ #+BEGIN_SRC sh :eval never
 meson --buildtype=release -Db_ndebug=true build-release
-#+END_SRC
+ #+END_SRC
 
 * Examples
 ** Jacobian example
