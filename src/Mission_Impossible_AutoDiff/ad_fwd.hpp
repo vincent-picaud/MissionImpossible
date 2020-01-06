@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace AutoDiffCpp
+namespace Mission_Impossible_AutoDiff
 {
   template <typename T, typename IMPL>
   class AD_Crtp;

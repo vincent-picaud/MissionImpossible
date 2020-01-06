@@ -1,3 +1,3 @@
 inc = include_directories('.')
 
-subdir('AutoDiffCpp')
+subdir('Mission_Impossible_AutoDiff')

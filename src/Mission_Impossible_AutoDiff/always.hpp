@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace AutoDiffCpp
+namespace Mission_Impossible_AutoDiff
 {
   template <typename T>
   struct Always_True : std::true_type

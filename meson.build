@@ -1,4 +1,4 @@
-project('AutoDiffCpp', 'cpp',
+project('Mission_Impossible_AutoDiff', 'cpp',
 	version : '0.0.1',
 	default_options : ['cpp_std=c++17'])
 

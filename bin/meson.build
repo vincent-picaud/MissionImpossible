@@ -1,4 +1,4 @@
 hello_exe = executable('hello',
 		       'hello.cpp',
 		       install : true,
-		       dependencies : [AutoDiffCpp_dep])
+		       dependencies : [Mission_Impossible_AutoDiff_dep])

@@ -1,9 +1,9 @@
-#include "AutoDiffCpp/tape.hpp"
+#include "Mission_Impossible_AutoDiff/tape.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace AutoDiffCpp;
+using namespace Mission_Impossible_AutoDiff;
 
 TEST(Tape, demo)
 {

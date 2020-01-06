@@ -16,5 +16,5 @@ foreach test : test_array
        executable(test.get(1),
 		  test.get(2),
 		  dependencies
- 		  : [ AutoDiffCpp_dep, gtest_dep ]))
+ 		  : [ Mission_Impossible_AutoDiff_dep, gtest_dep ]))
 endforeach

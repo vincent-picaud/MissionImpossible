@@ -1,10 +1,10 @@
-#include "AutoDiffCpp/final_value_type.hpp"
-#include "AutoDiffCpp/ad.hpp"  // CAVEAT: must be included otherwise
+#include "Mission_Impossible_AutoDiff/final_value_type.hpp"
+#include "Mission_Impossible_AutoDiff/ad.hpp"  // CAVEAT: must be included otherwise
                                // tests fail (incomplete type)
 
 #include <gtest/gtest.h>
 
-using namespace AutoDiffCpp;
+using namespace Mission_Impossible_AutoDiff;
 
 TEST(Final_Value_Type, basic)
 {

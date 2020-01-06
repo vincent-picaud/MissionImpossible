@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AutoDiffCpp/ad_fwd.hpp"
-#include "AutoDiffCpp/always.hpp"
+#include "Mission_Impossible_AutoDiff/ad_fwd.hpp"
+#include "Mission_Impossible_AutoDiff/always.hpp"
 
 #include <type_traits>
 
-namespace AutoDiffCpp
+namespace Mission_Impossible_AutoDiff
 {
   template <typename T, typename ENABLE = void>
   struct AD_Final_Value_Type

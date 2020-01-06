@@ -1,6 +1,6 @@
 #pragma once
 
-namespace AutoDiffCpp
+namespace Mission_Impossible_AutoDiff
 {
   template <typename T>
   struct Type_Traits;

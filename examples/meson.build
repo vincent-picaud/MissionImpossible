@@ -1,3 +1,3 @@
 executable('ml_network',
 	   'ml_network.cpp',
-	   dependencies : [AutoDiffCpp_dep])
+	   dependencies : [Mission_Impossible_AutoDiff_dep])

@@ -1,8 +1,8 @@
-#include "AutoDiffCpp/Mission_Impossible.hpp"
+#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
 
 #include <benchmark/benchmark.h>
 
-using namespace AutoDiffCpp;
+using namespace Mission_Impossible_AutoDiff;
 
 template <typename T>
 inline T

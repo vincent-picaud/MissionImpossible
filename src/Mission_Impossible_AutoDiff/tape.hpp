@@ -7,7 +7,7 @@
 #include <iostream>
 #include <type_traits>
 
-namespace AutoDiffCpp
+namespace Mission_Impossible_AutoDiff
 {
   template <typename T>
   class Tape
@@ -306,4 +306,4 @@ namespace AutoDiffCpp
     return _tape;
   }
 
-}  // namespace AutoDiffCpp
+}  // namespace Mission_Impossible_AutoDiff

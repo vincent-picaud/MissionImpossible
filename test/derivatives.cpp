@@ -1,8 +1,8 @@
-#include "AutoDiffCpp/derivatives.hpp"
+#include "Mission_Impossible_AutoDiff/derivatives.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace AutoDiffCpp;
+using namespace Mission_Impossible_AutoDiff;
 
 TEST(Derivatives, product)
 {

@@ -1,12 +1,12 @@
 // This show that in case of nested type, y gradient computation
 // add element to the tape
 //
-#include "AutoDiffCpp/ad.hpp"
-#include "AutoDiffCpp/derivatives.hpp"
+#include "Mission_Impossible_AutoDiff/ad.hpp"
+#include "Mission_Impossible_AutoDiff/derivatives.hpp"
 
 #include <vector>
 
-using namespace AutoDiffCpp;
+using namespace Mission_Impossible_AutoDiff;
 
 int
 main()
