@@ -1,10 +1,10 @@
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
-#include "Mission_Impossible_AutoDiff/functions.hpp"
+#include "MissionImpossible/derivatives.hpp"
+#include "MissionImpossible/functions.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 TEST(Forward_mode, basic)
 {

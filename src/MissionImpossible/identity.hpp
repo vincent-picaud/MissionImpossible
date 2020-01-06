@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   template <typename T>
   struct Identity

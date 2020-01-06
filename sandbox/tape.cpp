@@ -1,10 +1,10 @@
-#include "Mission_Impossible_AutoDiff/ad.hpp"
-#include "Mission_Impossible_AutoDiff/mission_impossible_tape.hpp"
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/mission_impossible_tape.hpp"
 
 #include <iomanip>
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 template <typename T>
 std::ostream&

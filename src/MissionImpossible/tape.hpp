@@ -7,7 +7,7 @@
 #include <iostream>
 #include <type_traits>
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   template <typename T>
   class Tape
@@ -306,4 +306,4 @@ namespace Mission_Impossible_AutoDiff
     return _tape;
   }
 
-}  // namespace Mission_Impossible_AutoDiff
+}  // namespace MissionImpossible

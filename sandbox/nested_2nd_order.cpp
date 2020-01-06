@@ -1,9 +1,9 @@
-#include "Mission_Impossible_AutoDiff/ad.hpp"
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 template <typename T>
 auto

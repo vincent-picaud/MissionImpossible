@@ -1,6 +1,6 @@
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 int
 main()

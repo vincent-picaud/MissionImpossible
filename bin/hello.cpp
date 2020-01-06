@@ -1,6 +1,6 @@
 #include <iostream>
 
-//using namespace Mission_Impossible_AutoDiff;
+//using namespace MissionImpossible;
 
 int main()
 {

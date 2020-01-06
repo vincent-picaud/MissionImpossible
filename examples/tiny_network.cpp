@@ -6,12 +6,12 @@
 //  https://arxiv.org/abs/1801.05894
 // #+end_quote
 //
-#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
+#include "MissionImpossible/Mission_Impossible.hpp"
 
 #include <array>
 #include <random>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 //////////////////////////////////////////////////////////////////
 

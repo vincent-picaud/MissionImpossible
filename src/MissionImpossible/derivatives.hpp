@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Mission_Impossible_AutoDiff/ad.hpp"
-#include "Mission_Impossible_AutoDiff/mission_impossible_tape.hpp"
-#include "Mission_Impossible_AutoDiff/tape.hpp"
-#include "Mission_Impossible_AutoDiff/tape_vector.hpp"
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/mission_impossible_tape.hpp"
+#include "MissionImpossible/tape.hpp"
+#include "MissionImpossible/tape_vector.hpp"
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   template <typename T>
   Tape_Vector<T>

@@ -1,11 +1,11 @@
-#include "Mission_Impossible_AutoDiff/functions.hpp"
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
+#include "MissionImpossible/functions.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
 #include <gtest/gtest.h>
 #include <cmath>
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 //////////////////////////////////////////////////////////////////
 

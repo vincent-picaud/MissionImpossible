@@ -1,10 +1,10 @@
-#include "Mission_Impossible_AutoDiff/ad.hpp"
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 // Idea H.v = ∇_w(v.∇_w f)
 // See: http://www.bcl.hamilton.ie/~barak/papers/nc-hessian.pdf

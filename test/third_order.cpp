@@ -1,8 +1,8 @@
-#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
+#include "MissionImpossible/Mission_Impossible.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 // Check 3 order computation
 //

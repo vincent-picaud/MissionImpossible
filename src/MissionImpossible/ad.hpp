@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Mission_Impossible_AutoDiff/ad_fwd.hpp"
-#include "Mission_Impossible_AutoDiff/final_value_type.hpp"
-#include "Mission_Impossible_AutoDiff/identity.hpp"
-#include "Mission_Impossible_AutoDiff/tape.hpp"
+#include "MissionImpossible/ad_fwd.hpp"
+#include "MissionImpossible/final_value_type.hpp"
+#include "MissionImpossible/identity.hpp"
+#include "MissionImpossible/tape.hpp"
 
 #include <array>
 #include <tuple>
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   //////////////////////////////////////////////////////////////////
 
@@ -57,12 +57,12 @@ namespace Mission_Impossible_AutoDiff
     const tape_type&
     tape() const noexcept
     {
-      return Mission_Impossible_AutoDiff::tape<T>();
+      return MissionImpossible::tape<T>();
     }
     tape_type&
     tape() noexcept
     {
-      return Mission_Impossible_AutoDiff::tape<T>();
+      return MissionImpossible::tape<T>();
     }
   };
 

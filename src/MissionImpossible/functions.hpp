@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Mission_Impossible_AutoDiff/ad.hpp"
+#include "MissionImpossible/ad.hpp"
 
 #include <cmath>
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   ////////////////////////////
   // Min/max like functions //

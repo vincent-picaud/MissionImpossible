@@ -1,9 +1,9 @@
-#include "Mission_Impossible_AutoDiff/ad.hpp"
+#include "MissionImpossible/ad.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 TEST(AD, basic)
 {

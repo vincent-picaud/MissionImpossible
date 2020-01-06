@@ -1,10 +1,10 @@
-#include "Mission_Impossible_AutoDiff/mission_impossible_tape.hpp"
-#include "Mission_Impossible_AutoDiff/ad.hpp"
-#include "Mission_Impossible_AutoDiff/derivatives.hpp"
+#include "MissionImpossible/mission_impossible_tape.hpp"
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 TEST(Mission_Impossible_Tape, construction)
 {

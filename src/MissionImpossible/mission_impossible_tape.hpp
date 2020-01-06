@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Mission_Impossible_AutoDiff/ad_fwd.hpp"
-#include "Mission_Impossible_AutoDiff/tape.hpp"
+#include "MissionImpossible/ad_fwd.hpp"
+#include "MissionImpossible/tape.hpp"
 
-namespace Mission_Impossible_AutoDiff
+namespace MissionImpossible
 {
   namespace Detail
   {
@@ -19,7 +19,7 @@ namespace Mission_Impossible_AutoDiff
       Tape<T>&
       tape() const noexcept
       {
-        return Mission_Impossible_AutoDiff::tape<T>();
+        return MissionImpossible::tape<T>();
       }
 
       Mission_Impossible_Tape_Data() : _index_begin(tape().row_size()) {}
