@@ -1,3 +1,7 @@
+executable('Jacobian',
+	   'Jacobian.cpp',
+	   dependencies : [Mission_Impossible_AutoDiff_dep])
+
 executable('nested',
 	   'nested.cpp',
 	   dependencies : [Mission_Impossible_AutoDiff_dep])
