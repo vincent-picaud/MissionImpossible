@@ -1,3 +1,7 @@
-executable('ml_network',
-	   'ml_network.cpp',
+executable('nested',
+	   'nested.cpp',
+	   dependencies : [Mission_Impossible_AutoDiff_dep])
+
+executable('tiny_network',
+	   'tiny_network.cpp',
 	   dependencies : [Mission_Impossible_AutoDiff_dep])
