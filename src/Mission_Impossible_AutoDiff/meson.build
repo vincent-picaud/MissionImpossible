@@ -3,7 +3,6 @@ Mission_Impossible_AutoDiff_headers = [
   'ad_fwd.hpp',
   'ad.hpp',
   'identity.hpp',
-  'type_traits.hpp',
   'tape_vector.hpp',
   'derivatives.hpp',
   'always.hpp',

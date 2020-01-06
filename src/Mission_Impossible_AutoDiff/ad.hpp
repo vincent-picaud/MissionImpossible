@@ -4,7 +4,6 @@
 #include "Mission_Impossible_AutoDiff/final_value_type.hpp"
 #include "Mission_Impossible_AutoDiff/identity.hpp"
 #include "Mission_Impossible_AutoDiff/tape.hpp"
-#include "Mission_Impossible_AutoDiff/type_traits.hpp"
 
 #include <array>
 #include <tuple>
