@@ -2,7 +2,7 @@
 
 * What is it?
 
-*Mission : Impossible* is a concise C++17 implementation of automatic
+*Mission : Impossible* is a concise and fast C++17 implementation of automatic
 differentiation based on operator overloading. It is adapted for
 general purpose small to mid size problems. For repeated calculations
 it is very easy to define an auto-destructive local tape , hence the
@@ -32,6 +32,37 @@ Rosenbrock_grad(const T& x0, const T& x1)
   return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 }
 #+end_src
+
+ Note however, that it has been optimized
+(meta-programming) for the first order case. I have to produce
+benchmark plots, but its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
+relies on the same kind of approach [1].
+
+#+begin_quote
+[1], Srajer, Filip, Zuzana Kukelova, and Andrew Fitzgibbon. "A
+benchmark of selected algorithmic differentiation tools on some
+problems in computer vision and machine learning." Optimization
+Methods and Software 33.4-6 (2018): 889-906.
+#+end_quote
+
+Even if the library has not been optimized for thise cases, the
+library naturally supports the nested calculation of higher order
+derivatives. However, please note that in this situation dedicated
+approaches like [2,3] which takes into account symmetries are more
+suited.
+
+#+begin_quote
+[2], Wang, Mu, Assefaw Gebremedhin, and Alex Pothen. "Capitalizing on
+live variables: new algorithms for efficient Hessian computation via
+automatic differentiation." Mathematical Programming Computation 8.4
+(2016): 393-433.
+#+end_quote
+
+#+begin_quote
+[3], Gower, Robert Mansel, and Artur L. Gower. "Higher-order reverse
+automatic differentiation with emphasis on the third-order."
+Mathematical Programming 155.1-2 (2016): 81-103.
+#+end_quote
 
 ** News
 
@@ -75,19 +106,16 @@ cat $(pwd)/examples/Jacobian.cpp
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
+#include "MissionImpossible/Mission_Impossible.hpp"
 
 #include <iostream>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 int
 main()
 {
-  AD<double> r, theta;
-
-  r     = 2;
-  theta = 0.1;
+  AD<double> r = 2, theta = 0.1;
 
   AD<double> y1 = r * cos(theta);
   AD<double> y2 = r * sin(theta);
@@ -98,26 +126,17 @@ main()
   //
   // -> AKA reverse-mode
   //
-  std::cout << std::endl << "Jacobian row by row" << std::endl;
+  std::cout << "Jacobian row by row" << std::endl;
 
-  // y1 row (which is also ∇y1)
-  // -> you can also replace "Jacobian_row(y1)" by "gradient(y1)"
-  //
-  auto Jacobian_row_y1 = Jacobian_row(y1);
+  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1
 
-  std::cout << "∇y1[r] = " << std::setw(20) << Jacobian_row_y1[r]
-            << " (must be cos(θ) = " << cos(theta) << ")" << std::endl;
-  std::cout << "∇y1[θ] = " << std::setw(20) << Jacobian_row_y1[theta]
-            << " (must be -r*sin(θ) = " << -r * sin(theta) << ")" << std::endl;
+  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", " << std::setw(20)
+            << Jacobian_row_y1[theta] << std::endl;
 
-  // In the same way, one can compute ∇y2
-  //
-  auto Jacobian_row_y2 = Jacobian_row(y2);
+  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2
 
-  std::cout << "∇y2[r] = " << std::setw(20) << Jacobian_row_y2[r]
-            << " (must be sin(θ) = " << sin(theta) << ")" << std::endl;
-  std::cout << "∇y2[θ] = " << std::setw(20) << Jacobian_row_y2[theta]
-            << " (must be +r*cos(θ) = " << r * cos(theta) << ")" << std::endl;
+  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", " << std::setw(20)
+            << Jacobian_row_y2[theta] << std::endl;
 
   ////////////////////////////////////////
   // Computes Jacobian column by column //
@@ -127,40 +146,30 @@ main()
   //
   std::cout << std::endl << "Jacobian column by column" << std::endl;
 
-  // r column
-  //
-  auto Jacobian_column_r = Jacobian_column(r);
+  auto Jacobian_column_r = Jacobian_column(r);  // r column
 
-  std::cout << "∂r y1  = " << std::setw(20) << Jacobian_column_r[y1]
-            << " (must be cos(θ) = " << cos(theta) << ")" << std::endl;
-  std::cout << "∂r y2  = " << std::setw(20) << Jacobian_column_r[y2]
-            << " (must be sin(θ) = " << sin(theta) << ")" << std::endl;
+  std::cout << "∂r y1  = " << std::setw(20) << Jacobian_column_r[y1] << std::endl;
+  std::cout << "∂r y2  = " << std::setw(20) << Jacobian_column_r[y2] << std::endl;
 
-  // θ column
-  //
-  auto Jacobian_column_theta = Jacobian_column(theta);
+  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column
 
-  std::cout << "∂θ y1  = " << std::setw(20) << Jacobian_column_theta[y1]
-            << " (must be -r*sin(θ) = " << -r * sin(theta) << ")" << std::endl;
-  std::cout << "∂θ y2  = " << std::setw(20) << Jacobian_column_theta[y2]
-            << " (must be +r*cos(θ) = " << r * cos(theta) << ")" << std::endl;
+  std::cout << "∂θ y1  = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
+  std::cout << "∂θ y2  = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
 }
 #+end_src
 
 which prints
 
 #+begin_example
-Jacobian row by row
-∇y1[r] =             0.995004 (must be cos(θ) = 0.995004)
-∇y1[θ] =            -0.199667 (must be -r*sin(θ) = -0.199667)
-∇y2[r] =            0.0998334 (must be sin(θ) = 0.0998334)
-∇y2[θ] =              1.99001 (must be +r*cos(θ) = 1.99001)
+acobian row by row
+∇y1(r,θ) =             0.995004,            -0.199667
+∇y2(r,θ) =            0.0998334,              1.99001
 
 Jacobian column by column
-∂r y1  =             0.995004 (must be cos(θ) = 0.995004)
-∂r y2  =            0.0998334 (must be sin(θ) = 0.0998334)
-∂θ y1  =            -0.199667 (must be -r*sin(θ) = -0.199667)
-∂θ y2  =              1.99001 (must be +r*cos(θ) = 1.99001)
+∂r y1  =             0.995004
+∂r y2  =            0.0998334
+∂θ y1  =            -0.199667
+∂θ y2  =              1.99001
 #+end_example
 
 ** Hessian action H.v
@@ -212,10 +221,6 @@ TEST(Nested, Hv)
 }
 #+END_src
 ** Third order example 
-
-The library supports the nested calculation of higher order
-derivatives. Note however, that it has not been specially optimized
-for this use, especially when taking into account symmetries.
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/nested.cpp
