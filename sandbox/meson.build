@@ -14,18 +14,6 @@ executable('misc',
 	   'misc.cpp',
 	   dependencies : [MissionImpossible_dep])
 
-executable('big_one',
-	   'big_one.cpp',
-	   dependencies : [MissionImpossible_dep])
-
-executable('big_one_2',
-	   'big_one_2.cpp',
-	   dependencies : [MissionImpossible_dep])
-
-executable('big_one_3',
-	   'big_one_3.cpp',
-	   dependencies : [MissionImpossible_dep])
-
 executable('ad_benchmark',
 	   'ad_benchmark.cpp',
 	   dependencies : [MissionImpossible_dep,google_benchmark_dep])

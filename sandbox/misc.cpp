@@ -1,5 +1,5 @@
-// This show that in case of nested type, y gradient computation
-// add element to the tape
+// This shows that in case of nested type, y gradient computation add
+// element to the tape
 //
 #include "MissionImpossible/ad.hpp"
 #include "MissionImpossible/derivatives.hpp"
