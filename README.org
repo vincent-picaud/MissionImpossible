@@ -128,9 +128,10 @@ meson --buildtype=release -Db_ndebug=true build-release
 
 * Examples
 ** Jacobian example
-The library supports *reverse-mode*, useful to compute gradient or
-Jacobian row by row. It also supports *forward-mode* where the Jacobian
-is computed column by column.
+
+Illustrates *forward-mode* and *reverse-mode* support. The first one is
+convenient to compute the Jacobian is computed column by column. The
+second one is effective to compute gradients or Jacobian row by row.
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Jacobian.cpp
@@ -204,55 +205,50 @@ Jacobian column by column
 ∂θ y2  =              1.99001
 #+end_example
 
-** Hessian action H.v
+** Hessian action Hv, directional derivatives
 
-Observe that H.v=\nabla_{X} < v,\nabla_{X} f >
-
-\begin{equation}
-\nabla_{X} v . \nabla_{X} f = \nabla_{X}  \langle v, \sum_{j} \partial_{j} f \rangle =\sum_{ij} v_i \partial_{ij}f = H.v
-\end{equation}
-
-The associated code is
+Illustrate Hessian action Hv=∇ <∇f,v> computation:
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
-cat $(pwd)/test/Hv.cpp
+cat $(pwd)/examples/Hv.cpp
 #+END_SRC
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "MissionImpossible/ad.hpp"
-#include "MissionImpossible/derivatives.hpp"
-
-#include <gtest/gtest.h>
-#include <vector>
+#include "MissionImpossible/MissionImpossible.hpp"
 
 using namespace MissionImpossible;
 
-// Idea H.v = ∇_w(v.∇_w f)
-// See: http://www.bcl.hamilton.ie/~barak/papers/nc-hessian.pdf
-TEST(Nested, Hv)
+int
+main()
 {
   AD<AD<double>> x0(3), x1(4), y;
+
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  EXPECT_EQ(y, 254);
+  std::cout << "f=  " << y << std::endl;
 
-  auto y_gradient = Jacobian_row(y);  // Compute ∇_w f
+  auto y_gradient = gradient(y);  // Computes ∇f
 
-  EXPECT_EQ(y_gradient[x0], 604);
-  EXPECT_EQ(y_gradient[x1], -100);
+  std::cout << "∇f= " << y_gradient[x0] << ", ";
+  std::cout << y_gradient[x1] << std::endl;
 
   AD<double> z;
+
   double v0(5), v1(6);
-  z = v0 * y_gradient[x0] + v1 * y_gradient[x1];  // Compute v.∇_w f
 
-  auto z_gradient = Jacobian_row(z);  // Compute ∇_w(v.∇_w f) = H.v
+  z = v0 * y_gradient[x0] + v1 * y_gradient[x1];  // Computes z=<∇f,v>
 
-  EXPECT_EQ(z_gradient[x0], 3890);
-  EXPECT_EQ(z_gradient[x1], -480);
+  auto z_gradient = gradient(z);  // Computes Hv = ∇z = ∇ <∇f,v>
+
+  std::cout << "Hv= " << z_gradient[x0] << ", ";
+  std::cout << z_gradient[x1] << std::endl;
 }
 #+end_src
+
 ** Third order example 
+
+Illustrates that the library supports nested computations
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/nested.cpp

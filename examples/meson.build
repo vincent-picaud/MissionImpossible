@@ -13,3 +13,7 @@ executable('tiny_network',
 executable('local_tape',
 	   'local_tape.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('Hv',
+	   'Hv.cpp',
+	   dependencies : [MissionImpossible_dep])
