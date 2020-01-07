@@ -6,7 +6,7 @@
 //  https://arxiv.org/abs/1801.05894
 // #+end_quote
 //
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <array>
 #include <random>
@@ -300,7 +300,7 @@ iterate(const T& eta,
         const TinyMatrix<T, N, 2>& y,
         const std::size_t sample_idx)
 {
-  Mission_Impossible_Tape<T> local_tape;
+  MissionImpossible_Tape<T> local_tape;
 
   auto ad_W2 = to_AD(W2);
   auto ad_W3 = to_AD(W3);

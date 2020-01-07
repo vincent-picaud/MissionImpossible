@@ -27,7 +27,7 @@ main()
   y = 3 * x * x;
   std::cout << "\n tape before \n" << tape<T>();
   {
-    Mission_Impossible_Tape<T> mark;
+    MissionImpossible_Tape<T> mark;
 
     y = x * y;
     std::cout << tape<T>();
@@ -43,7 +43,7 @@ main()
   std::cout << "\n tape after \n" << tape<T>();
 
   {
-    Mission_Impossible_Tape<T> mark;
+    MissionImpossible_Tape<T> mark;
 
     y = x * y;
     std::cout << tape<T>();

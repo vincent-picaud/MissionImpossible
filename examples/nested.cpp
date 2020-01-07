@@ -1,4 +1,4 @@
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
 

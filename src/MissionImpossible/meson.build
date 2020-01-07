@@ -9,7 +9,7 @@ MissionImpossible_headers = [
   'final_value_type.hpp',
   'mission_impossible_tape.hpp',
   # main header 
-  'Mission_Impossible.hpp',
+  'MissionImpossible.hpp',
   'functions.hpp',
 ]
 

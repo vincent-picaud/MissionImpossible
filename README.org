@@ -20,7 +20,7 @@ cat $(pwd)/examples/local_tape.cpp
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ example(const double x,
         double& grad_f_mu,
         double& grad_f_sigma)
 {
-  Mission_Impossible_Tape<double> local_tape;  // thread_local tape
+  MissionImpossible_Tape<double> local_tape;  // thread_local tape
 
   AD<double> ad_mu(mu), ad_sigma(sigma), ad_f;
 
@@ -133,7 +133,7 @@ cat $(pwd)/examples/Jacobian.cpp
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
 
@@ -255,7 +255,7 @@ cat $(pwd)/examples/nested.cpp
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
 

@@ -21,7 +21,7 @@ TEST(Tape_Vector, demo)
 
   EXPECT_EQ(tape<T>().row_size(), 2);
 
-  auto jb_tape = Mission_Impossible_Tape<T>();
+  auto jb_tape = MissionImpossible_Tape<T>();
 
   EXPECT_EQ(tape<T>().row_size(), 2);
 

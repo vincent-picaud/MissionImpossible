@@ -6,21 +6,21 @@
 
 using namespace MissionImpossible;
 
-TEST(Mission_Impossible_Tape, construction)
+TEST(MissionImpossible_Tape, construction)
 {
-  Mission_Impossible_Tape<double> mark;
+  MissionImpossible_Tape<double> mark;
 
   EXPECT_EQ(mark.size(), 0);
 }
 
-TEST(Mission_Impossible_Tape, construction_nested)
+TEST(MissionImpossible_Tape, construction_nested)
 {
-  Mission_Impossible_Tape<AD<AD<double>>> mark;
+  MissionImpossible_Tape<AD<AD<double>>> mark;
 
   EXPECT_EQ(mark.size(), 0);
 }
 
-TEST(Mission_Impossible_Tape, local)
+TEST(MissionImpossible_Tape, local)
 {
   using T = double;
 
@@ -32,7 +32,7 @@ TEST(Mission_Impossible_Tape, local)
   auto pos_mem = tape<T>().memory_size();
 
   {
-    Mission_Impossible_Tape<T> self_destructing_tape;
+    MissionImpossible_Tape<T> self_destructing_tape;
 
     AD<T> a(1), b(2), c;
 
@@ -53,7 +53,7 @@ TEST(Mission_Impossible_Tape, local)
   EXPECT_EQ(pos_mem, tape<T>().memory_size());
 }
 
-TEST(Mission_Impossible_Tape, local_nested)
+TEST(MissionImpossible_Tape, local_nested)
 {
   using T = AD<double>;
 
@@ -65,7 +65,7 @@ TEST(Mission_Impossible_Tape, local_nested)
   auto pos_mem = tape<T>().memory_size();
 
   {
-    Mission_Impossible_Tape<T> self_destructing_tape;
+    MissionImpossible_Tape<T> self_destructing_tape;
 
     AD<T> a(1), b(2), c;
 
@@ -92,10 +92,10 @@ TEST(Mission_Impossible_Tape, local_nested)
   EXPECT_EQ(pos_mem, tape<T>().memory_size());
 }
 
-TEST(Mission_Impossible_Tape, local_nested_nested)
+TEST(MissionImpossible_Tape, local_nested_nested)
 {
   // CAVEAT: AD<AD<double>> for AD<AD<AD<double>>> variable
-  Mission_Impossible_Tape<AD<AD<double>>> self_destructing_tape;
+  MissionImpossible_Tape<AD<AD<double>>> self_destructing_tape;
 
   AD<AD<AD<double>>> x1(1), x2(2), y;
 

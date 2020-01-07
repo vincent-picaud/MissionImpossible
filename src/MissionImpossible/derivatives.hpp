@@ -18,7 +18,7 @@ namespace MissionImpossible
   }
   // Note:
   //
-  // The recursive implementation of Mission_Impossible_Tape<...> is
+  // The recursive implementation of MissionImpossible_Tape<...> is
   // there to support syntactic sugar for nested case
   //
   // By example, it allows:
@@ -31,7 +31,7 @@ namespace MissionImpossible
   //
   template <typename T>
   Tape_Vector<T>
-  Jacobian_row(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
+  Jacobian_row(const MissionImpossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     Tape_Vector<T> row(tape);
     row.assign_ei(f);
@@ -48,7 +48,7 @@ namespace MissionImpossible
 
   template <typename T>
   Tape_Vector<T>
-  gradient(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
+  gradient(const MissionImpossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     return Jacobian_row(tape, f);
   }
@@ -67,7 +67,7 @@ namespace MissionImpossible
 
   template <typename T>
   Tape_Vector<T>
-  Jacobian_column(const Mission_Impossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
+  Jacobian_column(const MissionImpossible_Tape<typename AD<T>::value_type>& tape, const AD<T>& f)
   {
     Tape_Vector<T> column(tape);
     column.assign_ei(f);

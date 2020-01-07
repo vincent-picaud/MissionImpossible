@@ -1,4 +1,4 @@
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
 
@@ -12,7 +12,7 @@ example(const double x,
         double& grad_f_mu,
         double& grad_f_sigma)
 {
-  Mission_Impossible_Tape<double> local_tape;  // thread_local tape
+  MissionImpossible_Tape<double> local_tape;  // a local thread_local tape
 
   AD<double> ad_mu(mu), ad_sigma(sigma), ad_f;
 
@@ -23,6 +23,9 @@ example(const double x,
   f            = ad_f.value();
   grad_f_mu    = ad_grad_f[ad_mu];
   grad_f_sigma = ad_grad_f[ad_sigma];
+
+  // here the local tape is destroyed (in fact re-winded to avoid
+  // useless new/delete)
 }
 
 int

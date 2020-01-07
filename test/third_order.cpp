@@ -1,4 +1,4 @@
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <gtest/gtest.h>
 
@@ -73,7 +73,7 @@ TEST(Third_Order, Rosenbrock_with_local_tape)
   std::size_t mem_3_size = tape<AD<AD<AD<T>>>>().memory_size();
 
   {
-    Mission_Impossible_Tape<AD<AD<T>>> local_tape;
+    MissionImpossible_Tape<AD<AD<T>>> local_tape;
     AD<AD<AD<T>>> x0(3), x1(4), y;
 
     y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);

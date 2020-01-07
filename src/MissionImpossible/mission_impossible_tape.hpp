@@ -8,7 +8,7 @@ namespace MissionImpossible
   namespace Detail
   {
     template <typename T>
-    class Mission_Impossible_Tape_Data
+    class MissionImpossible_Tape_Data
     {
      public:
       using index_type = typename Tape<T>::index_type;
@@ -22,10 +22,10 @@ namespace MissionImpossible
         return MissionImpossible::tape<T>();
       }
 
-      Mission_Impossible_Tape_Data() : _index_begin(tape().row_size()) {}
+      MissionImpossible_Tape_Data() : _index_begin(tape().row_size()) {}
 
      public:
-      ~Mission_Impossible_Tape_Data() { tape().rewind(_index_begin); }
+      ~MissionImpossible_Tape_Data() { tape().rewind(_index_begin); }
 
       std::size_t
       size() const
@@ -44,32 +44,32 @@ namespace MissionImpossible
   // Recursive implementation to smoothly support nested AD<AD<...>>
   //
   template <typename T>
-  class Mission_Impossible_Tape;
+  class MissionImpossible_Tape;
 
   template <typename T>
-  class Mission_Impossible_Tape : public Detail::Mission_Impossible_Tape_Data<T>
+  class MissionImpossible_Tape : public Detail::MissionImpossible_Tape_Data<T>
   {
    protected:
-    using base_type = Detail::Mission_Impossible_Tape_Data<T>;
+    using base_type = Detail::MissionImpossible_Tape_Data<T>;
 
    public:
-    Mission_Impossible_Tape() : base_type() {}
+    MissionImpossible_Tape() : base_type() {}
   };
 
   template <typename T>
-  class Mission_Impossible_Tape<AD<T>> : public Mission_Impossible_Tape<T>,
-                                         public Detail::Mission_Impossible_Tape_Data<AD<T>>
+  class MissionImpossible_Tape<AD<T>> : public MissionImpossible_Tape<T>,
+                                         public Detail::MissionImpossible_Tape_Data<AD<T>>
   {
    protected:
-    using recursion_type = Mission_Impossible_Tape<T>;
-    using base_type      = Detail::Mission_Impossible_Tape_Data<AD<T>>;
+    using recursion_type = MissionImpossible_Tape<T>;
+    using base_type      = Detail::MissionImpossible_Tape_Data<AD<T>>;
 
    public:
     using base_type::index_begin;
     using base_type::size;
     using base_type::tape;
 
-    Mission_Impossible_Tape() : recursion_type(), base_type() {}
+    MissionImpossible_Tape() : recursion_type(), base_type() {}
   };
 
 }

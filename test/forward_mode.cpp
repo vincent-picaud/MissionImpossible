@@ -26,7 +26,7 @@ TEST(Forward_mode, basic)
 
 TEST(Forward_mode, basic_local)
 {
-  Mission_Impossible_Tape<double> local_tape;
+  MissionImpossible_Tape<double> local_tape;
 
   AD<double> x1 = 2, x2 = 3, y1, y2;
 

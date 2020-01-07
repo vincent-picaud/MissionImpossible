@@ -1,4 +1,4 @@
-#include "MissionImpossible/Mission_Impossible.hpp"
+#include "MissionImpossible/MissionImpossible.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -25,7 +25,7 @@ template <typename T>
 inline T
 Rosenbrock_ad(const T x0, const T x1, T& grad0, T& grad1)
 {
-  Mission_Impossible_Tape<T> tape;
+  MissionImpossible_Tape<T> tape;
 
   AD<T> _x0 = x0, _x1 = x1, _y;
   _y        = (1 - _x0) * (1 - _x0) + 10 * (_x1 - _x0 * _x0) * (_x1 - _x0 * _x0);
@@ -51,7 +51,7 @@ template <typename T>
 inline auto
 Rosenbrock(const AD<AD<T>> x0, const AD<AD<T>> x1)
 {
-  Mission_Impossible_Tape<AD<T>> mark;
+  MissionImpossible_Tape<AD<T>> mark;
 
   AD<AD<T>> y;
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
