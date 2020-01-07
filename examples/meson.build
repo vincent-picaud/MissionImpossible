@@ -9,3 +9,7 @@ executable('nested',
 executable('tiny_network',
 	   'tiny_network.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('local_tape',
+	   'local_tape.cpp',
+	   dependencies : [MissionImpossible_dep])

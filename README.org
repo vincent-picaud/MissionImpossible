@@ -15,23 +15,48 @@ Impossible" series.
 #+end_center
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
-cat $(pwd)/examples/self_destructing_tape.cpp
+cat $(pwd)/examples/local_tape.cpp
 #+END_SRC
 
 #+RESULTS:
 #+begin_src cpp :eval never
-template <typename T>
-T
-Rosenbrock(const T& x0, const T& x1)
+#include "MissionImpossible/Mission_Impossible.hpp"
+
+#include <iostream>
+
+using namespace MissionImpossible;
+
+void
+example(const double x,
+        const double mu,
+        const double sigma,
+        double& f,
+        double& grad_f_mu,
+        double& grad_f_sigma)
 {
-  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+  Mission_Impossible_Tape<double> local_tape;  // thread_local tape
+
+  AD<double> ad_mu(mu), ad_sigma(sigma), ad_f;
+
+  ad_f = 2 * exp(-(x - ad_mu) / pow(ad_sigma, 2));
+
+  auto ad_grad_f = gradient(ad_f);
+
+  f            = ad_f.value();
+  grad_f_mu    = ad_grad_f[ad_mu];
+  grad_f_sigma = ad_grad_f[ad_sigma];
 }
 
-template <typename T>
-T
-Rosenbrock_grad(const T& x0, const T& x1)
+int
+main()
 {
-  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+  double x = 1, mu = 2, sigma = 3;
+  double f, grad_f_mu, grad_f_sigma;
+
+  example(x, mu, sigma, f, grad_f_mu, grad_f_sigma);
+
+  std::cout << "f= " << f << std::endl;
+  std::cout << "∇f= " << grad_f_mu << ", " << grad_f_sigma;
 }
 #+end_src
 
@@ -132,13 +157,13 @@ main()
 
   auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1
 
-  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", " << std::setw(20)
-            << Jacobian_row_y1[theta] << std::endl;
+  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
 
   auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2
 
-  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", " << std::setw(20)
-            << Jacobian_row_y2[theta] << std::endl;
+  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
 
   ////////////////////////////////////////
   // Computes Jacobian column by column //
@@ -189,14 +214,14 @@ cat $(pwd)/test/Hv.cpp
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "AutoDiffCpp/ad.hpp"
-#include "AutoDiffCpp/derivatives.hpp"
+#+begin_src cpp :eval never
+#include "MissionImpossible/ad.hpp"
+#include "MissionImpossible/derivatives.hpp"
 
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace AutoDiffCpp;
+using namespace MissionImpossible;
 
 // Idea H.v = ∇_w(v.∇_w f)
 // See: http://www.bcl.hamilton.ie/~barak/papers/nc-hessian.pdf
@@ -205,12 +230,12 @@ TEST(Nested, Hv)
   AD<AD<double>> x0(3), x1(4), y;
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  assert(y == 254);
+  EXPECT_EQ(y, 254);
 
   auto y_gradient = Jacobian_row(y);  // Compute ∇_w f
 
-  assert(y_gradient[x0] == 604);
-  assert(y_gradient[x1] == -100);
+  EXPECT_EQ(y_gradient[x0], 604);
+  EXPECT_EQ(y_gradient[x1], -100);
 
   AD<double> z;
   double v0(5), v1(6);
@@ -218,10 +243,10 @@ TEST(Nested, Hv)
 
   auto z_gradient = Jacobian_row(z);  // Compute ∇_w(v.∇_w f) = H.v
 
-  assert(z_gradient[x0] == 3890);
-  assert(z_gradient[x1] == -480);
+  EXPECT_EQ(z_gradient[x0], 3890);
+  EXPECT_EQ(z_gradient[x1], -480);
 }
-#+END_src
+#+end_src
 ** Third order example 
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
@@ -230,11 +255,11 @@ cat $(pwd)/examples/nested.cpp
 
 #+RESULTS:
 #+begin_src cpp :eval never
-#include "Mission_Impossible_AutoDiff/Mission_Impossible.hpp"
+#include "MissionImpossible/Mission_Impossible.hpp"
 
 #include <iostream>
 
-using namespace Mission_Impossible_AutoDiff;
+using namespace MissionImpossible;
 
 template <typename T>
 auto
