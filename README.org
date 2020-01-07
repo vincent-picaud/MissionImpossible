@@ -1,12 +1,14 @@
-#+TITLE: Mission : Impossible (autodiff with self-destructing tape...)
+#+TITLE: Mission : Impossible (self-destructing AD local tape...)
 
 * What is it?
 
 *Mission : Impossible* is a concise and fast C++17 implementation of automatic
 differentiation based on operator overloading. It is adapted for
-general purpose small to mid size problems. For repeated calculations
-it is very easy to define an auto-destructive local tape , hence the
-wink to the series "Mission: Impossible".
+general purpose small to mid size problems. 
+
+For repeated calculations it is very easy to define an
+auto-destructive local tape, hence the wink to the "Mission:
+Impossible" series.
 
 #+begin_center
 [[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
@@ -33,10 +35,10 @@ Rosenbrock_grad(const T& x0, const T& x1)
 }
 #+end_src
 
- Note however, that it has been optimized
-(meta-programming) for the first order case. I have to produce
-benchmark plots, but its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
-relies on the same kind of approach [1].
+This library has been optimized (meta-programming) for unstructured 
+first order derivatives. I have to produce benchmark plots, but its
+speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it relies on the same kind of
+approach [1].
 
 #+begin_quote
 [1], Srajer, Filip, Zuzana Kukelova, and Andrew Fitzgibbon. "A
@@ -45,9 +47,9 @@ problems in computer vision and machine learning." Optimization
 Methods and Software 33.4-6 (2018): 889-906.
 #+end_quote
 
-Even if the library has not been optimized for thise cases, the
-library naturally supports the nested calculation of higher order
-derivatives. However, please note that in this situation dedicated
+Even if the library has not been optimized for these cases, it
+naturally supports nested calculation of higher order
+derivatives. However, note that in this situation dedicated
 approaches like [2,3] which takes into account symmetries are more
 suited.
 
@@ -96,8 +98,8 @@ meson --buildtype=release -Db_ndebug=true build-release
 
 * Examples
 ** Jacobian example
-The library supports reverse-mode, useful to compute gradient or
-Jacobian row by row. It also supports forward-mode where the Jacobian
+The library supports *reverse-mode*, useful to compute gradient or
+Jacobian row by row. It also supports *forward-mode* where the Jacobian
 is computed column by column.
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results

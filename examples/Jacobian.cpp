@@ -22,13 +22,13 @@ main()
 
   auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1
 
-  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", " << std::setw(20)
-            << Jacobian_row_y1[theta] << std::endl;
+  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
 
   auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2
 
-  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", " << std::setw(20)
-            << Jacobian_row_y2[theta] << std::endl;
+  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
 
   ////////////////////////////////////////
   // Computes Jacobian column by column //
