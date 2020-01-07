@@ -112,9 +112,7 @@ namespace MissionImpossible
     template <typename U, typename T, std::size_t N>
     inline auto operator*(const U& u, const std::array<T, N>& a) noexcept
     {
-      // XXX Premature reduction
       std::array<T, N> to_return;
-      //      std::array<decltype(u * a[0]), N> to_return;
 
       for (std::size_t i = 0; i < N; ++i)
       {
@@ -128,9 +126,7 @@ namespace MissionImpossible
     inline auto
     operator-(const std::array<T, N>& a) noexcept
     {
-      // XXX Premature reduction
       std::array<T, N> to_return;
-      //      std::array<decltype(u * a[0]), N> to_return;
 
       for (std::size_t i = 0; i < N; ++i)
       {
@@ -365,9 +361,12 @@ namespace MissionImpossible
 
   //////////////////////////////////////////////////////////////////
 
-  ///////////////
-  // operator* //
-  ///////////////
+  //////////////////////////
+  // Arithmetic operators //
+  //////////////////////////
+
+  // operator*
+  //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL>
   inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL>& g1) noexcept
@@ -387,9 +386,8 @@ namespace MissionImpossible
                        g1.value() * g0.differential() + g0.value() * g1.differential()};
   }
 
-  ///////////////
-  // operator/ //
-  ///////////////
+  // operator/
+  //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL1>
   inline auto
@@ -412,9 +410,8 @@ namespace MissionImpossible
                            (-g0.value() / (g1.value() * g1.value())) * g1.differential());
   }
 
-  ///////////////
-  // operator+ //
-  ///////////////
+  // operator+
+  //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL1>
   inline auto
@@ -435,9 +432,8 @@ namespace MissionImpossible
     return AD_Function(g0.value() + g1.value(), g0.differential() + g1.differential());
   }
 
-  //////////////////////
-  // unary operator- //
-  /////////////////////
+  // unary operator-
+  //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL0>
   inline auto
@@ -446,9 +442,8 @@ namespace MissionImpossible
     return AD_Function(-g0.value(), -g0.differential());
   }
 
-  ///////////////
-  // operator- //
-  ///////////////
+  // operator-
+  //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL1>
   inline auto
