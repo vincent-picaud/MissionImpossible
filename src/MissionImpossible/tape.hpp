@@ -111,21 +111,6 @@ namespace MissionImpossible
       return _index_end * sizeof(index_type) + _index[_index_end - 1] * sizeof(Index_PartialD);
     };
 
-    // Old encoding
-
-    // index_type
-    // add_variable()
-    // {
-    //   const std::size_t index = row_size();
-    //   auto* const p           = add_row(1);
-
-    //   p->index = index;
-    //   p->value = 1;
-
-    //   assert(index <= std::numeric_limits<index_type>::max());
-    //   return static_cast<index_type>(index);
-    // }
-
     // New encoding: to best tested in reverse mode!
     index_type
     add_variable()
@@ -198,14 +183,13 @@ namespace MissionImpossible
         // NOTE: tests
         // - diff_i_m_1 == 0
         // - diff_i_m_1 == +1
-        // - diff_i_m_1 == -1
         //
-        // are not necessary to make it work, it is only optimization
+        // are NOT necessary to make it work, it is only optimization
         // that are relevant for nested case
         //
         // TODO: maybe introduce a if constexpr: for the not nested
         // case, remove the tests that maybe slowdown computation
-        // -> TO CHECK. IMPORTANT!
+        // -> to check once we will have effective google-benchmark.
         //
         if (diff_i_m_1 != 0)
         {
@@ -221,17 +205,6 @@ namespace MissionImpossible
             }
             continue;
           }
-
-          // does not reduce tape size
-          // if (diff_i_m_1 == -1)
-          // {
-          //   for (std::size_t j = partial_begin; j < partial_end; ++j)
-          //   {
-          //     const auto indirection = _tape[j].index;
-          //     diff[indirection] -= _tape[j].value;
-          //   }
-          //   continue;
-          // }
 
           // This is the generic that work without the test
           for (std::size_t j = partial_begin; j < partial_end; ++j)
