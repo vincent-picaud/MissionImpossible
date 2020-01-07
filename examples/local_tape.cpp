@@ -18,7 +18,7 @@ example(const double x,
 
   ad_f = 2 * exp(-(x - ad_mu) / pow(ad_sigma, 2));
 
-  auto ad_grad_f = gradient(local_tape, ad_f);
+  auto ad_grad_f = gradient(local_tape, ad_f); // use the local tape for ∇f
 
   f            = ad_f.value();
   grad_f_mu    = ad_grad_f[ad_mu];
@@ -36,6 +36,6 @@ main()
 
   example(x, mu, sigma, f, grad_f_mu, grad_f_sigma);
 
-  std::cout << "f= " << f << std::endl;
+  std::cout << "f = " << f << std::endl;
   std::cout << "∇f= " << grad_f_mu << ", " << grad_f_sigma;
 }

@@ -1,4 +1,4 @@
-#+TITLE: Mission : Impossible (self-destructing AD local tape...)
+#+TITLE: Mission : Impossible (self-destructing AD local tapes...)
 
 * What is it?
 
@@ -40,7 +40,7 @@ example(const double x,
 
   ad_f = 2 * exp(-(x - ad_mu) / pow(ad_sigma, 2));
 
-  auto ad_grad_f = gradient(ad_f);
+  auto ad_grad_f = gradient(local_tape, ad_f); // use the local tape for ∇f
 
   f            = ad_f.value();
   grad_f_mu    = ad_grad_f[ad_mu];
@@ -58,10 +58,17 @@ main()
 
   example(x, mu, sigma, f, grad_f_mu, grad_f_sigma);
 
-  std::cout << "f= " << f << std::endl;
+  std::cout << "f = " << f << std::endl;
   std::cout << "∇f= " << grad_f_mu << ", " << grad_f_sigma;
 }
 #+end_src
+
+prints
+
+#+begin_example
+f = 2.23504
+∇f= 0.248338, -0.165558
+#+end_example
 
 This library has been optimized (meta-programming) for unstructured 
 first order derivatives. I have to produce benchmark plots, but its
@@ -191,7 +198,7 @@ main()
 }
 #+end_src
 
-which prints
+prints
 
 #+begin_example
 acobian row by row
@@ -226,7 +233,7 @@ main()
 
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  std::cout << "f=  " << y << std::endl;
+  std::cout << "f = " << y << std::endl;
 
   auto y_gradient = gradient(y);  // Computes ∇f
 
@@ -245,6 +252,14 @@ main()
   std::cout << z_gradient[x1] << std::endl;
 }
 #+end_src
+
+prints
+
+#+begin_example
+f = +254
+∇f= +604, -100
+Hv= +3890, -480
+#+end_example
 
 ** Third order example 
 
@@ -329,3 +344,4 @@ f     = +254
 ∂³₁₁₀f = +0
 ∂³₁₁₁f = +0
 #+end_example
+

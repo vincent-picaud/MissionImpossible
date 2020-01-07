@@ -9,7 +9,7 @@ main()
 
   y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  std::cout << "f=  " << y << std::endl;
+  std::cout << "f = " << y << std::endl;
 
   auto y_gradient = gradient(y);  // Computes ∇f
 
