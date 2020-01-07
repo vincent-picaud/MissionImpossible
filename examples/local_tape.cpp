@@ -36,6 +36,6 @@ main()
 
   example(x, mu, sigma, f, grad_f_mu, grad_f_sigma);
 
-  std::cout << "f = " << f << std::endl;
-  std::cout << "∇f= " << grad_f_mu << ", " << grad_f_sigma;
+  std::cout << "f  = " << f << std::endl;
+  std::cout << "∇f = " << grad_f_mu << ", " << grad_f_sigma;
 }

@@ -17,3 +17,7 @@ executable('local_tape',
 executable('Hv',
 	   'Hv.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('ad_complex',
+	   'ad_complex.cpp',
+	   dependencies : [MissionImpossible_dep])

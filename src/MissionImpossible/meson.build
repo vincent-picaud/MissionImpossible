@@ -8,9 +8,9 @@ MissionImpossible_headers = [
   'always.hpp',
   'final_value_type.hpp',
   'mission_impossible_tape.hpp',
-  # main header 
-  'MissionImpossible.hpp',
+  'MissionImpossible.hpp',   # main header 
   'functions.hpp',
+  'complex_support.hpp',
 ]
 
 MissionImpossible_sources = ['tape.cpp']

@@ -58,16 +58,16 @@ main()
 
   example(x, mu, sigma, f, grad_f_mu, grad_f_sigma);
 
-  std::cout << "f = " << f << std::endl;
-  std::cout << "∇f= " << grad_f_mu << ", " << grad_f_sigma;
+  std::cout << "f  = " << f << std::endl;
+  std::cout << "∇f = " << grad_f_mu << ", " << grad_f_sigma;
 }
 #+end_src
 
 prints
 
 #+begin_example
-f = 2.23504
-∇f= 0.248338, -0.165558
+f  = 2.23504
+∇f = 0.248338, -0.165558
 #+end_example
 
 This library has been optimized (meta-programming) for unstructured 
