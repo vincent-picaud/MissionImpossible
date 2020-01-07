@@ -384,7 +384,7 @@ main()
   const size_t n_data = XY.first.size();
   std::uniform_int_distribution<size_t> random_sample(0, n_data - 1);
 
-  const T eta = 1.5;
+  const T eta = 0.5;
 
   for (std::size_t iter = 0; iter < 1e5; ++iter)
   {
