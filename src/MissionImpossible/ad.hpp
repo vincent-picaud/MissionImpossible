@@ -69,8 +69,6 @@ namespace MissionImpossible
   template <typename T, std::size_t N>
   class AD_Differential : public AD_Types<T>
   {
-    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
-
    public:
     AD_TYPES(T);
 
@@ -217,8 +215,6 @@ namespace MissionImpossible
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
   {
-    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
-
    public:
     AD_TYPES(T);
 
@@ -264,7 +260,8 @@ namespace MissionImpossible
 
     // +=, -= etc...
     //
-    // a priory cannot be optimized: we use the x+=y -> x=x+y
+    // a priory cannot be optimized:
+    // we use the x+=y -> x=x+y
     // fallback.
     //
     template <typename IMPL>
@@ -279,6 +276,20 @@ namespace MissionImpossible
     operator-=(const AD_Crtp<T, IMPL>& y)
     {
       *this = *this - y;
+      return *this;
+    }
+    template <typename IMPL>
+    auto
+    operator*=(const AD_Crtp<T, IMPL>& y)
+    {
+      *this = *this * y;
+      return *this;
+    }
+    template <typename IMPL>
+    auto
+    operator/=(const AD_Crtp<T, IMPL>& y)
+    {
+      *this = *this / y;
       return *this;
     }
 
@@ -309,8 +320,6 @@ namespace MissionImpossible
   template <typename T, typename VALUE_TYPE, size_t N>
   class AD_Function : public AD_Crtp<T, AD_Function<T, VALUE_TYPE, N>>
   {
-    static_assert(Is_AD_v<T> or std::is_same_v<T, double>);
-
    public:
     AD_TYPES(T);
 
