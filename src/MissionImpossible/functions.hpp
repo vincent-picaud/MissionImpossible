@@ -24,7 +24,7 @@ namespace MissionImpossible
     }
     else
     {
-      type_reduction = x;
+      type_reduction = x.impl();
     }
     return type_reduction;
   }
@@ -39,7 +39,7 @@ namespace MissionImpossible
 
     AD<T> type_reduction;
     if (x0.value() == min(x0.value(), x1.value()))
-      type_reduction = x0;
+      type_reduction = x0.impl();
     else
       type_reduction = AD_Function(x1.value(), x1.differential());
     return type_reduction;
@@ -77,6 +77,15 @@ namespace MissionImpossible
   //////////////////////////
   // Elementary functions //
   //////////////////////////
+
+  template <typename T, typename IMPL>
+  inline auto
+  sqrt(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::sqrt;
+
+    return AD_Function(sqrt(x.value()), -1 / sqrt(x.value()) * x.differential());
+  }
 
   //  TODO float exponent
   template <typename T, typename IMPL>
@@ -132,8 +141,8 @@ namespace MissionImpossible
   tan(const AD_Crtp<T, IMPL>& x) noexcept
   {
     using std::cos;
-    using std::tan;
     using std::pow;
+    using std::tan;
 
     return AD_Function(tan(x.value()), 1 / pow(cos(x.value()), 2) * x.differential());
   }
