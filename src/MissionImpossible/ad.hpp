@@ -10,7 +10,9 @@
 
 namespace MissionImpossible
 {
-  //////////////////////////////////////////////////////////////////
+  /////////////
+  // AD_Crtp //
+  /////////////
 
   template <typename T>
   struct AD_Types
@@ -65,6 +67,10 @@ namespace MissionImpossible
       return MissionImpossible::tape<T>();
     }
   };
+
+  //////////////////////////////////
+  // AD_Differential & chain rule //
+  //////////////////////////////////
 
   template <typename T, std::size_t N>
   class AD_Differential : public AD_Types<T>
@@ -166,9 +172,7 @@ namespace MissionImpossible
     return AD_Differential{v * dg0.value(), dg0.index()};
   }
 
-  // TODO explain? OK
-  //
-  // This is used by op* for instance:
+  // Explanation: used by op* for instance:
   //
   // return AD_Function{g0.value() * g1.value(),
   //                   g1.value() * g0.differential() + g0.value() * g1.differential()};
@@ -206,7 +210,9 @@ namespace MissionImpossible
     return AD_Differential{join(dg0.value(), dg1.value()), join(dg0.index(), dg1.index())};
   }
 
-  //////////////////////////////////////////////////////////////////
+  //////////////////////////
+  // AD (active variable) //
+  //////////////////////////
 
   template <typename T>
   class AD : public AD_Crtp<T, AD<T>>
@@ -313,6 +319,10 @@ namespace MissionImpossible
     }
   };
 
+  ///////////////////////////////////////////////////////////////
+  // AD_Function, static array to store value and differential //
+  ///////////////////////////////////////////////////////////////
+
   template <typename T, typename VALUE_TYPE, size_t N>
   class AD_Function : public AD_Crtp<T, AD_Function<T, VALUE_TYPE, N>>
   {
@@ -358,8 +368,6 @@ namespace MissionImpossible
       return out;
     }
   };
-
-  //////////////////////////////////////////////////////////////////
 
   //////////////////////////
   // Arithmetic operators //
