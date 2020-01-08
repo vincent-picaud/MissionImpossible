@@ -396,10 +396,8 @@ main()
     // gnuplot> set logscale y 10
     // gnuplot> plot "cv.txt" u 1:3 w l
     
-    std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
+    //    std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
   }
-
-  return 0;
 
   // Classifier output
   //
@@ -412,7 +410,7 @@ main()
     {
       TinyVector<T, 2> x{i / grid_N, j / grid_M};
       const auto y = network(W2, b2, W3, b3, W4, b4, x);
-      std::cout << (y[0] > y[1] ? 1 : 0) << " ";
+      std::cout << y[0] << " ";
     }
     std::cout << std::endl;
   }

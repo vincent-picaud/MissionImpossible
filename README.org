@@ -1,3 +1,4 @@
+#+DATE: [2020-01-08 Wed 14:58]
 #+TITLE: Mission : Impossible (self-destructing AD local tapes...)
 
 * What is it?
@@ -6,13 +7,13 @@
 differentiation based on operator overloading. It is adapted for
 general purpose small to mid size problems. 
 
+The GitHub repository is https://github.com/vincent-picaud/MissionImpossible.
+
 For repeated calculations it is very easy to define an
 auto-destructive local tape, hence the wink to the "Mission:
 Impossible" series.
 
-#+begin_center
 [[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
-#+end_center
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/local_tape.cpp
@@ -137,8 +138,9 @@ meson --buildtype=release -Db_ndebug=true build-release
 ** Jacobian example
 
 Illustrates *forward-mode* and *reverse-mode* support. The first one is
-convenient to compute the Jacobian is computed column by column. The
-second one is effective to compute gradients or Jacobian row by row.
+convenient to compute the Jacobian column by column. The second one is
+effective to compute gradients (or equivalently to compute the
+Jacobian row by row).
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Jacobian.cpp
@@ -214,7 +216,7 @@ Jacobian column by column
 
 ** Complex number example
 
-Illustrate complex number support:
+Illustrates complex number support:
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/ad_complex.cpp
@@ -230,7 +232,7 @@ cat $(pwd)/examples/ad_complex.cpp
 using namespace MissionImpossible;
 
 void
-most_efficient()
+most_efficient() // <- the prefered method 
 {
   using T = std::complex<double>;
 
@@ -315,7 +317,7 @@ df = -0.894427, +1.78885
 
 ** Hessian action Hv, directional derivatives
 
-Illustrate Hessian action Hv=∇ <∇f,v> computation:
+Illustrates Hessian action Hv=∇ <∇f,v> computation:
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Hv.cpp
@@ -364,7 +366,7 @@ Hv= +3890, -480
 
 ** Third order example 
 
-Illustrates that the library supports nested computations
+Illustrates nested computations support
 
 #+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/nested.cpp
@@ -446,3 +448,7 @@ f     = +254
 ∂³₁₁₁f = +0
 #+end_example
 
+TODO: benchmark, more (and bigger) usage examples, API doc...
+
+# figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
+# ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
