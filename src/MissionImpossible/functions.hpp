@@ -150,4 +150,93 @@ namespace MissionImpossible
     return AD_Function(tan(x.value()), 1 / pow(cos(x.value()), 2) * x.differential());
   }
 
+  // TODO: After this mark, not tested
+  template <typename T, typename IMPL>
+  inline auto
+  acos(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::pow;
+    using std::sqrt;
+
+    return AD_Function(acos(x.value()), -1 / sqrt(1 - pow(x.value(), 2)) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  asin(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::pow;
+    using std::sqrt;
+
+    return AD_Function(asin(x.value()), 1 / sqrt(1 - pow(x.value(), 2)) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  atan(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::pow;
+
+    return AD_Function(atan(x.value()), 1 / (1 + pow(x.value(), 2)) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  cosh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::cosh;
+    using std::sinh;
+
+    return AD_Function(cosh(x.value()), sinh(x.value()) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  sinh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::cosh;
+    using std::sinh;
+
+    return AD_Function(sinh(x.value()), cosh(x.value()) * x.differential());
+  }
+
+  template <typename T, typename IMPL>
+  inline auto
+  tanh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::cosh;
+    using std::pow;
+    using std::tanh;
+
+    return AD_Function(tanh(x.value()), 1 / pow(cosh(x.value()), 2) * x.differential());
+  }
+  template <typename T, typename IMPL>
+  inline auto
+  atanh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::atanh;
+    using std::pow;
+
+    return AD_Function(atanh(x.value()), 1 / (1 - pow(x.value(), 2)) * x.differential());
+  }
+  template <typename T, typename IMPL>
+  inline auto
+  acosh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::atanh;
+    using std::sqrt;
+
+    return AD_Function(acosh(x.value()),
+                       1 / sqrt((x.value() - 1) * (x.value() + 1)) * x.differential());
+  }
+  template <typename T, typename IMPL>
+  inline auto
+  asinh(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    using std::atanh;
+    using std::pow;
+    using std::sqrt;
+
+    return AD_Function(asinh(x.value()), 1 / sqrt(pow(x.value() + 1, 2)) * x.differential());
+  }
 }
