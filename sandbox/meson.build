@@ -14,6 +14,6 @@ executable('misc',
 	   'misc.cpp',
 	   dependencies : [MissionImpossible_dep])
 
-executable('ad_benchmark',
-	   'ad_benchmark.cpp',
-	   dependencies : [MissionImpossible_dep,google_benchmark_dep])
+# executable('ad_benchmark',
+# 	   'ad_benchmark.cpp',
+# 	   dependencies : [MissionImpossible_dep,google_benchmark_dep])
