@@ -32,51 +32,63 @@ namespace MissionImpossible
     return type_reduction;
   }
 
-  // Explain why it also works for NaN
+  // TODO: explain why min/max also work with NaN args
   //
+
+  // min
   template <typename T, typename IMPL>
-  inline auto
+  inline AD<T>
   min(const AD_Final_Value_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
   {
     using std::min;
 
-    AD<T> type_reduction;
-    if (x0.value() == min(x0.value(), x1.value()))
-      type_reduction = x0.impl();
-    else
-      type_reduction = AD_Function(x1.value(), x1.differential());
-    return type_reduction;
+    if (x0 == min(x0, x1.value())) return {x0};
+    return {x1.impl()};
   }
   template <typename T, typename IMPL>
-  inline auto
+  inline AD<T>
   min(const AD_Crtp<T, IMPL>& x1, const AD_Final_Value_Type_t<T> x0) noexcept
   {
-    using std::min;
-
-    AD<T> type_reduction;
-    if (x0.value() == min(x0.value(), x1.value()))
-      type_reduction = AD_Function(x0.value(), x0.differential());
-    else
-      type_reduction = x1;
-    return type_reduction;
+    return min(x1, x0);
   }
 
   template <typename T, typename IMPL0, typename IMPL1>
-  inline auto
+  inline AD<T>
   min(const AD_Crtp<T, IMPL0>& x0, const AD_Crtp<T, IMPL1>& x1) noexcept
   {
     using std::min;
 
-    AD<T> type_reduction;
-    if (x0.value() == min(x0.value(), x1.value()))
-      type_reduction = AD_Function(x0.value(), x0.differential());
-    else
-      type_reduction = AD_Function(x1.value(), x1.differential());
-    return type_reduction;
+    if (x0.value() == min(x0.value(), x1.value())) return {x0.impl()};
+    return {x1.impl()};
   }
 
-  // TODO: max
+  // max
+  template <typename T, typename IMPL>
+  inline AD<T>
+  max(const AD_Final_Value_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
+  {
+    using std::max;
 
+    if (x0 == max(x0, x1.value())) return {x0};
+    return {x1.impl()};
+  }
+  template <typename T, typename IMPL>
+  inline AD<T>
+  max(const AD_Crtp<T, IMPL>& x1, const AD_Final_Value_Type_t<T> x0) noexcept
+  {
+    return max(x1, x0);
+  }
+
+  template <typename T, typename IMPL0, typename IMPL1>
+  inline AD<T>
+  max(const AD_Crtp<T, IMPL0>& x0, const AD_Crtp<T, IMPL1>& x1) noexcept
+  {
+    using std::max;
+
+    if (x0.value() == max(x0.value(), x1.value())) return {x0.impl()};
+    return {x1.impl()};
+  }
+  
   //////////////////////////
   // Elementary functions //
   //////////////////////////
@@ -87,7 +99,7 @@ namespace MissionImpossible
   {
     using std::sqrt;
 
-    return AD_Function(sqrt(x.value()), 1 / (2*sqrt(x.value())) * x.differential());
+    return AD_Function(sqrt(x.value()), 1 / (2 * sqrt(x.value())) * x.differential());
   }
 
   //  TODO float exponent

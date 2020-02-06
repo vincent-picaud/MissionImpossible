@@ -14,8 +14,49 @@ TEST(Function, min)
   AD<double> x0 = 2, x1 = 3, y;
   y         = min(2 * x0, x0 + x1);
   auto grad = gradient(y);
-  // ASSERT_DOUBLE_EQ(y.value(), exp(x.value()));
-  // ASSERT_DOUBLE_EQ(grad[x], exp(x.value()));
+  ASSERT_DOUBLE_EQ(y.value(), 4);
+  ASSERT_DOUBLE_EQ(grad[x0], 2);
+  ASSERT_DOUBLE_EQ(grad[x1], 0);
+
+  y    = min(4, x0 + x1);
+  grad = gradient(y);
+  ASSERT_DOUBLE_EQ(y.value(), 4);
+  ASSERT_DOUBLE_EQ(grad[x0], 0);
+  ASSERT_DOUBLE_EQ(grad[x1], 0);
+
+  y    = min(10, 2 * x0 + x1);
+  grad = gradient(y);
+  ASSERT_DOUBLE_EQ(y.value(), 7);
+  ASSERT_DOUBLE_EQ(grad[x0], 2);
+  ASSERT_DOUBLE_EQ(grad[x1], 1);
+
+  // y    = max(2 * x0, x0 + x1);
+  // grad = gradient(y);
+  // ASSERT_DOUBLE_EQ(y.value(), 4);
+  // ASSERT_DOUBLE_EQ(grad[x0], 2);
+  // ASSERT_DOUBLE_EQ(grad[x1], 0);
+}
+
+TEST(Function, max)
+{
+  AD<double> x0 = 2, x1 = 3, y;
+  y         = max(2 * x0, x0 + 2*x1);
+  auto grad = gradient(y);
+  ASSERT_DOUBLE_EQ(y.value(), 8);
+  ASSERT_DOUBLE_EQ(grad[x0], 1);
+  ASSERT_DOUBLE_EQ(grad[x1], 2);
+
+  y    = max(6, x0 + x1);
+  grad = gradient(y);
+  ASSERT_DOUBLE_EQ(y.value(), 6);
+  ASSERT_DOUBLE_EQ(grad[x0], 0);
+  ASSERT_DOUBLE_EQ(grad[x1], 0);
+
+  y    = max(1, 2 * x0 + x1);
+  grad = gradient(y);
+  ASSERT_DOUBLE_EQ(y.value(), 7);
+  ASSERT_DOUBLE_EQ(grad[x0], 2);
+  ASSERT_DOUBLE_EQ(grad[x1], 1);
 }
 
 //////////////////////////////////////////////////////////////////
