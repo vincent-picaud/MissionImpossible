@@ -97,3 +97,23 @@ TEST(Function, sigmoid)
   ASSERT_DOUBLE_EQ(y.value(), 1 / (1 + exp(-x.value())));
   ASSERT_DOUBLE_EQ(grad[x], exp(-x.value()) / pow(1 + exp(-x.value()), 2));
 }
+
+//////////////////////////////////////////////////////////////////
+
+TEST(Function, sqrt)
+{
+  AD<double> x = 3, y;
+
+  y         = sqrt(x * x);
+  auto grad = gradient(y);
+
+  ASSERT_DOUBLE_EQ(y.value(), 3);
+  ASSERT_DOUBLE_EQ(grad[x], 1);
+
+  x    = -3;
+  y    = sqrt(x * x);
+  grad = gradient(y);
+
+  ASSERT_DOUBLE_EQ(y.value(), 3);
+  ASSERT_DOUBLE_EQ(grad[x], -1);
+}

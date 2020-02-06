@@ -87,7 +87,7 @@ namespace MissionImpossible
   {
     using std::sqrt;
 
-    return AD_Function(sqrt(x.value()), -1 / sqrt(x.value()) * x.differential());
+    return AD_Function(sqrt(x.value()), 1 / (2*sqrt(x.value())) * x.differential());
   }
 
   //  TODO float exponent
