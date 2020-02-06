@@ -34,8 +34,8 @@ namespace MissionImpossible
   {
     using std::min;
 
-    if (x0 == min(x0, x1.value())) return {x0};
-    return {x1.impl()};
+    if (x0 == min(x0, x1.value())) return x0;
+    return x1.impl();
   }
   template <typename T, typename IMPL>
   inline AD<T>
@@ -50,8 +50,9 @@ namespace MissionImpossible
   {
     using std::min;
 
-    if (x0.value() == min(x0.value(), x1.value())) return {x0.impl()};
-    return {x1.impl()};
+    if (x0.value() == min(x0.value(), x1.value())) return x0.impl();
+
+    return x1.impl();
   }
 
   // max
@@ -61,8 +62,9 @@ namespace MissionImpossible
   {
     using std::max;
 
-    if (x0 == max(x0, x1.value())) return {x0};
-    return {x1.impl()};
+    if (x0 == max(x0, x1.value())) return x0;
+
+    return x1.impl();
   }
   template <typename T, typename IMPL>
   inline AD<T>
@@ -77,8 +79,9 @@ namespace MissionImpossible
   {
     using std::max;
 
-    if (x0.value() == max(x0.value(), x1.value())) return {x0.impl()};
-    return {x1.impl()};
+    if (x0.value() == max(x0.value(), x1.value())) return x0.impl();
+    
+    return x1.impl();
   }
 
   //////////////////////////
