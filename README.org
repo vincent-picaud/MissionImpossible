@@ -474,3 +474,25 @@ TODO: benchmark, more (and bigger) usage examples, API doc...
 
 # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
 # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
+
+* API Documentation
+
+** AD types
+
+These are the types you must use when you want to compute derivatives.
+- =AD<T>= for first order derivatives
+- =AD<AD<T>>= for second order derivatives
+- ...
+
+** Tape 
+
+A =local_thread= is globally stored. You can access it by:
+
+#+BEGIN_SRC cpp :eval never 
+
+tape<T>();          // returns a reference Tape<T>& to the tape associated to AD<T>
+tape<AD<T>>();      // returns a reference Tape<T>& to the tape associated to AD<AD<T>>
+tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD<AD<AD<T>>>
+                    // etc...
+#+END_SRC
+
