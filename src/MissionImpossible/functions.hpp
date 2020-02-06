@@ -13,23 +13,15 @@ namespace MissionImpossible
   // Min/max like functions //
   ////////////////////////////
 
-  // TO TEST
   template <typename T, typename IMPL>
   inline AD<T>
   abs(const AD_Crtp<T, IMPL>& x) noexcept
   {
     using std::abs;
 
-    AD<T> type_reduction;
-    if (x.value() < 0)
-    {
-      type_reduction = AD_Function(-x.value(), -x.differential());
-    }
-    else
-    {
-      type_reduction = x.impl();
-    }
-    return type_reduction;
+    if (x.value() < 0) return -x;
+
+    return x.impl();
   }
 
   // TODO: explain why min/max also work with NaN args
@@ -88,7 +80,7 @@ namespace MissionImpossible
     if (x0.value() == max(x0.value(), x1.value())) return {x0.impl()};
     return {x1.impl()};
   }
-  
+
   //////////////////////////
   // Elementary functions //
   //////////////////////////

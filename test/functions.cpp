@@ -7,6 +7,25 @@
 
 using namespace MissionImpossible;
 
+
+TEST(Function, abs)
+{
+  AD<double> x = 3, y;
+
+  y         = abs(2 * x);
+  auto grad = gradient(y);
+
+  ASSERT_DOUBLE_EQ(y.value(), 6);
+  ASSERT_DOUBLE_EQ(grad[x], 2);
+
+  x    = -3;
+  y    = abs(2 * x);
+  grad = gradient(y);
+
+  ASSERT_DOUBLE_EQ(y.value(), 6);
+  ASSERT_DOUBLE_EQ(grad[x], -2);
+}
+
 //////////////////////////////////////////////////////////////////
 
 TEST(Function, min)
