@@ -1,9 +1,12 @@
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
+#include <array>
 
 using namespace MissionImpossible;
 
+// template<typename T>
+// T Rosenbrock(const std::array<T>& X,
 void
 example(const double x,
         const double mu,

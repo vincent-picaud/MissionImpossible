@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MissionImpossible/ad_fwd.hpp"
-#include "MissionImpossible/final_value_type.hpp"
+#include "MissionImpossible/underlying_type.hpp"
 #include "MissionImpossible/identity.hpp"
 #include "MissionImpossible/tape.hpp"
 
@@ -186,7 +186,7 @@ namespace MissionImpossible
   }
 
   template <typename T, std::size_t N>
-  inline auto operator*(const AD_Final_Value_Type_t<T> v, const AD_Differential<T, N>& dg0) noexcept
+  inline auto operator*(const AD_Underlying_Type_t<T> v, const AD_Differential<T, N>& dg0) noexcept
   {
     using namespace Detail;
 
@@ -228,7 +228,7 @@ namespace MissionImpossible
 
    public:
     AD() noexcept {};  // avoid useless default init (zero filled double, int ... for instance)
-    AD(const AD_Final_Value_Type_t<value_type> value) noexcept : AD() { (*this) = value; }
+    AD(const AD_Underlying_Type_t<value_type> value) noexcept : AD() { (*this) = value; }
     template <typename VALUE_TYPE, std::size_t N>
     AD(const AD_Function<T, VALUE_TYPE, N>& ad)
     {
@@ -236,7 +236,7 @@ namespace MissionImpossible
     }
 
     AD&
-    operator=(const AD_Final_Value_Type_t<value_type> value) noexcept
+    operator=(const AD_Underlying_Type_t<value_type> value) noexcept
     {
       _value  = value;
       _dvalue = differential_type{{value_type(1)}, {this->tape().add_variable()}};
@@ -377,12 +377,12 @@ namespace MissionImpossible
   //////////////////////////////////////////////////////////////////
   //
   template <typename T, typename IMPL>
-  inline auto operator*(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL>& g1) noexcept
+  inline auto operator*(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL>& g1) noexcept
   {
     return AD_Function{g0 * g1.value(), g0 * g1.differential()};
   }
   template <typename T, typename IMPL>
-  inline auto operator*(const AD_Crtp<T, IMPL>& g1, const AD_Final_Value_Type_t<T> g0) noexcept
+  inline auto operator*(const AD_Crtp<T, IMPL>& g1, const AD_Underlying_Type_t<T> g0) noexcept
   {
     return g0 * g1;
   }
@@ -399,13 +399,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator/(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator/(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return AD_Function(g0 / g1.value(), (-g0 / (g1.value() * g1.value())) * g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator/(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return AD_Function(g0.value() / g1, (1 / g1) * g0.differential());
   }
@@ -423,13 +423,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator+(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator+(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return AD_Function(g0 + g1.value(), g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator+(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return AD_Function(g0.value() + g1, g0.differential());
   }
@@ -455,13 +455,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline auto
-  operator-(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator-(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return AD_Function(g0 - g1.value(), -g1.differential());
   }
   template <typename T, typename IMPL0>
   inline auto
-  operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator-(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return AD_Function(g0.value() - g1, g0.differential());
   }
@@ -483,13 +483,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator==(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator==(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 == g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator==(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator==(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() == g1;
   }
@@ -505,13 +505,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator!=(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator!=(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 != g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator!=(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator!=(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() != g1;
   }
@@ -527,13 +527,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator<(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator<(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 < g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator<(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator<(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() < g1;
   }
@@ -549,13 +549,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator<=(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator<=(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 <= g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator<=(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator<=(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() <= g1;
   }
@@ -571,13 +571,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator>(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator>(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 > g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator>(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator>(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() > g1;
   }
@@ -593,13 +593,13 @@ namespace MissionImpossible
   //
   template <typename T, typename IMPL1>
   inline bool
-  operator>=(const AD_Final_Value_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
+  operator>=(const AD_Underlying_Type_t<T> g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0 >= g1.value();
   }
   template <typename T, typename IMPL0>
   inline bool
-  operator>=(const AD_Crtp<T, IMPL0>& g0, const AD_Final_Value_Type_t<T> g1) noexcept
+  operator>=(const AD_Crtp<T, IMPL0>& g0, const AD_Underlying_Type_t<T> g1) noexcept
   {
     return g0.value() >= g1;
   }

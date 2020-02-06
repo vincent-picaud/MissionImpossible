@@ -3,7 +3,7 @@ test_array = [
   ['ad_test','ad_exe','ad.cpp'],
   ['tape_vector_test','tape_vector_exe','tape_vector.cpp'],
   ['derivatives_test','derivatives_exe','derivatives.cpp'],
-  ['final_value_type_test','final_value_type_exe','final_value_type.cpp'],
+  ['underlying_type_test','underlying_type_exe','underlying_type.cpp'],
   ['nested_2nd_order_test','nested_2nd_order_exe','nested_2nd_order.cpp'],
   ['mission_impossible_tape_test','mission_impossible_tape_exe','mission_impossible_tape.cpp'],
   ['functions_test','functions_exe','functions.cpp'],

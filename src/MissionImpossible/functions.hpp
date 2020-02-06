@@ -30,7 +30,7 @@ namespace MissionImpossible
   // min
   template <typename T, typename IMPL>
   inline AD<T>
-  min(const AD_Final_Value_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
+  min(const AD_Underlying_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
   {
     using std::min;
 
@@ -39,7 +39,7 @@ namespace MissionImpossible
   }
   template <typename T, typename IMPL>
   inline AD<T>
-  min(const AD_Crtp<T, IMPL>& x1, const AD_Final_Value_Type_t<T> x0) noexcept
+  min(const AD_Crtp<T, IMPL>& x1, const AD_Underlying_Type_t<T> x0) noexcept
   {
     return min(x1, x0);
   }
@@ -58,7 +58,7 @@ namespace MissionImpossible
   // max
   template <typename T, typename IMPL>
   inline AD<T>
-  max(const AD_Final_Value_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
+  max(const AD_Underlying_Type_t<T> x0, const AD_Crtp<T, IMPL>& x1) noexcept
   {
     using std::max;
 
@@ -68,7 +68,7 @@ namespace MissionImpossible
   }
   template <typename T, typename IMPL>
   inline AD<T>
-  max(const AD_Crtp<T, IMPL>& x1, const AD_Final_Value_Type_t<T> x0) noexcept
+  max(const AD_Crtp<T, IMPL>& x1, const AD_Underlying_Type_t<T> x0) noexcept
   {
     return max(x1, x0);
   }
