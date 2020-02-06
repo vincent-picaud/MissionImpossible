@@ -7,6 +7,10 @@
 
 namespace MissionImpossible
 {
+  //////////////////////////////////////////////////////////////////
+  // Row by row (or reverse mode)
+  //////////////////////////////////////////////////////////////////
+  //
   template <typename T>
   Tape_Vector<T>
   Jacobian_row(const AD<T>& f)
@@ -53,8 +57,10 @@ namespace MissionImpossible
     return Jacobian_row(tape, f);
   }
 
-  //================
-
+  //////////////////////////////////////////////////////////////////
+  // Column by column (or forward mode)
+  //////////////////////////////////////////////////////////////////
+  //
   template <typename T>
   Tape_Vector<T>
   Jacobian_column(const AD<T>& f)

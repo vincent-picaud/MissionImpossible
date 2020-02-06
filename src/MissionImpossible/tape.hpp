@@ -182,14 +182,13 @@ namespace MissionImpossible
 
         // NOTE: tests
         // - diff_i_m_1 == 0
-        // - diff_i_m_1 == +1
+        // - diff_i_m_1 == 1
         //
-        // are NOT necessary to make it work, it is only optimization
-        // that are relevant for nested case
+        // are NOT necessary to make it work, this is only an
+        // optimization that is relevant for nested cases
         //
-        // TODO: maybe introduce a if constexpr: for the not nested
-        // case, remove the tests that maybe slowdown computation
-        // -> to check once we will have effective google-benchmark.
+        // TODO: maybe introduce a if constexpr: for the unested case.
+        //       (faster?)
         //
         if (diff_i_m_1 != 0)
         {
@@ -206,7 +205,8 @@ namespace MissionImpossible
             continue;
           }
 
-          // This is the generic that work without the test
+          // This is the general procedure that can work without any
+          // test
           for (std::size_t j = partial_begin; j < partial_end; ++j)
           {
             const auto indirection = _tape[j].index;
