@@ -1,12 +1,25 @@
 #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace  MissionImpossible;
+using namespace MissionImpossible;
 
-int main()
+int
+main()
 {
-  AD<double> x,y;
+  // GOOD
+  //================
+  AD<double> x1, y1;
 
-  y = 2*x;
+  x1 = 1;       // initializes x1
+  y1 = 2 * x1;  // before usage
 
-  gradient(y);
+  auto grad1 = gradient(y1);  // OK
+
+  // BAD
+  //================
+  AD<double> x2, y2;
+
+  y2 = 2 * x2;  // use of x2 without initialization
+                // triggers an assert(0) in DEBUG mode
+
+  auto grad2 = gradient(y2); // undefined behavior
 }

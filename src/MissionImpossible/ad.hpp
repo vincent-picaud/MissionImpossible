@@ -104,14 +104,14 @@ namespace MissionImpossible
     value_array_type _value_array;
     index_array_type _index_array;
 #ifndef NDEBUG
-    static constexpr index_type _uninitialized_index = static_cast<index_type>(-1);
+    static constexpr index_type _bad_index = -1;
 #endif
-
+    
    public:
     AD_Differential() noexcept
     {
 #ifndef NDEBUG
-      for (auto& index : _index_array) index = _uninitialized_index;
+      if constexpr (N > 0) _index_array[0] = _bad_index;
 #endif
     }
     AD_Differential(const value_array_type& value_array,
@@ -123,17 +123,13 @@ namespace MissionImpossible
     const value_array_type&
     value() const noexcept
     {
+      assert((N == 0) || (_index_array[0] != _bad_index));
       return _value_array;
     };
     const index_array_type&
     index() const noexcept
     {
-#ifndef NDEBUG
-      bool ok = true;
-      for (auto index : _index_array) ok &= index != _uninitialized_index;
-      assert(ok && "Attempt to use an uninitialized variable");
-#endif
-
+      assert((N == 0) || (_index_array[0] != _bad_index));
       return _index_array;
     }
   };

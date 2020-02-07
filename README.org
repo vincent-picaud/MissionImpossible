@@ -499,7 +499,47 @@ These are the types you must use when you want to compute derivatives.
 - =AD<AD<T>>= for second order derivatives
 - ...
 
-*Note:* it is zero cost
+*Note:* you must *always* initialize =AD<T>= variables before usage (so that
+ they are registered in the tape). By example:
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/ad.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+using namespace  MissionImpossible;
+
+int main()
+{
+  // GOOD
+  //================
+  AD<double> x1,y1;
+
+  x1 = 1;     // initializes x1
+  y1 = 2*x1;  // before usage
+
+  auto grad1 = gradient(y1);
+
+  // BAD
+  //================
+  AD<double> x2,y2;
+
+  y2 = 2*x2; // use of x2 without initialization
+
+  auto grad2 = gradient(y2); // triggers an assert(0) (in DEBUG mode only!)
+}
+#+end_src
+
+Arithmetic and comparison operators are overloaded for =AD<T>=. From the
+user's point of view there is one useful method to know: =value()=. This
+method returns the variable value.
+
+The type of this returned value is given by
+=AD_Underlying_Type_t<.>=. By example:
+
 ** Tape 
 
 A =local_thread= is globally stored. You can access it by:
