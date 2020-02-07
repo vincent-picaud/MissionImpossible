@@ -1,4 +1,6 @@
-#+DATE: [2020-01-08 Wed 14:58]
+#+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:t tags:not-in-toc
+#+HTML_HEAD_EXTRA: <style type="text/css"> blockquote {background:#EEEEEE; padding: 3px 13px}    </style>
+#+HTML_HEAD_EXTRA: <style type="text/css"> pre {background:#EEEEEE; padding: 3px 13px}    </style>
 #+TITLE: Mission : Impossible (self-destructing AD local tapes...)
 
 * What is it?
@@ -488,19 +490,21 @@ f     = +254
 # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
 # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
 
-* API Documentation
+* Documentation, how to use this library
 
-Describes the essential parts one must know to use the library.
+This part focuses on the things to know to properly use this library.
 
 ** AD types
 
 These are the types you must use when you want to compute derivatives.
 - =AD<T>= for first order derivatives
 - =AD<AD<T>>= for second order derivatives
+- =AD<AD<AD<T>>>= for third order derivatives
 - ...
 
-*Note:* you must *always* initialize =AD<T>= variables before usage (so that
- they are registered in the tape). By example:
+*Note:* you must *always* initialize =AD<T>= variables before usage (in order to register them in the tape)
+
+*Example:*
 
 #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/ad.cpp
@@ -510,35 +514,172 @@ cat $(pwd)/examples/doc/ad.cpp
 #+begin_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace  MissionImpossible;
+using namespace MissionImpossible;
 
-int main()
+int
+main()
 {
   // GOOD
   //================
-  AD<double> x1,y1;
+  AD<double> x1, y1;
 
-  x1 = 1;     // initializes x1
-  y1 = 2*x1;  // before usage
+  x1 = 1;       // initializes x1
+  y1 = 2 * x1;  // before usage
 
-  auto grad1 = gradient(y1);
+  auto grad1 = gradient(y1);  // OK
 
   // BAD
   //================
-  AD<double> x2,y2;
+  AD<double> x2, y2;
 
-  y2 = 2*x2; // use of x2 without initialization
+  y2 = 2 * x2;  // use of x2 without initialization
+                // triggers an assert(0) in DEBUG mode
 
-  auto grad2 = gradient(y2); // triggers an assert(0) (in DEBUG mode only!)
+  auto grad2 = gradient(y2); // undefined behavior
 }
 #+end_src
 
-Arithmetic and comparison operators are overloaded for =AD<T>=. From the
-user's point of view there is one useful method to know: =value()=. This
-method returns the variable value.
+*** Constant scalar parameter 
 
-The type of this returned value is given by
-=AD_Underlying_Type_t<.>=. By example:
+The origin of the problem is not attached to this library, by example:
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/underlying_type.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+#include <vector>
+
+// BAD
+template <typename T>
+void
+scale_v1(const T scalar, std::vector<T>& v)
+{
+  // version 1
+}
+
+// GOOD
+template <typename T>
+void
+scale_v2(const typename std::vector<T>::value_type scalar, std::vector<T>& v)
+{
+  // version 2
+}
+
+int
+main()
+{
+  std::vector<double> v(10);
+
+  scale_v1(2, v);  // <- does not compile
+                   // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
+  
+  scale_v2(2, v);  // <- OK
+}
+#+end_src
+
+The use of =typename std::vector<T>::value_type= avoids type conflict as
+ now only one expression (here =std::vector<T>=) is used to deduce the
+ type of T (further detail: [[https://en.cppreference.com/w/cpp/types/type_identity][cppreference: type_identity]]).
+
+Back to this "Mission : Impossible" library, if one wants to define a
+function that takes a *scalar* constant =10= and compute =10*x*x=, you must
+use =Underlying_Type_t= (as a emplacement of =typename
+std::vector<T>::value_type= in the previous example):
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/underlying_type_2.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+using namespace MissionImpossible;
+
+template <typename T>
+T
+my_function(const AD_Underlying_Type_t<T> scalar_constant, const T x)
+{
+  return scalar_constant * x * x;
+}
+
+int
+main()
+{
+  AD<AD<double>> x = 2, y;
+
+  y = my_function(10, x);
+
+  auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
+  auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
+
+  std::cout << "y   = " << y << std::endl;
+  std::cout << "dy  = " << dy[x] << " dx" << std::endl;
+  std::cout << "d2y = " << d2y[x] << " dx⊗dx" << std::endl;
+}
+#+end_src
+
+which prints:
+
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/doc/underlying_type_2
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+y   = +40
+dy  = +40 dx
+d2y = +20 dx⊗dx
+#+end_example
+
+** =underlying_value()=
+
+Maybe the last function to know, but to use with care (as it shortcuts the flow of 
+tape recording), is =underlying_value()=. This function
+returns the underlying stored value. By example:
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/underlying_value.cpp
+#+END_SRC
+
+#+RESULTS:
+#+begin_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+using namespace MissionImpossible;
+
+int
+main()
+{
+  AD<AD<double>> x = 2, y;
+
+  y = 10 * x * x;
+
+  auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
+  auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
+
+  double value_y   = underlying_value(y);
+  double value_dy  = underlying_value(dy[x]);
+  double value_d2y = underlying_value(d2y[x]);
+
+  std::cout << "y   = " << value_y << std::endl;
+  std::cout << "dy  = " << value_dy << " dx" << std::endl;
+  std::cout << "d2y = " << value_d2y << " dx⊗dx" << std::endl;
+}
+#+end_src
+
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/doc/underlying_value
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+y   = 40
+dy  = 40 dx
+d2y = 20 dx⊗dx
+#+end_example
 
 ** Tape 
 
