@@ -106,7 +106,7 @@ namespace MissionImpossible
 #ifndef NDEBUG
     static constexpr index_type _bad_index = -1;
 #endif
-    
+
    public:
     AD_Differential() noexcept
     {
@@ -638,5 +638,31 @@ namespace MissionImpossible
   operator>=(const AD_Crtp<T, IMPL0>& g0, const AD_Crtp<T, IMPL1>& g1) noexcept
   {
     return g0.value() >= g1.value();
+  }
+
+  //////////////////////////////////////////////////////////////////
+  // Underlying value
+  //////////////////////////////////////////////////////////////////
+  //
+  // CAVEAT: use it with care as it shortcut AD operation registration.
+  //
+  template <typename T>
+  std::enable_if_t<std::is_same_v<AD_Underlying_Type_t<T>, T>, const T&>
+  underlying_value(const T& x) noexcept
+  {
+    return x;
+  }
+  template <typename T, typename IMPL>
+  const AD_Underlying_Type_t<T>&
+  underlying_value(const AD_Crtp<T, IMPL>& x) noexcept
+  {
+    if constexpr (std::is_same_v<AD_Underlying_Type_t<T>, T>)
+    {
+      return x.value();
+    }
+    else
+    {
+      return underlying_value(x.value());
+    }
   }
 }

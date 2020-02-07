@@ -32,3 +32,14 @@ TEST(AD, product)
 
   EXPECT_EQ(z2.value(), 16);
 }
+
+TEST(AD, underying_value)
+{
+  AD<AD<double>> x = 2, y;
+
+  y = 10 * x * x;
+
+  EXPECT_EQ(underlying_value(y), 40);
+  EXPECT_EQ(underlying_value(y.value()), 40);
+  EXPECT_EQ(underlying_value(y.value().value()), 40);
+}
