@@ -3,24 +3,21 @@
 
 * What is it?
 
-*Mission : Impossible* is a concise and fast C++17 implementation of automatic
-differentiation based on operator overloading. It is adapted for
-general purpose small to mid size problems. 
-
-The GitHub repository is https://github.com/vincent-picaud/MissionImpossible.
-
-For repeated calculations it is very easy to define an
-auto-destructive local tape, hence the wink to the "Mission:
-Impossible" series.
+*Mission : Impossible* is a concise and fast C++17 implementation of
+automatic differentiation based on operator overloading. For repeated
+calculations it is very easy to define an auto-destructive local tape,
+hence the wink to the "Mission: Impossible" series.
 
 [[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+Illustrates local tape usage:
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/local_tape.cpp
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_src cpp :eval never
+#+begin_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <array>
@@ -77,20 +74,20 @@ main()
   std::cout << "f2  = " << f2 << std::endl;
   std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
 }
-#+END_src
+#+end_src
 
 prints
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 $(pwd)/build/examples/local_tape
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_src cpp :eval never
+#+begin_src cpp :eval never
 f1  = 254
 f2  = 254
 ∇f2 = [ 604, -100 ]
-#+END_src
+#+end_src
 
 This library has been optimized for unstructured (= not vectorized)
 first order derivatives. Its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
@@ -103,10 +100,12 @@ problems in computer vision and machine learning." Optimization
 Methods and Software 33.4-6 (2018): 889-906.
 #+end_quote
 
-The library support arbitrary derivatives order but it has not been
+The library supports arbitrary derivatives order but has not been
 optimized for that. By example for second order derivatives the
-symmetry ∂ij=∂ji is not taken into account. This leads to redundant
-computations. Approaches like [2,3] are more effective in that case.
+symmetry ∂ij=∂ji is not taken into account. This leads to a fast
+growing number of redundant computations as derivation order increases
+(except for a function of _one_ variable).  For higher order
+derivatives, dedicated approaches like [2,3] are more effective.
 
 #+begin_quote
 [2], Wang, Mu, Assefaw Gebremedhin, and Alex Pothen. "Capitalizing on
@@ -124,8 +123,8 @@ Mathematical Programming 155.1-2 (2016): 81-103.
 ** News
 
    - [2020-01-07 Tue 12:27] \\
-     This a *pre-release* for the curious. Some developments remain to be
-     done (implementing special functions, adding examples and benchmarks)
+     This a *pre-release*. Some developments remain to be done
+     (implementing special functions, adding examples and benchmarks)
      but the design and API is not expected to change a lot.
 
 * Compilation
@@ -162,12 +161,12 @@ convenient to compute the Jacobian column by column. The second one is
 effective to compute gradients (or equivalently to compute the
 Jacobian row by row).
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Jacobian.cpp
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_src cpp :eval never
+#+begin_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
@@ -215,16 +214,16 @@ main()
   std::cout << "∂r y2  = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
             << "∂θ y2  = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
 }
-#+END_src
+#+end_src
 
 prints
 
-#+BEGIN_SRC sh :wrap "example" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/Jacobian
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_example
+#+begin_example
 Jacobian row by row
 ∇y1(r,θ) =             0.995004,            -0.199667
 ∇y2(r,θ) =            0.0998334,              1.99001
@@ -232,14 +231,14 @@ Jacobian row by row
 Jacobian column by column
 ∂r y1  =             0.995004	∂θ y1  =            -0.199667
 ∂r y2  =            0.0998334	∂θ y2  =              1.99001
-#+END_example
+#+end_example
 
 
 ** Complex number example
 
 Illustrates complex number support:
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/ad_complex.cpp
 #+END_SRC
 
@@ -253,7 +252,7 @@ cat $(pwd)/examples/ad_complex.cpp
 using namespace MissionImpossible;
 
 void
-most_efficient() // <- the prefered method 
+most_efficient()
 {
   using T = std::complex<double>;
 
@@ -316,8 +315,13 @@ main()
 
 prints:
 
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/ad_complex
+#+END_SRC
+
+#+RESULTS:
 #+begin_example
-         f1:   
+          f1:   
  f = (-0.00144263,+0.0098095)
 df = (-0.0842465,+0.0276969)
 
@@ -330,17 +334,17 @@ df = -0.0842465, +0.0276969
 
 Not holomorph f2: 
  f = (+2.23607,+0)
-df = -0.894427, +1.78885
+df = +0.447214, -0.894427
 --> Cauchy-Riemann check:
--0.894427 ?= +0
--1.78885 ?= -0
++0.447214 ?= +0
++0.894427 ?= -0
 #+end_example
 
 ** Hessian action Hv, directional derivatives
 
 Illustrates Hessian action Hv=∇ <∇f,v> computation:
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Hv.cpp
 #+END_SRC
 
@@ -379,6 +383,11 @@ main()
 
 prints
 
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/Hv
+#+END_SRC
+
+#+RESULTS:
 #+begin_example
 f = +254
 ∇f= +604, -100
@@ -389,7 +398,7 @@ Hv= +3890, -480
 
 Illustrates nested computations support
 
-#+BEGIN_SRC sh :wrap "src cpp :eval never" :results output :exports results
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/nested.cpp
 #+END_SRC
 
@@ -448,6 +457,13 @@ main()
 #+end_src
 
 which prints
+
+
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/nested
+#+END_SRC
+
+#+RESULTS:
 #+begin_example
 f     = +254
 
@@ -468,8 +484,6 @@ f     = +254
 ∂³₁₁₀f = +0
 ∂³₁₁₁f = +0
 #+end_example
-
-TODO: benchmark, more (and bigger) usage examples, API doc...
 
 # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
 # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
