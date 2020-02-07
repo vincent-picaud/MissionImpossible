@@ -584,7 +584,7 @@ The use of =typename std::vector<T>::value_type= avoids type conflict as
  type of T (further detail: [[https://en.cppreference.com/w/cpp/types/type_identity][cppreference: type_identity]]).
 
 Back to this "Mission : Impossible" library, if one wants to define a
-function that takes a *scalar* constant =10= and compute =10*x*x=, you must
+function that takes a *scalar* constant =10= and computes =10*x*x=, you must
 use =Underlying_Type_t= (as a emplacement of =typename
 std::vector<T>::value_type= in the previous example):
 
