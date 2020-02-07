@@ -490,8 +490,7 @@ f     = +254
 
 * API Documentation
 
-Again, even if the library supports higher order derivatives it is
-optimized for the first order derivatives.
+Describes the essential parts one must know to use the library.
 
 ** AD types
 
@@ -500,6 +499,7 @@ These are the types you must use when you want to compute derivatives.
 - =AD<AD<T>>= for second order derivatives
 - ...
 
+*Note:* it is zero cost
 ** Tape 
 
 A =local_thread= is globally stored. You can access it by:
@@ -512,3 +512,4 @@ tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD
                     // etc...
 #+END_SRC
 
+uninitialized

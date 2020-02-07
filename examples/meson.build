@@ -1,3 +1,7 @@
+subdir('doc')
+
+#################################################################
+
 executable('Jacobian',
 	   'Jacobian.cpp',
 	   dependencies : [MissionImpossible_dep])

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "MissionImpossible/ad_fwd.hpp"
-#include "MissionImpossible/underlying_type.hpp"
 #include "MissionImpossible/identity.hpp"
 #include "MissionImpossible/tape.hpp"
+#include "MissionImpossible/underlying_type.hpp"
 
 #include <array>
 #include <tuple>
@@ -84,9 +84,17 @@ namespace MissionImpossible
    protected:
     value_array_type _value_array;
     index_array_type _index_array;
+#ifndef NDEBUG
+    static constexpr index_type _uninitialized_index = static_cast<index_type>(-1);
+#endif
 
    public:
-    AD_Differential() noexcept {}
+    AD_Differential() noexcept
+    {
+#ifndef NDEBUG
+      for (auto& index : _index_array) index = _uninitialized_index;
+#endif
+    }
     AD_Differential(const value_array_type& value_array,
                     const index_array_type& index_array) noexcept
         : _value_array(value_array), _index_array(index_array)
@@ -101,6 +109,12 @@ namespace MissionImpossible
     const index_array_type&
     index() const noexcept
     {
+#ifndef NDEBUG
+      bool ok = true;
+      for (auto index : _index_array) ok &= index != _uninitialized_index;
+      assert(ok && "Attempt to use an uninitialized variable");
+#endif
+
       return _index_array;
     }
   };
@@ -610,5 +624,4 @@ namespace MissionImpossible
   {
     return g0.value() >= g1.value();
   }
-
 }
