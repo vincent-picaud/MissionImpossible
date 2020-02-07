@@ -45,7 +45,26 @@ namespace MissionImpossible
       return static_cast<const IMPL&>(*this);
     }
 
-    // Static interface
+    // CRTP Static interface
+    //================================================================
+    //
+
+    // value()
+    //----------------------------------------------------------------
+    // CAVEAT:
+    //
+    // #+begin_src cpp
+    // AD<AD<double>> y;
+    //
+    // // what value() means:
+    // AD<double> y_value = y.value();
+    //
+    // // what it does not mean (compilation error):
+    // //
+    // // double y_value = y.value();
+    // //
+    // #+end_src
+    //
     decltype(auto)
     value() const noexcept
     {
