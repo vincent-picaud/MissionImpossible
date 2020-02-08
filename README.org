@@ -496,13 +496,14 @@ This part focuses on the things to know to properly use this library.
 
 ** AD types
 
-These are the types you must use when you want to compute derivatives.
+To compute derivatives you must use =AD<T>= types in place of the usual =T= types (where =T= represents a real  instead of These are the types you must use when you want to compute derivatives.
 - =AD<T>= for first order derivatives
 - =AD<AD<T>>= for second order derivatives
 - =AD<AD<AD<T>>>= for third order derivatives
 - ...
 
-*Note:* you must *always* initialize =AD<T>= variables before usage (in order to register them in the tape)
+*Note:* you must *always* initialize =AD<T>= variables before using them (in
+order to register them in the tape).
 
 *Example:*
 
@@ -699,4 +700,7 @@ tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD
 
 ** Local Tape
 
-TODO
+If you want to do local computations and release tape memory afterward
+you can use a local tape. In that case you must take care of only
+using =AD<T>= declared in the scope of this local tape. By example:
+
