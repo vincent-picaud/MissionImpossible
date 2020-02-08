@@ -75,7 +75,7 @@ namespace MissionImpossible
     };
 
     [[nodiscard]] Index_PartialD*
-    add_row(const std::size_t row_size)
+    add_statement(const std::size_t row_size)
     {
       const auto row_index_begin = _index[_index_end - 1];
       index_resize(_index_end + 1);
@@ -116,18 +116,18 @@ namespace MissionImpossible
     add_variable()
     {
       const std::size_t index = statement_size();
-      (void)add_row(0);
+      (void)add_statement(0);
 
       assert(index <= std::numeric_limits<index_type>::max());
       return static_cast<index_type>(index);
     }
 
     void
-    add_row(const std::size_t row_size,
-            const index_type* const p_index,
-            const value_type* const p_value)
+    add_statement(const std::size_t row_size,
+                  const index_type* const p_index,
+                  const value_type* const p_value)
     {
-      auto* const p_dest = add_row(row_size);
+      auto* const p_dest = add_statement(row_size);
       for (std::size_t i = 0; i < row_size; i++)
       {
         p_dest[i] = Index_PartialD{p_index[i], p_value[i]};
@@ -135,11 +135,11 @@ namespace MissionImpossible
     }
     template <size_t ROW_SIZE>
     void
-    add_row(const std::integral_constant<std::size_t, ROW_SIZE>,
-            const index_type* const p_index,
-            const value_type* const p_value)
+    add_statement(const std::integral_constant<std::size_t, ROW_SIZE>,
+                  const index_type* const p_index,
+                  const value_type* const p_value)
     {
-      auto* p_dest = add_row(ROW_SIZE);
+      auto* p_dest = add_statement(ROW_SIZE);
       for (std::size_t i = 0; i < ROW_SIZE; ++i)
       {
         p_dest[i] = Index_PartialD{p_index[i], p_value[i]};
