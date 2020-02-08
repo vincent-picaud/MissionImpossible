@@ -74,8 +74,8 @@ main()
 
   // Check tape length
   //
-  std::cout << "Tape<T> length     " << x0.value().tape().row_size() << std::endl;
-  std::cout << "Tape<AD<T>> length " << x0.tape().row_size() << std::endl;
+  std::cout << "Tape<T> length     " << x0.value().tape().statement_size() << std::endl;
+  std::cout << "Tape<AD<T>> length " << x0.tape().statement_size() << std::endl;
 
   std::cout << "Tape<T>\n" << x0.value().tape();
   std::cout << "Tape<AD<T>>\n" << x0.tape();

@@ -100,7 +100,7 @@ namespace MissionImpossible
     }
 
     std::size_t
-    row_size() const
+    statement_size() const
     {
       return _index_end - 1;
     };
@@ -115,7 +115,7 @@ namespace MissionImpossible
     index_type
     add_variable()
     {
-      const std::size_t index = row_size();
+      const std::size_t index = statement_size();
       (void)add_row(0);
 
       assert(index <= std::numeric_limits<index_type>::max());
@@ -149,7 +149,7 @@ namespace MissionImpossible
     void
     rewind(const index_type index_begin)
     {
-      assert(index_begin <= row_size());
+      assert(index_begin <= statement_size());
       _index_end = index_begin + 1;
 
       assert(check_invariant());

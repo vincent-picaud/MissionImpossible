@@ -28,7 +28,7 @@ TEST(MissionImpossible_Tape, local)
 
   y = 2 * x1 * x2;
 
-  auto pos     = tape<T>().row_size();
+  auto pos     = tape<T>().statement_size();
   auto pos_mem = tape<T>().memory_size();
 
   {
@@ -49,7 +49,7 @@ TEST(MissionImpossible_Tape, local)
     EXPECT_EQ(grad[a], 2 * b.value());
   }
 
-  EXPECT_EQ(pos, tape<T>().row_size());
+  EXPECT_EQ(pos, tape<T>().statement_size());
   EXPECT_EQ(pos_mem, tape<T>().memory_size());
 }
 
@@ -61,7 +61,7 @@ TEST(MissionImpossible_Tape, local_nested)
 
   y = 2 * x1 * x2;
 
-  auto pos     = tape<T>().row_size();
+  auto pos     = tape<T>().statement_size();
   auto pos_mem = tape<T>().memory_size();
 
   {
@@ -88,7 +88,7 @@ TEST(MissionImpossible_Tape, local_nested)
     EXPECT_EQ(H_row_a[b], 2);
   }
 
-  EXPECT_EQ(pos, tape<T>().row_size());
+  EXPECT_EQ(pos, tape<T>().statement_size());
   EXPECT_EQ(pos_mem, tape<T>().memory_size());
 }
 

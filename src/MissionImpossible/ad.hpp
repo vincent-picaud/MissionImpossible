@@ -279,7 +279,7 @@ namespace MissionImpossible
       assert((void*)this != (void*)&ad);
 
       _value  = ad.value();
-      _dvalue = differential_type{{value_type(1)}, {this->tape().row_size()}};
+      _dvalue = differential_type{{value_type(1)}, {this->tape().statement_size()}};
 
       //      TODO rename: add_row > add_differential
       this->tape().add_row(std::integral_constant<std::size_t, N>(),

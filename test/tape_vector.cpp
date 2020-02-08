@@ -15,20 +15,20 @@ TEST(Tape_Vector, demo)
   [[maybe_unused]] AD<T> x;
   x = 1;
 
-  EXPECT_EQ(tape<T>().row_size(), 1);
+  EXPECT_EQ(tape<T>().statement_size(), 1);
 
   x = 2;
 
-  EXPECT_EQ(tape<T>().row_size(), 2);
+  EXPECT_EQ(tape<T>().statement_size(), 2);
 
   auto jb_tape = MissionImpossible_Tape<T>();
 
-  EXPECT_EQ(tape<T>().row_size(), 2);
+  EXPECT_EQ(tape<T>().statement_size(), 2);
 
   [[maybe_unused]] AD<T> y = T(1);
   //  y = 1;
 
-  EXPECT_EQ(tape<T>().row_size(), 3);
+  EXPECT_EQ(tape<T>().statement_size(), 3);
 
   // Tape_Vector<Tape<T>> tape_vector(jb_tape);
 

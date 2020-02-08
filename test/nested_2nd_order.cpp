@@ -31,8 +31,8 @@ TEST(Nested, Rosenbrock)
 
   // Check tape length
   //
-  EXPECT_EQ(x0.tape().row_size(), 3);
-  EXPECT_EQ(x0.value().tape().row_size(), 39);
+  EXPECT_EQ(x0.tape().statement_size(), 3);
+  EXPECT_EQ(x0.value().tape().statement_size(), 39);
 
   EXPECT_EQ(x0.tape().memory_size(), 288);
   EXPECT_EQ(x0.value().tape().memory_size(), 1424);
@@ -41,28 +41,28 @@ TEST(Nested, Rosenbrock)
 TEST(Nested, Debug_op_eq_must_not_create_a_new_var_nested)
 {
   AD<AD<double>> x0(3);
-  const std::size_t n_1  = x0.tape().row_size();
-  const std::size_t nn_1 = x0.value().tape().row_size();
+  const std::size_t n_1  = x0.tape().statement_size();
+  const std::size_t nn_1 = x0.value().tape().statement_size();
   const bool ok          = x0 == 3;  // this must not create an instance! NOT OK
   ASSERT_TRUE(ok);
-  EXPECT_EQ(n_1, x0.tape().row_size());
-  EXPECT_EQ(nn_1, x0.value().tape().row_size());
+  EXPECT_EQ(n_1, x0.tape().statement_size());
+  EXPECT_EQ(nn_1, x0.value().tape().statement_size());
 }
 
 TEST(Nested, Debug_op_eq_must_not_create_a_new_var)
 {
   AD<double> x0(3);
-  const std::size_t n_1 = x0.tape().row_size();
+  const std::size_t n_1 = x0.tape().statement_size();
   const bool ok         = x0 == 3;  // this must not create an instance! OK
   ASSERT_TRUE(ok);
-  EXPECT_EQ(n_1, x0.tape().row_size());
+  EXPECT_EQ(n_1, x0.tape().statement_size());
 }
 
 TEST(Nested, Simple_Polynomial)
 {
   AD<AD<double>> x(4), y;
-  const std::size_t n_1  = x.tape().row_size();
-  const std::size_t nn_1 = x.value().tape().row_size();
+  const std::size_t n_1  = x.tape().statement_size();
+  const std::size_t nn_1 = x.value().tape().statement_size();
 
   y = x * x * x;
 
@@ -76,8 +76,8 @@ TEST(Nested, Simple_Polynomial)
 
   EXPECT_EQ(Hessian_x_row[x], 3 * 2 * 4);
 
-  EXPECT_EQ(1, x.tape().row_size() - n_1);
-  EXPECT_EQ(17, x.value().tape().row_size() - nn_1);
+  EXPECT_EQ(1, x.tape().statement_size() - n_1);
+  EXPECT_EQ(17, x.value().tape().statement_size() - nn_1);
 }
 
 // NOTE: when using ASSERT_DOUBLE_EQ instead of EXPECT_EQ, the
@@ -122,9 +122,9 @@ TEST(Nested, test_3_order)
 {
   AD<AD<AD<double>>> x1(1), x2(2), x3(3), y;
 
-  const std::size_t n_1   = x1.tape().row_size();
-  const std::size_t nn_1  = x1.value().tape().row_size();
-  const std::size_t nnn_1 = x1.value().value().tape().row_size();
+  const std::size_t n_1   = x1.tape().statement_size();
+  const std::size_t nn_1  = x1.value().tape().statement_size();
+  const std::size_t nnn_1 = x1.value().value().tape().statement_size();
 
   y = 2 * x1 + x2 * x3 / (1 + x1 * x2 + x3);
 
@@ -169,7 +169,7 @@ TEST(Nested, test_3_order)
   ASSERT_DOUBLE_EQ(Hessian_row_x1_x2[x3], -1 / 54.);
 
   //
-  EXPECT_EQ(x1.tape().row_size() - n_1, 1);
-  EXPECT_EQ(x1.value().tape().row_size() - nn_1, 23);
-  EXPECT_EQ(x1.value().value().tape().row_size() - nnn_1, 295);
+  EXPECT_EQ(x1.tape().statement_size() - n_1, 1);
+  EXPECT_EQ(x1.value().tape().statement_size() - nn_1, 23);
+  EXPECT_EQ(x1.value().value().tape().statement_size() - nnn_1, 295);
 }

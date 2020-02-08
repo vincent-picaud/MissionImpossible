@@ -13,14 +13,14 @@ TEST(Tape, demo)
 
   tape_type tape;
 
-  ASSERT_EQ(tape.row_size(), 0);
+  ASSERT_EQ(tape.statement_size(), 0);
 
   std::vector<index_type> buffer_index(50, index_type());
   std::vector<value_type> buffer_partial(50, double());
 
   tape.add_row(1, buffer_index.data(), buffer_partial.data());
-  ASSERT_EQ(tape.row_size(), 1);
+  ASSERT_EQ(tape.statement_size(), 1);
 
   tape.add_row(10, buffer_index.data(), buffer_partial.data());
-  ASSERT_EQ(tape.row_size(), 2);
+  ASSERT_EQ(tape.statement_size(), 2);
 }

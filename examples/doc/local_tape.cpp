@@ -5,7 +5,7 @@ using namespace MissionImpossible;
 int
 main()
 {
-  auto print_tape_size = []() { std::cout << "size: " << tape<double>().row_size() << std::endl; };
+  auto print_tape_size = []() { std::cout << "size: " << tape<double>().statement_size() << std::endl; };
 
 
   // GOOD

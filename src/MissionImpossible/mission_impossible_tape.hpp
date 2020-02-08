@@ -22,7 +22,7 @@ namespace MissionImpossible
         return MissionImpossible::tape<T>();
       }
 
-      MissionImpossible_Tape_Data() : _index_begin(tape().row_size()) {}
+      MissionImpossible_Tape_Data() : _index_begin(tape().statement_size()) {}
 
      public:
       ~MissionImpossible_Tape_Data() { tape().rewind(_index_begin); }
@@ -30,8 +30,8 @@ namespace MissionImpossible
       std::size_t
       size() const
       {
-        assert(tape().row_size() >= _index_begin);
-        return tape().row_size() - _index_begin;
+        assert(tape().statement_size() >= _index_begin);
+        return tape().statement_size() - _index_begin;
       }
       index_type
       index_begin() const
