@@ -13,3 +13,7 @@ executable('underlying_type_2',
 executable('underlying_value',
 	   'underlying_value.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('local_tape',
+	   'local_tape.cpp',
+	   dependencies : [MissionImpossible_dep])
