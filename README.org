@@ -5,122 +5,122 @@
 
 * What is it?
 
-*Mission : Impossible* is a concise and fast C++17 implementation of
-automatic differentiation based on operator overloading. For repeated
-calculations it is very easy to define an auto-destructive local tape,
-hence the wink to the "Mission: Impossible" series.
+  *Mission : Impossible* is a concise and fast C++17 implementation of
+  automatic differentiation based on operator overloading. For repeated
+  calculations it is very easy to define an auto-destructive local tape,
+  hence the wink to the "Mission: Impossible" series.
 
-[[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
+  [[file:figures/tape.jpeg][file:./figures/tape.jpeg]]
 
-Illustrates local tape usage:
+  Illustrates local tape usage:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+  #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/local_tape.cpp
-#+END_SRC
+  #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+  #+RESULTS:
+  #+BEGIN_src cpp :eval never
+  #include "MissionImpossible/MissionImpossible.hpp"
 
-#include <array>
-#include <iostream>
+  #include <array>
+  #include <iostream>
 
-using namespace MissionImpossible;
+  using namespace MissionImpossible;
 
-// A C++ function
-template <typename T>
-T
-Rosenbrock(const std::array<T, 2>& X)
-{
-  return (1 - X[0]) * (1 - X[0]) + 10 * (X[1] - X[0] * X[0]) * (X[1] - X[0] * X[0]);
-}
+  // A C++ function
+  template <typename T>
+  T
+  Rosenbrock(const std::array<T, 2>& X)
+  {
+    return (1 - X[0]) * (1 - X[0]) + 10 * (X[1] - X[0] * X[0]) * (X[1] - X[0] * X[0]);
+  }
 
-// A C++ function that adds gradient computation
-template <typename T>
-T
-Rosenbrock(const std::array<T, 2>& X, std::array<T, 2>& grad)
-{
-  MissionImpossible_Tape<T> local_tape;  // a local thread_local tape
+  // A C++ function that adds gradient computation
+  template <typename T>
+  T
+  Rosenbrock(const std::array<T, 2>& X, std::array<T, 2>& grad)
+  {
+    MissionImpossible_Tape<T> local_tape;  // a local thread_local tape
 
-  std::array<AD<T>, 2> ad_X;
+    std::array<AD<T>, 2> ad_X;
 
-  ad_X[0] = X[0];
-  ad_X[1] = X[1];
+    ad_X[0] = X[0];
+    ad_X[1] = X[1];
 
-  AD<T> ad_f = Rosenbrock(ad_X);
+    AD<T> ad_f = Rosenbrock(ad_X);
 
-  Tape_Vector<T> ad_grad_f = gradient(local_tape, ad_f);  // use the local tape for ∇f
+    Tape_Vector<T> ad_grad_f = gradient(local_tape, ad_f);  // use the local tape for ∇f
 
-  grad[0] = ad_grad_f[ad_X[0]];
-  grad[1] = ad_grad_f[ad_X[1]];
+    grad[0] = ad_grad_f[ad_X[0]];
+    grad[1] = ad_grad_f[ad_X[1]];
 
-  return ad_f.value();
+    return ad_f.value();
 
-  // here the local tape is destroyed (in fact re-winded to avoid
-  // useless new/delete)
-}
+    // here the local tape is destroyed (in fact re-winded to avoid
+    // useless new/delete)
+  }
 
-int
-main()
-{
-  std::array<float, 2> X{3., 4.};
+  int
+  main()
+  {
+    std::array<float, 2> X{3., 4.};
 
-  float f1 = Rosenbrock(X);
+    float f1 = Rosenbrock(X);
 
-  std::cout << "f1  = " << f1 << std::endl;
+    std::cout << "f1  = " << f1 << std::endl;
 
-  std::array<float, 2> grad;
+    std::array<float, 2> grad;
 
-  float f2 = Rosenbrock(X, grad);
+    float f2 = Rosenbrock(X, grad);
 
-  std::cout << "f2  = " << f2 << std::endl;
-  std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
-}
-#+END_src
+    std::cout << "f2  = " << f2 << std::endl;
+    std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
+  }
+  #+END_src
 
-prints
+  prints
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+  #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 $(pwd)/build/examples/local_tape
-#+END_SRC
+  #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-f1  = 254
-f2  = 254
-∇f2 = [ 604, -100 ]
-#+END_src
+  #+RESULTS:
+  #+BEGIN_src cpp :eval never
+  f1  = 254
+  f2  = 254
+  ∇f2 = [ 604, -100 ]
+  #+END_src
 
-This library has been optimized for unstructured (= not vectorized)
-first order derivatives. Its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
-relies on the same kind of approach [1].
+  This library has been optimized for unstructured (= not vectorized)
+  first order derivatives. Its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
+  relies on the same kind of approach [1].
 
-#+begin_quote
-[1], Srajer, Filip, Zuzana Kukelova, and Andrew Fitzgibbon. "A
-benchmark of selected algorithmic differentiation tools on some
-problems in computer vision and machine learning." Optimization
-Methods and Software 33.4-6 (2018): 889-906.
-#+end_quote
+  #+begin_quote
+  [1], Srajer, Filip, Zuzana Kukelova, and Andrew Fitzgibbon. "A
+  benchmark of selected algorithmic differentiation tools on some
+  problems in computer vision and machine learning." Optimization
+  Methods and Software 33.4-6 (2018): 889-906.
+  #+end_quote
 
-The library supports arbitrary derivatives order but has not been
-optimized for that. By example for second order derivatives the
-symmetry ∂ij=∂ji is not taken into account. This leads to a fast
-growing number of redundant computations as derivation order increases
-(except for a function of _one_ variable).  For higher order
-derivatives, dedicated approaches like [2,3] are more effective.
+  The library supports arbitrary derivatives order but has not been
+  optimized for that. By example for second order derivatives the
+  symmetry ∂ij=∂ji is not taken into account. This leads to a fast
+  growing number of redundant computations as derivation order increases
+  (except for a function of _one_ variable).  For higher order
+  derivatives, dedicated approaches like [2,3] are more effective.
 
-#+begin_quote
-[2], Wang, Mu, Assefaw Gebremedhin, and Alex Pothen. "Capitalizing on
-live variables: new algorithms for efficient Hessian computation via
-automatic differentiation." Mathematical Programming Computation 8.4
-(2016): 393-433.
-#+end_quote
+  #+begin_quote
+  [2], Wang, Mu, Assefaw Gebremedhin, and Alex Pothen. "Capitalizing on
+  live variables: new algorithms for efficient Hessian computation via
+  automatic differentiation." Mathematical Programming Computation 8.4
+  (2016): 393-433.
+  #+end_quote
 
-#+begin_quote
-[3], Gower, Robert Mansel, and Artur L. Gower. "Higher-order reverse
-automatic differentiation with emphasis on the third-order."
-Mathematical Programming 155.1-2 (2016): 81-103.
-#+end_quote
+  #+begin_quote
+  [3], Gower, Robert Mansel, and Artur L. Gower. "Higher-order reverse
+  automatic differentiation with emphasis on the third-order."
+  Mathematical Programming 155.1-2 (2016): 81-103.
+  #+end_quote
 
 ** News
 
@@ -134,914 +134,914 @@ Mathematical Programming 155.1-2 (2016): 81-103.
 
 * Compilation
 
-The library currently uses the [[https://mesonbuild.com/][meson]] build system.
+  The library currently uses the [[https://mesonbuild.com/][meson]] build system.
 
-If you are not familiar with meson, the compilation procedure is as
-follows:
+  If you are not familiar with meson, the compilation procedure is as
+  follows:
 
-#+BEGIN_SRC sh :eval never
+  #+BEGIN_SRC sh :eval never
 git clone https://github.com/vincent-picaud/MissionImpossible.git
 cd MissionImpossible/
 meson build
 cd build
 ninja test
-#+END_SRC 
+  #+END_SRC 
 
 ** Release
 
-To get an *optimized* version, use:
+   To get an *optimized* version, use:
 
-#+BEGIN_SRC sh :eval never
+   #+BEGIN_SRC sh :eval never
 meson --buildtype=release -Db_ndebug=true build-release
-#+END_SRC
+   #+END_SRC
 
 * Examples
 
-These examples can be found in the =build/examples/= directory.
+  These examples can be found in the =build/examples/= directory.
 
 ** Jacobian example
 
-Illustrates *forward-mode* and *reverse-mode* support. The first one is
-convenient to compute the Jacobian column by column. The second one is
-effective to compute gradients (or equivalently to compute the
-Jacobian row by row).
+   Illustrates *forward-mode* and *reverse-mode* support. The first one is
+   convenient to compute the Jacobian column by column. The second one is
+   effective to compute gradients (or equivalently to compute the
+   Jacobian row by row).
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Jacobian.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-#include <iostream>
+   #include <iostream>
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  AD<double> r = 2, theta = 0.1;
+   int
+   main()
+   {
+     AD<double> r = 2, theta = 0.1;
 
-  AD<double> y1 = r * cos(theta);
-  AD<double> y2 = r * sin(theta);
+     AD<double> y1 = r * cos(theta);
+     AD<double> y2 = r * sin(theta);
 
-  //////////////////////////////////
-  // Computes Jacobian row by row //
-  //////////////////////////////////
-  //
-  // -> AKA reverse-mode
-  //
-  std::cout << "Jacobian row by row" << std::endl;
+     //////////////////////////////////
+     // Computes Jacobian row by row //
+     //////////////////////////////////
+     //
+     // -> AKA reverse-mode
+     //
+     std::cout << "Jacobian row by row" << std::endl;
 
-  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
-                                            // computes ∂ᵣy¹, ∂ₒy¹
-  
-  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
-                                            // computes ∂ᵣy², ∂ₒy²
+     auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
+					       // computes ∂ᵣy¹, ∂ₒy¹
 
-  std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
-  std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
+     auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
+					       // computes ∂ᵣy², ∂ₒy²
 
-  std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
-  std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
+     std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+     std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
 
-  ////////////////////////////////////////
-  // Computes Jacobian column by column //
-  ////////////////////////////////////////
-  //
-  // -> AKA forward-mode
-  //
-  std::cout << std::endl << "Jacobian column by column" << std::endl;
+     std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+     std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
 
-  auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
-  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
+     ////////////////////////////////////////
+     // Computes Jacobian column by column //
+     ////////////////////////////////////////
+     //
+     // -> AKA forward-mode
+     //
+     std::cout << std::endl << "Jacobian column by column" << std::endl;
 
-  std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
-            << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
-  std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
-            << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
-}
-#+END_src
+     auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
+     auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
 
-prints
+     std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
+	       << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
+     std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
+	       << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
+   }
+   #+END_src
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   prints
+
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/Jacobian
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-Jacobian row by row
-∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
-∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
+   #+RESULTS:
+   #+BEGIN_example
+   Jacobian row by row
+   ∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
+   ∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
 
-Jacobian column by column
-∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
-∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
-#+END_example
+   Jacobian column by column
+   ∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
+   ∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
+   #+END_example
 
 
 ** Complex number example
 
-Illustrates complex number support:
+   Illustrates complex number support:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/ad_complex.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-#include <complex>
-#include <iostream>
+   #include <complex>
+   #include <iostream>
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-void
-most_efficient()
-{
-  using T = std::complex<double>;
+   void
+   most_efficient()
+   {
+     using T = std::complex<double>;
 
-  AD<T> z0 = T(1, 2), Z;
+     AD<T> z0 = T(1, 2), Z;
 
-  Z = 4 * exp(2 * z0 * z0);
+     Z = 4 * exp(2 * z0 * z0);
 
-  auto dZ = gradient(Z);
+     auto dZ = gradient(Z);
 
-  std::cout << " f = " << Z << std::endl;
-  std::cout << "df = " << dZ[z0] << std::endl;
-}
+     std::cout << " f = " << Z << std::endl;
+     std::cout << "df = " << dZ[z0] << std::endl;
+   }
 
-template <typename F>
-void
-more_versatile(F f)
-{
-  AD<double> x(1), y(2);
-  std::complex<AD<double>> z0(x, y), Z;
+   template <typename F>
+   void
+   more_versatile(F f)
+   {
+     AD<double> x(1), y(2);
+     std::complex<AD<double>> z0(x, y), Z;
 
-  Z = f(z0);
+     Z = f(z0);
 
-  AD<double> u = Z.real(), v = Z.imag();
+     AD<double> u = Z.real(), v = Z.imag();
 
-  const auto grad_u = gradient(u);
+     const auto grad_u = gradient(u);
 
-  // assumes that Z is holomorph
-  //
-  std::cout << " f = " << Z << std::endl;
-  std::cout << "df = " << grad_u[x] << ", ";
-  std::cout << -grad_u[y] << std::endl;
+     // assumes that Z is holomorph
+     //
+     std::cout << " f = " << Z << std::endl;
+     std::cout << "df = " << grad_u[x] << ", ";
+     std::cout << -grad_u[y] << std::endl;
 
-  // Cauchy-Riemann
-  //
-  const auto grad_v = gradient(v);
+     // Cauchy-Riemann
+     //
+     const auto grad_v = gradient(v);
 
-  std::cout << "--> Cauchy-Riemann check:" << std::endl;
-  std::cout << grad_u[x] << " ?= " << grad_v[y] << std::endl;
-  std::cout << grad_u[y] << " ?= " << -grad_v[x] << std::endl;
-}
+     std::cout << "--> Cauchy-Riemann check:" << std::endl;
+     std::cout << grad_u[x] << " ?= " << grad_v[y] << std::endl;
+     std::cout << grad_u[y] << " ?= " << -grad_v[x] << std::endl;
+   }
 
-int
-main()
-{
-  std::cout << "          f1:   " << std::endl;
-  most_efficient();
+   int
+   main()
+   {
+     std::cout << "          f1:   " << std::endl;
+     most_efficient();
 
-  //================
+     //================
 
-  auto f_holomorph     = [](const auto& z) { return 4 * exp(2 * z * z); };
-  auto f_not_holomorph = [](const auto& z) { return sqrt(z * conj(z)); };
+     auto f_holomorph     = [](const auto& z) { return 4 * exp(2 * z * z); };
+     auto f_not_holomorph = [](const auto& z) { return sqrt(z * conj(z)); };
 
-  std::cout << std::endl << "Holomorph f1:   " << std::endl;
-  more_versatile(f_holomorph);
+     std::cout << std::endl << "Holomorph f1:   " << std::endl;
+     more_versatile(f_holomorph);
 
-  std::cout << std::endl << "Not holomorph f2: " << std::endl;
-  more_versatile(f_not_holomorph);
-}
-#+END_src
+     std::cout << std::endl << "Not holomorph f2: " << std::endl;
+     more_versatile(f_not_holomorph);
+   }
+   #+END_src
 
-prints:
+   prints:
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/ad_complex
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-          f1:   
- f = (-0.00144263,+0.0098095)
-df = (-0.0842465,+0.0276969)
+   #+RESULTS:
+   #+BEGIN_example
+	     f1:   
+    f = (-0.00144263,+0.0098095)
+   df = (-0.0842465,+0.0276969)
 
-Holomorph f1:   
- f = (-0.00144263,+0.0098095)
-df = -0.0842465, +0.0276969
---> Cauchy-Riemann check:
--0.0842465 ?= -0.0842465
--0.0276969 ?= -0.0276969
+   Holomorph f1:   
+    f = (-0.00144263,+0.0098095)
+   df = -0.0842465, +0.0276969
+   --> Cauchy-Riemann check:
+   -0.0842465 ?= -0.0842465
+   -0.0276969 ?= -0.0276969
 
-Not holomorph f2: 
- f = (+2.23607,+0)
-df = +0.447214, -0.894427
---> Cauchy-Riemann check:
-+0.447214 ?= +0
-+0.894427 ?= -0
-#+END_example
+   Not holomorph f2: 
+    f = (+2.23607,+0)
+   df = +0.447214, -0.894427
+   --> Cauchy-Riemann check:
+   +0.447214 ?= +0
+   +0.894427 ?= -0
+   #+END_example
 
 ** Hessian action Hv, directional derivatives
 
-Illustrates Hessian action Hv=∇ <∇f,v> computation:
+   Illustrates Hessian action Hv=∇ <∇f,v> computation:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/Hv.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  AD<AD<double>> x0(3), x1(4), y;
+   int
+   main()
+   {
+     AD<AD<double>> x0(3), x1(4), y;
 
-  y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+     y = (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
 
-  std::cout << "f = " << y << std::endl;
+     std::cout << "f = " << y << std::endl;
 
-  auto y_gradient = gradient(y);  // Computes ∇f
+     auto y_gradient = gradient(y);  // Computes ∇f
 
-  std::cout << "∇f= " << y_gradient[x0] << ", ";
-  std::cout << y_gradient[x1] << std::endl;
+     std::cout << "∇f= " << y_gradient[x0] << ", ";
+     std::cout << y_gradient[x1] << std::endl;
 
-  AD<double> z;
+     AD<double> z;
 
-  double v0(5), v1(6);
+     double v0(5), v1(6);
 
-  z = v0 * y_gradient[x0] + v1 * y_gradient[x1];  // Computes z=<∇f,v>
+     z = v0 * y_gradient[x0] + v1 * y_gradient[x1];  // Computes z=<∇f,v>
 
-  auto z_gradient = gradient(z);  // Computes Hv = ∇z = ∇ <∇f,v>
+     auto z_gradient = gradient(z);  // Computes Hv = ∇z = ∇ <∇f,v>
 
-  std::cout << "Hv= " << z_gradient[x0] << ", ";
-  std::cout << z_gradient[x1] << std::endl;
-}
-#+END_src
+     std::cout << "Hv= " << z_gradient[x0] << ", ";
+     std::cout << z_gradient[x1] << std::endl;
+   }
+   #+END_src
 
-prints
+   prints
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/Hv
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-f = +254
-∇f= +604, -100
-Hv= +3890, -480
-#+END_example
+   #+RESULTS:
+   #+BEGIN_example
+   f = +254
+   ∇f= +604, -100
+   Hv= +3890, -480
+   #+END_example
 
 ** Third order example 
 
-Illustrates nested computations support
+   Illustrates nested computations support
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/nested.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-#include <iostream>
+   #include <iostream>
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-template <typename T>
-auto
-Rosenbrock(const T& x0, const T& x1)
-{
-  return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
-}
+   template <typename T>
+   auto
+   Rosenbrock(const T& x0, const T& x1)
+   {
+     return (1 - x0) * (1 - x0) + 10 * (x1 - x0 * x0) * (x1 - x0 * x0);
+   }
 
-// Third order demo
-int
-main()
-{
-  AD<AD<AD<double>>> x0(3), x1(4), y;
+   // Third order demo
+   int
+   main()
+   {
+     AD<AD<AD<double>>> x0(3), x1(4), y;
 
-  y = Rosenbrock(x0, x1);
+     y = Rosenbrock(x0, x1);
 
-  auto grad = gradient(y);
+     auto grad = gradient(y);
 
-  auto Hessian_x0_row = gradient(grad[x0]);
-  auto Hessian_x1_row = gradient(grad[x1]);
+     auto Hessian_x0_row = gradient(grad[x0]);
+     auto Hessian_x1_row = gradient(grad[x1]);
 
-  auto third_order_x0_x0_row = gradient(Hessian_x0_row[x0]);
-  auto third_order_x0_x1_row = gradient(Hessian_x0_row[x1]);
-  auto third_order_x1_x0_row = gradient(Hessian_x1_row[x0]);
-  auto third_order_x1_x1_row = gradient(Hessian_x1_row[x1]);
+     auto third_order_x0_x0_row = gradient(Hessian_x0_row[x0]);
+     auto third_order_x0_x1_row = gradient(Hessian_x0_row[x1]);
+     auto third_order_x1_x0_row = gradient(Hessian_x1_row[x0]);
+     auto third_order_x1_x1_row = gradient(Hessian_x1_row[x1]);
 
-  std::cout << "f     = " << y << std::endl;
-  std::cout << std::endl;
-  std::cout << "∂₀f   = " << grad[x0] << std::endl;
-  std::cout << "∂₁f   = " << grad[x1] << std::endl;
-  std::cout << std::endl;
-  std::cout << "∂²₀₀f = " << Hessian_x0_row[x0] << std::endl;
-  std::cout << "∂²₀₁f = " << Hessian_x0_row[x1] << std::endl;
-  std::cout << "∂²₁₀f = " << Hessian_x1_row[x0] << std::endl;
-  std::cout << "∂²₁₁f = " << Hessian_x1_row[x1] << std::endl;
-  std::cout << std::endl;
-  std::cout << "∂³₀₀₀f = " << third_order_x0_x0_row[x0] << std::endl;
-  std::cout << "∂³₀₀₁f = " << third_order_x0_x0_row[x1] << std::endl;
-  std::cout << "∂³₀₁₀f = " << third_order_x0_x1_row[x0] << std::endl;
-  std::cout << "∂³₀₁₁f = " << third_order_x0_x1_row[x1] << std::endl;
-  std::cout << "∂³₁₀₀f = " << third_order_x1_x0_row[x0] << std::endl;
-  std::cout << "∂³₁₀₁f = " << third_order_x1_x0_row[x1] << std::endl;
-  std::cout << "∂³₁₁₀f = " << third_order_x1_x1_row[x0] << std::endl;
-  std::cout << "∂³₁₁₁f = " << third_order_x1_x1_row[x1] << std::endl;
-}
-#+END_src
+     std::cout << "f     = " << y << std::endl;
+     std::cout << std::endl;
+     std::cout << "∂₀f   = " << grad[x0] << std::endl;
+     std::cout << "∂₁f   = " << grad[x1] << std::endl;
+     std::cout << std::endl;
+     std::cout << "∂²₀₀f = " << Hessian_x0_row[x0] << std::endl;
+     std::cout << "∂²₀₁f = " << Hessian_x0_row[x1] << std::endl;
+     std::cout << "∂²₁₀f = " << Hessian_x1_row[x0] << std::endl;
+     std::cout << "∂²₁₁f = " << Hessian_x1_row[x1] << std::endl;
+     std::cout << std::endl;
+     std::cout << "∂³₀₀₀f = " << third_order_x0_x0_row[x0] << std::endl;
+     std::cout << "∂³₀₀₁f = " << third_order_x0_x0_row[x1] << std::endl;
+     std::cout << "∂³₀₁₀f = " << third_order_x0_x1_row[x0] << std::endl;
+     std::cout << "∂³₀₁₁f = " << third_order_x0_x1_row[x1] << std::endl;
+     std::cout << "∂³₁₀₀f = " << third_order_x1_x0_row[x0] << std::endl;
+     std::cout << "∂³₁₀₁f = " << third_order_x1_x0_row[x1] << std::endl;
+     std::cout << "∂³₁₁₀f = " << third_order_x1_x1_row[x0] << std::endl;
+     std::cout << "∂³₁₁₁f = " << third_order_x1_x1_row[x1] << std::endl;
+   }
+   #+END_src
 
-which prints
+   which prints
 
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/nested
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-f     = +254
+   #+RESULTS:
+   #+BEGIN_example
+   f     = +254
 
-∂₀f   = +604
-∂₁f   = -100
+   ∂₀f   = +604
+   ∂₁f   = -100
 
-∂²₀₀f = +922
-∂²₀₁f = -120
-∂²₁₀f = -120
-∂²₁₁f = +20
+   ∂²₀₀f = +922
+   ∂²₀₁f = -120
+   ∂²₁₀f = -120
+   ∂²₁₁f = +20
 
-∂³₀₀₀f = +720
-∂³₀₀₁f = -40
-∂³₀₁₀f = -40
-∂³₀₁₁f = +0
-∂³₁₀₀f = -40
-∂³₁₀₁f = +0
-∂³₁₁₀f = +0
-∂³₁₁₁f = +0
-#+END_example
+   ∂³₀₀₀f = +720
+   ∂³₀₀₁f = -40
+   ∂³₀₁₀f = -40
+   ∂³₀₁₁f = +0
+   ∂³₁₀₀f = -40
+   ∂³₁₀₁f = +0
+   ∂³₁₁₀f = +0
+   ∂³₁₁₁f = +0
+   #+END_example
 
-# figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
-# ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
+   # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
+   # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
 
 * Documentation, how to use this library
 
-This part focuses on the things to know to properly use this library.
+  This part focuses on the things to know to properly use this library.
 
 ** AD types
 
-To compute derivatives you must use =AD<T>= types in place of the usual
-=T= types (where =T= represents a real type like =float= or =double=):
-- =AD<T>= for first order derivatives
-- =AD<AD<T>>= for second order derivatives
-- =AD<AD<AD<T>>>= for third order derivatives
-- ...
+   To compute derivatives you must use =AD<T>= types in place of the usual
+   =T= types (where =T= represents a real type like =float= or =double=):
+   - =AD<T>= for first order derivatives
+   - =AD<AD<T>>= for second order derivatives
+   - =AD<AD<AD<T>>>= for third order derivatives
+   - ...
 
-*Note:* you must *always* initialize =AD<T>= variables before using them (in
-order to register them in the tape).
+   *Note:* you must *always* initialize =AD<T>= variables before using them (in
+   order to register them in the tape).
 
-*Example:*
+   *Example:*
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/ad.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  // GOOD
-  //================
-  AD<double> x1, y1;
+   int
+   main()
+   {
+     // GOOD
+     //================
+     AD<double> x1, y1;
 
-  x1 = 1;       // initializes x1
-  y1 = 2 * x1;  // before usage
+     x1 = 1;       // initializes x1
+     y1 = 2 * x1;  // before usage
 
-  auto grad1 = gradient(y1);  // OK
+     auto grad1 = gradient(y1);  // OK
 
-  // BAD
-  //================
-  AD<double> x2, y2;
+     // BAD
+     //================
+     AD<double> x2, y2;
 
-  y2 = 2 * x2;  // use of x2 without initialization
-                // triggers an assert(0) in DEBUG mode
+     y2 = 2 * x2;  // use of x2 without initialization
+		   // triggers an assert(0) in DEBUG mode
 
-  auto grad2 = gradient(y2); // undefined behavior
-}
-#+END_src
+     auto grad2 = gradient(y2); // undefined behavior
+   }
+   #+END_src
 
 *** Constant scalar parameter 
 
-The origin of the problem is not attached to this library, by example:
+    The origin of the problem is not attached to this library, by example:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+    #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/underlying_type.cpp
-#+END_SRC
+    #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include <vector>
+    #+RESULTS:
+    #+BEGIN_src cpp :eval never
+    #include <vector>
 
-// BAD
-template <typename T>
-void
-scale_v1(const T scalar, std::vector<T>& v)
-{
-  // version 1
-}
+    // BAD
+    template <typename T>
+    void
+    scale_v1(const T scalar, std::vector<T>& v)
+    {
+      // version 1
+    }
 
-// GOOD
-template <typename T>
-void
-scale_v2(const typename std::vector<T>::value_type scalar, std::vector<T>& v)
-{
-  // version 2
-}
+    // GOOD
+    template <typename T>
+    void
+    scale_v2(const typename std::vector<T>::value_type scalar, std::vector<T>& v)
+    {
+      // version 2
+    }
 
-int
-main()
-{
-  std::vector<double> v(10);
+    int
+    main()
+    {
+      std::vector<double> v(10);
 
-  scale_v1(2, v);  // <- does not compile
-                   // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
-  
-  scale_v2(2, v);  // <- OK
-}
-#+END_src
+      scale_v1(2, v);  // <- does not compile
+		       // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
 
-The use of =typename std::vector<T>::value_type= avoids type conflict as
- now only one expression (here =std::vector<T>=) is used to deduce the
- type of T (further detail: [[https://en.cppreference.com/w/cpp/types/type_identity][cppreference: type_identity]]).
+      scale_v2(2, v);  // <- OK
+    }
+    #+END_src
 
-Back to this "Mission : Impossible" library, if one wants to define a
-function that takes a *scalar* constant =10= and computes =10*x*x=, you must
-use =Underlying_Type_t= (as a emplacement of =typename
-std::vector<T>::value_type= in the previous example):
+    The use of =typename std::vector<T>::value_type= avoids type conflict as
+    now only one expression (here =std::vector<T>=) is used to deduce the
+    type of T (further detail: [[https://en.cppreference.com/w/cpp/types/type_identity][cppreference: type_identity]]).
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+    Back to this "Mission : Impossible" library, if one wants to define a
+    function that takes a *scalar* constant =10= and computes =10*x*x=, you must
+    use =Underlying_Type_t= (as a emplacement of =typename
+    std::vector<T>::value_type= in the previous example):
+
+    #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/underlying_type_2.cpp
-#+END_SRC
+    #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+    #+RESULTS:
+    #+BEGIN_src cpp :eval never
+    #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+    using namespace MissionImpossible;
 
-template <typename T>
-T
-my_function(const AD_Underlying_Type_t<T> scalar_constant, const T x)
-{
-  return scalar_constant * x * x;
-}
+    template <typename T>
+    T
+    my_function(const AD_Underlying_Type_t<T> scalar_constant, const T x)
+    {
+      return scalar_constant * x * x;
+    }
 
-int
-main()
-{
-  AD<AD<double>> x = 2, y;
+    int
+    main()
+    {
+      AD<AD<double>> x = 2, y;
 
-  y = my_function(10, x);
+      y = my_function(10, x);
 
-  auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
-  auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
+      auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
+      auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
 
-  std::cout << "y   = " << y << std::endl;
-  std::cout << "dy  = " << dy[x] << " dx" << std::endl;
-  std::cout << "d2y = " << d2y[x] << " dx⊗dx" << std::endl;
-}
-#+END_src
+      std::cout << "y   = " << y << std::endl;
+      std::cout << "dy  = " << dy[x] << " dx" << std::endl;
+      std::cout << "d2y = " << d2y[x] << " dx⊗dx" << std::endl;
+    }
+    #+END_src
 
-which prints:
+    which prints:
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+    #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/underlying_type_2
-#+END_SRC
+    #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-y   = +40
-dy  = +40 dx
-d2y = +20 dx⊗dx
-#+END_example
+    #+RESULTS:
+    #+BEGIN_example
+    y   = +40
+    dy  = +40 dx
+    d2y = +20 dx⊗dx
+    #+END_example
 
-** =underlying_value()=
+*** =underlying_value()=
 
-Maybe the last function to know, but to use with care (as it shortcuts the flow of 
-tape recording), is =underlying_value()=. This function
-returns the underlying stored value. By example:
+    Maybe the last function to know, but to use with care (as it shortcuts the flow of 
+    tape recording), is =underlying_value()=. This function
+    returns the underlying stored value. By example:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+    #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/underlying_value.cpp
-#+END_SRC
+    #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+    #+RESULTS:
+    #+BEGIN_src cpp :eval never
+    #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+    using namespace MissionImpossible;
 
-int
-main()
-{
-  AD<AD<double>> x = 2, y;
+    int
+    main()
+    {
+      AD<AD<double>> x = 2, y;
 
-  y = 10 * x * x;
+      y = 10 * x * x;
 
-  auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
-  auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
+      auto dy  = Jacobian_row(y);      // auto = Tape_Vector<AD<double>>
+      auto d2y = Jacobian_row(dy[x]);  // auto = Tape_Vector<double>
 
-  double value_y   = underlying_value(y);
-  double value_dy  = underlying_value(dy[x]);
-  double value_d2y = underlying_value(d2y[x]);
+      double value_y   = underlying_value(y);
+      double value_dy  = underlying_value(dy[x]);
+      double value_d2y = underlying_value(d2y[x]);
 
-  std::cout << "y   = " << value_y << std::endl;
-  std::cout << "dy  = " << value_dy << " dx" << std::endl;
-  std::cout << "d2y = " << value_d2y << " dx⊗dx" << std::endl;
-}
-#+END_src
+      std::cout << "y   = " << value_y << std::endl;
+      std::cout << "dy  = " << value_dy << " dx" << std::endl;
+      std::cout << "d2y = " << value_d2y << " dx⊗dx" << std::endl;
+    }
+    #+END_src
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+    #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/underlying_value
-#+END_SRC
+    #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-y   = 40
-dy  = 40 dx
-d2y = 20 dx⊗dx
-#+END_example
+    #+RESULTS:
+    #+BEGIN_example
+    y   = 40
+    dy  = 40 dx
+    d2y = 20 dx⊗dx
+    #+END_example
 
 ** Computing derivatives
 
    A differential evaluated at point X, dfₓ is a linear application
-that can be represented (given basis) by a matrix (also known as
-Jacobian) of components ∂ⱼfⁱ where i denotes rows and j columns.
-You can compute the Jacobian:
-- row by row using the =Jacobian_row()= function (fix i and compute ∂ⱼfⁱ
-  for all j)
-- column by column using the =Jacobian_column()= (fix j and compute ∂ⱼfⁱ
-  for all i)
+   that can be represented (given basis) by a matrix (also known as
+   Jacobian) of components ∂ⱼfⁱ where i denotes rows and j columns.
+   You can compute the Jacobian:
+   - row by row using the =Jacobian_row()= function (fix i and compute ∂ⱼfⁱ
+     for all j)
+   - column by column using the =Jacobian_column()= (fix j and compute ∂ⱼfⁱ
+     for all i)
 
-*Note:* in applications we often encounter real functions. In that case
-  there is only one row and the (total) differential is simply 
+   *Note:* in applications we often encounter real functions. In that case
+   there is only one row and the (total) differential is simply 
 
-  dfₓ=Σ ∂ᵢf dxⁱ
+   dfₓ=Σ ∂ᵢf dxⁱ
 
-  It is clearly better to compute df row by row as we
-  only have one row. We get a "row vector" that can be used to
-  represent the gradient of f ("column vector", denoted by ∇fₓ):
+   It is clearly better to compute df row by row as we
+   only have one row. We get a "row vector" that can be used to
+   represent the gradient of f ("column vector", denoted by ∇fₓ):
 
-  dfₓ.h = <∇fₓ,h>
+   dfₓ.h = <∇fₓ,h>
 
-  That is the reason why there is an alias of the =Jacobian_row()=
-  function which is =gradient()=.
+   That is the reason why there is an alias of the =Jacobian_row()=
+   function which is =gradient()=.
 
-*Example:* (I just reproduced the already given Jacobian example).
+   *Example:* (I just reproduced the already given Jacobian example).
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/Jacobian.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-#include <iostream>
+   #include <iostream>
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  AD<double> r = 2, theta = 0.1;
+   int
+   main()
+   {
+     AD<double> r = 2, theta = 0.1;
 
-  AD<double> y1 = r * cos(theta);
-  AD<double> y2 = r * sin(theta);
+     AD<double> y1 = r * cos(theta);
+     AD<double> y2 = r * sin(theta);
 
-  //////////////////////////////////
-  // Computes Jacobian row by row //
-  //////////////////////////////////
-  //
-  // -> AKA reverse-mode
-  //
-  std::cout << "Jacobian row by row" << std::endl;
+     //////////////////////////////////
+     // Computes Jacobian row by row //
+     //////////////////////////////////
+     //
+     // -> AKA reverse-mode
+     //
+     std::cout << "Jacobian row by row" << std::endl;
 
-  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
-                                            // computes ∂ᵣy¹, ∂ₒy¹
-  
-  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
-                                            // computes ∂ᵣy², ∂ₒy²
+     auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
+					       // computes ∂ᵣy¹, ∂ₒy¹
 
-  std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
-  std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
+     auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
+					       // computes ∂ᵣy², ∂ₒy²
 
-  std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
-  std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
+     std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+     std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
 
-  ////////////////////////////////////////
-  // Computes Jacobian column by column //
-  ////////////////////////////////////////
-  //
-  // -> AKA forward-mode
-  //
-  std::cout << std::endl << "Jacobian column by column" << std::endl;
+     std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+     std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
 
-  auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
-  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
+     ////////////////////////////////////////
+     // Computes Jacobian column by column //
+     ////////////////////////////////////////
+     //
+     // -> AKA forward-mode
+     //
+     std::cout << std::endl << "Jacobian column by column" << std::endl;
 
-  std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
-            << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
-  std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
-            << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
-}
-#+END_src
+     auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
+     auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+     std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
+	       << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
+     std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
+	       << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
+   }
+   #+END_src
+
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/Jacobian
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
-Jacobian row by row
-∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
-∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
+   #+RESULTS:
+   #+BEGIN_example
+   Jacobian row by row
+   ∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
+   ∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
 
-Jacobian column by column
-∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
-∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
-#+END_example
+   Jacobian column by column
+   ∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
+   ∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
+   #+END_example
 
-*Note:* there are also variants of the =Jacobian_row()= and
-=Jacobian_column()= that use local tape. In that case have a look at the "local tape" section and use:
+   *Note:* there are also variants of the =Jacobian_row()= and
+   =Jacobian_column()= that use local tape. In that case have a look at the "local tape" section and use:
 
-#+BEGIN_SRC cpp :eval never 
+   #+BEGIN_SRC cpp :eval never 
 MissionImpossible_Tape<double> local_tape;
 
 // ... computations ...
 
 auto row_by_row       = Jacobian_row(local_tape, y1);  // or equivalently gradient(local_tape,y1)
 auto column_by_column = Jacobian_column(local_tape, r);
-#+END_SRC
+   #+END_SRC
 
 ** Tape 
 
-A =local_thread= tape is globally stored. You can access it by:
+   A =local_thread= tape is globally stored. You can access it by:
 
-#+BEGIN_SRC cpp :eval never 
+   #+BEGIN_SRC cpp :eval never 
 
 tape<T>();          // returns a reference Tape<T>& to the tape associated to AD<T>
 tape<AD<T>>();      // returns a reference Tape<T>& to the tape associated to AD<AD<T>>
 tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD<AD<AD<T>>>
                     // etc...
-#+END_SRC
+   #+END_SRC
 
-From the library user perspective, you can use these methods:
+   From the library user perspective, you can use these methods:
 
-- =statement_size()=: returns the number of statements (= number of
-  expresisons + number of declared =AD<T>= variables).
-- =memory_size()=: used memory to store all the statements
-- =allocated_memory_size()=: preallocated memory 
+   - =statement_size()=: returns the number of statements (= number of
+     expresisons + number of declared =AD<T>= variables).
+   - =memory_size()=: used memory to store all the statements
+   - =allocated_memory_size()=: preallocated memory 
 
-- =reset()= rewind the tape at the beginning, do not release currently
-  allocated tape memory. *Attention*: this *invalidates* all previously
-  declared =AD<T>= variable.
-- =clear()= rewind the tape at the beginning and release allocated
-  memory. *Attention*: this *invalidates* all previously declared =AD<T>=
-  variable.
+   - =reset()= rewind the tape at the beginning, do not release currently
+     allocated tape memory. *Attention*: this *invalidates* all previously
+     declared =AD<T>= variable.
+   - =clear()= rewind the tape at the beginning and release allocated
+     memory. *Attention*: this *invalidates* all previously declared =AD<T>=
+     variable.
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/tape_info.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  auto print_tape_size = [](auto msg) {
-    std::cout << std::endl << ">>> " << msg << std::endl;
-    std::cout << "statements                : " << tape<double>().statement_size() << std::endl;
-    std::cout << "memory           (kBytes) : " << tape<double>().memory_size()/1024 << std::endl;
-    std::cout << "allocated memory (kBytes) : " << tape<double>().allocated_memory_size()/1024 << std::endl;
-  };
+   int
+   main()
+   {
+     auto print_tape_size = [](auto msg) {
+       std::cout << std::endl << ">>> " << msg << std::endl;
+       std::cout << "statements                : " << tape<double>().statement_size() << std::endl;
+       std::cout << "memory           (kBytes) : " << tape<double>().memory_size()/1024 << std::endl;
+       std::cout << "allocated memory (kBytes) : " << tape<double>().allocated_memory_size()/1024 << std::endl;
+     };
 
-  print_tape_size("Initial tape state (contains a small amount of preallocated memory)");
+     print_tape_size("Initial tape state (contains a small amount of preallocated memory)");
 
-  for (size_t i = 1; i < 1000; ++i)
-  {
-    AD<double> x0 = 2, x1 = 3, y;
+     for (size_t i = 1; i < 1000; ++i)
+     {
+       AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1;
-  }
+       y = 4 * x0 + 2 * x1;
+     }
 
-  print_tape_size("Final tape state (tape has allocated some fresh memory)");
+     print_tape_size("Final tape state (tape has allocated some fresh memory)");
 
-  tape<double>().reset();
-  print_tape_size("after tape.reset() (the extra allocated memory is not released)");
+     tape<double>().reset();
+     print_tape_size("after tape.reset() (the extra allocated memory is not released)");
 
-  tape<double>().clear();
-  print_tape_size("after tape.clear() (releases extra memory and starts with a new tape)");
-}
-#+END_src
+     tape<double>().clear();
+     print_tape_size("after tape.clear() (releases extra memory and starts with a new tape)");
+   }
+   #+END_src
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/tape_info
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
+   #+RESULTS:
+   #+BEGIN_example
 
->>> Initial tape state (contains a small amount of preallocated memory)
-statements                : 0
-memory           (kBytes) : 0
-allocated memory (kBytes) : 24
+   >>> Initial tape state (contains a small amount of preallocated memory)
+   statements                : 0
+   memory           (kBytes) : 0
+   allocated memory (kBytes) : 24
 
->>> Final tape state (tape has allocated some fresh memory)
-statements                : 2997
-memory           (kBytes) : 54
-allocated memory (kBytes) : 64
+   >>> Final tape state (tape has allocated some fresh memory)
+   statements                : 2997
+   memory           (kBytes) : 54
+   allocated memory (kBytes) : 64
 
->>> after tape.reset() (the extra allocated memory is not released)
-statements                : 0
-memory           (kBytes) : 0
-allocated memory (kBytes) : 64
+   >>> after tape.reset() (the extra allocated memory is not released)
+   statements                : 0
+   memory           (kBytes) : 0
+   allocated memory (kBytes) : 64
 
->>> after tape.clear() (releases extra memory and starts with a new tape)
-statements                : 0
-memory           (kBytes) : 0
-allocated memory (kBytes) : 24
-#+END_example
+   >>> after tape.clear() (releases extra memory and starts with a new tape)
+   statements                : 0
+   memory           (kBytes) : 0
+   allocated memory (kBytes) : 24
+   #+END_example
 
 ** Local Tape
 
-If you want to do local computations and release tape memory afterward
-you can use a local tape. 
+   If you want to do local computations and release tape memory afterward
+   you can use a local tape. 
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/local_tape_memory.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  auto print_tape_size = [](auto msg) {
-    std::cout << std::endl << ">>> " << msg << std::endl;
-    std::cout << "statements : " << tape<double>().statement_size() << std::endl;
-    std::cout << "memory     : " << tape<double>().memory_size() << std::endl;
-  };
+   int
+   main()
+   {
+     auto print_tape_size = [](auto msg) {
+       std::cout << std::endl << ">>> " << msg << std::endl;
+       std::cout << "statements : " << tape<double>().statement_size() << std::endl;
+       std::cout << "memory     : " << tape<double>().memory_size() << std::endl;
+     };
 
-  print_tape_size("Initial tape state");
+     print_tape_size("Initial tape state");
 
-  AD<double> x0 = 2, x1 = 3, y;
+     AD<double> x0 = 2, x1 = 3, y;
 
-  y = 4 * x0 + 2 * x1;
+     y = 4 * x0 + 2 * x1;
 
-  auto grad = gradient(y);
+     auto grad = gradient(y);
 
-  std::cout << std::endl
-            << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
+     std::cout << std::endl
+	       << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
 
-  print_tape_size("Final tape state");
+     print_tape_size("Final tape state");
 
-  std::cout  << std::endl << "[[ Same computation but using a local tape ]]" << std::endl;
+     std::cout  << std::endl << "[[ Same computation but using a local tape ]]" << std::endl;
 
-  print_tape_size("Initial tape state");
+     print_tape_size("Initial tape state");
 
-  {
-    MissionImpossible_Tape<double> local_tape;
+     {
+       MissionImpossible_Tape<double> local_tape;
 
-    AD<double> x0 = 2, x1 = 3, y;
+       AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1;
+       y = 4 * x0 + 2 * x1;
 
-    auto grad = gradient(local_tape, y);  // <- here gradient use the local_tape
+       auto grad = gradient(local_tape, y);  // <- here gradient use the local_tape
 
-    std::cout << std::endl
-              << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
-  }
+       std::cout << std::endl
+		 << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
+     }
 
-  print_tape_size("Final tape state (global tape state has not changed)");
-}
-#+END_src
+     print_tape_size("Final tape state (global tape state has not changed)");
+   }
+   #+END_src
 
 
-#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/local_tape_memory
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_example
+   #+RESULTS:
+   #+BEGIN_example
 
->>> Initial tape state
-statements : 0
-memory     : 8
+   >>> Initial tape state
+   statements : 0
+   memory     : 8
 
-f: +14, grad: [ +4, +2 ]
+   f: +14, grad: [ +4, +2 ]
 
->>> Final tape state
-statements : 3
-memory     : 64
+   >>> Final tape state
+   statements : 3
+   memory     : 64
 
-[[ Same computation but using a local tape ]]
+   [[ Same computation but using a local tape ]]
 
->>> Initial tape state
-statements : 3
-memory     : 64
+   >>> Initial tape state
+   statements : 3
+   memory     : 64
 
-f: +14, grad: [ +4, +2 ]
+   f: +14, grad: [ +4, +2 ]
 
->>> Final tape state (global tape state has not changed)
-statements : 3
-memory     : 64
-#+END_example
+   >>> Final tape state (global tape state has not changed)
+   statements : 3
+   memory     : 64
+   #+END_example
 
 
-If you use a local tape you must take care of only
-using =AD<T>= declared in the scope of this local tape. By example:
+   If you use a local tape you must take care of only
+   using =AD<T>= declared in the scope of this local tape. By example:
 
-#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+   #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/local_tape.cpp
-#+END_SRC
+   #+END_SRC
 
-#+RESULTS:
-#+BEGIN_src cpp :eval never
-#include "MissionImpossible/MissionImpossible.hpp"
+   #+RESULTS:
+   #+BEGIN_src cpp :eval never
+   #include "MissionImpossible/MissionImpossible.hpp"
 
-using namespace MissionImpossible;
+   using namespace MissionImpossible;
 
-int
-main()
-{
-  // GOOD
-  //================
-  {
-    MissionImpossible_Tape<double> local_tape;
+   int
+   main()
+   {
+     // GOOD
+     //================
+     {
+       MissionImpossible_Tape<double> local_tape;
 
-    AD<double> x0 = 2, x1 = 3, y;
+       AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1;
+       y = 4 * x0 + 2 * x1;
 
-    auto grad = gradient(local_tape, y);
-  }
+       auto grad = gradient(local_tape, y);
+     }
 
-  // GOOD
-  //================
-  AD<double> a = 1;  // Ok, as "a" is not used in local_tape scope
+     // GOOD
+     //================
+     AD<double> a = 1;  // Ok, as "a" is not used in local_tape scope
 
-  {
-    MissionImpossible_Tape<double> local_tape;
+     {
+       MissionImpossible_Tape<double> local_tape;
 
-    AD<double> x0 = 2, x1 = 3, y;
+       AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1;
+       y = 4 * x0 + 2 * x1;
 
-    auto grad = gradient(local_tape, y);
-  }
+       auto grad = gradient(local_tape, y);
+     }
 
-  //  BAD
-  //================
-  {
-    MissionImpossible_Tape<double> local_tape;
+     //  BAD
+     //================
+     {
+       MissionImpossible_Tape<double> local_tape;
 
-    AD<double> x0 = 2, x1 = 3, y;
+       AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1 + a;  // BAD: "a" was not declared in the tape scope
+       y = 4 * x0 + 2 * x1 + a;  // BAD: "a" was not declared in the tape scope
 
-    auto grad = gradient(local_tape, y);  // Undefined behavior. In
-					  // DEBUG mode triggers an
-					  // assert(0)
-  }
-}
-#+END_src
+       auto grad = gradient(local_tape, y);  // Undefined behavior. In
+					     // DEBUG mode triggers an
+					     // assert(0)
+     }
+   }
+   #+END_src
 
-*Note:* local tapes can be nested too (but you still have to respect
- variable scopes!).
+   *Note:* local tapes can be nested too (but you still have to respect
+   variable scopes!).
 
