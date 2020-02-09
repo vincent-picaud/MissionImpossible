@@ -40,6 +40,8 @@ main()
 
     y = 4 * x0 + 2 * x1 + a;  // CAVEAT: "a" was not declared in the tape scope
 
-    auto grad = gradient(local_tape, y);  // Undefined behavior
+    auto grad = gradient(local_tape, y);  // Undefined behavior. In
+					  // DEBUG mode triggers an
+					  // assert(0)
   }
 }

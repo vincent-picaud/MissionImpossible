@@ -738,7 +738,7 @@ main()
 
   // Same computation but using a local tape
   //
-  print_tape_size("Initial local tape state");
+  print_tape_size("Initial tape state");
 
   {
     MissionImpossible_Tape<double> local_tape;
@@ -753,7 +753,7 @@ main()
               << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
   }
 
-  print_tape_size("Final local tape state (global tape state has not changed)");
+  print_tape_size("Final tape state (global tape state has not changed)");
 }
 #+END_src
 
@@ -775,13 +775,13 @@ f: +14, grad: [ +4, +2 ]
 statements : 3
 memory     : 64
 
->>> Initial local tape state
+>>> Initial tape state
 statements : 3
 memory     : 64
 
 f: +14, grad: [ +4, +2 ]
 
->>> Final local tape state (global tape state has not changed)
+>>> Final tape state (global tape state has not changed)
 statements : 3
 memory     : 64
 #+END_example
@@ -790,3 +790,57 @@ memory     : 64
 If you use a local tape you must take care of only
 using =AD<T>= declared in the scope of this local tape. By example:
 
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/local_tape.cpp
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+using namespace MissionImpossible;
+
+int
+main()
+{
+  // GOOD
+  //================
+  {
+    MissionImpossible_Tape<double> local_tape;
+
+    AD<double> x0 = 2, x1 = 3, y;
+
+    y = 4 * x0 + 2 * x1;
+
+    auto grad = gradient(local_tape, y);
+  }
+
+  // GOOD
+  //================
+  AD<double> a = 1;  // Ok, as "a" is not used in local_tape scope
+
+  {
+    MissionImpossible_Tape<double> local_tape;
+
+    AD<double> x0 = 2, x1 = 3, y;
+
+    y = 4 * x0 + 2 * x1;
+
+    auto grad = gradient(local_tape, y);
+  }
+
+  //  BAD
+  //================
+  {
+    MissionImpossible_Tape<double> local_tape;
+
+    AD<double> x0 = 2, x1 = 3, y;
+
+    y = 4 * x0 + 2 * x1 + a;  // CAVEAT: "a" was not declared in the tape scope
+
+    auto grad = gradient(local_tape, y);  // Undefined behavior. In
+					  // DEBUG mode triggers an
+					  // assert(0)
+  }
+}
+#+END_src
