@@ -42,15 +42,10 @@ int
 main()
 {
   std::array<float, 2> X{3., 4.};
-
-  float f1 = Rosenbrock(X);
-
-  std::cout << "f1  = " << f1 << std::endl;
-
   std::array<float, 2> grad;
 
-  float f2 = Rosenbrock(X, grad);
+  float f = Rosenbrock(X, grad);
 
-  std::cout << "f2  = " << f2 << std::endl;
-  std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
+  std::cout << "f  = " << f << std::endl;
+  std::cout << "∇f = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
 }

@@ -66,17 +66,12 @@ cat $(pwd)/examples/local_tape.cpp
   main()
   {
     std::array<float, 2> X{3., 4.};
-
-    float f1 = Rosenbrock(X);
-
-    std::cout << "f1  = " << f1 << std::endl;
-
     std::array<float, 2> grad;
 
-    float f2 = Rosenbrock(X, grad);
+    float f = Rosenbrock(X, grad);
 
-    std::cout << "f2  = " << f2 << std::endl;
-    std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
+    std::cout << "f  = " << f << std::endl;
+    std::cout << "∇f = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
   }
   #+END_src
 
@@ -88,9 +83,8 @@ $(pwd)/build/examples/local_tape
 
   #+RESULTS:
   #+BEGIN_src cpp :eval never
-  f1  = 254
-  f2  = 254
-  ∇f2 = [ 604, -100 ]
+  f  = 254
+  ∇f = [ 604, -100 ]
   #+END_src
 
   This library has been optimized for unstructured (= not vectorized)
@@ -127,7 +121,7 @@ $(pwd)/build/examples/local_tape
 ** News
 
    - [2020-02-09 Sun 19:44] \\
-     Adding a CMake build solution. Some code cleaning.
+     Adding a CMake build solution + CI + code cleaning.
 
    - [2020-02-09 Sun 11:56] \\
      After an effort to provide some documentation and a =sqrt()= bug fix (thanks to
