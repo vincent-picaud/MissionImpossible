@@ -38,7 +38,7 @@ main()
 
     AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1 + a;  // CAVEAT: "a" was not declared in the tape scope
+    y = 4 * x0 + 2 * x1 + a;  // BAD: "a" was not declared in the tape scope
 
     auto grad = gradient(local_tape, y);  // Undefined behavior. In
 					  // DEBUG mode triggers an
