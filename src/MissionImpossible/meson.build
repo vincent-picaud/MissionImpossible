@@ -13,15 +13,25 @@ MissionImpossible_headers = [
   'complex_support.hpp',
 ]
 
-MissionImpossible_sources = ['tape.cpp']
+#################################################################
+# Uncomment me for if you need some .cpp file
+#################
+#
+# MissionImpossible_sources = ['tape.cpp']
 
-MissionImpossible_lib = library('MissionImpossible',
-			  include_directories : inc,
-			  install : true,
-			  sources: [MissionImpossible_headers,MissionImpossible_sources])
+# MissionImpossible_lib = library('MissionImpossible',
+# 			  include_directories : inc,
+# 			  install : true,
+# 			  sources: [MissionImpossible_headers,MissionImpossible_sources])
 
-MissionImpossible_dep = declare_dependency(include_directories : inc,
-				     link_with : MissionImpossible_lib)
+# MissionImpossible_dep = declare_dependency(include_directories : inc,
+# 				     link_with : MissionImpossible_lib)
+
+#################################################################
+# Header only lib
+#################
+#
+MissionImpossible_dep = declare_dependency(include_directories : inc)
 
 install_headers(MissionImpossible_headers,
 		subdir : 'MissionImpossible')
