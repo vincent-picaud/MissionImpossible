@@ -3,7 +3,7 @@
 #+HTML_HEAD_EXTRA: <style type="text/css"> pre {background:#EEEEEE; padding: 3px 13px}    </style>
 #+TITLE: Mission : Impossible (self-destructing AD local tapes...)
 
-[[https://travis-ci.org/vincent-picaud/MissionImpossible][file:https://travis-ci.org/vincent-picaud/MissionImpossible.svg?branch=dev]]
+[[https://travis-ci.org/vincent-picaud/MissionImpossible][file:https://travis-ci.org/vincent-picaud/MissionImpossible.svg?branch=master]]
 
 * What is it?
 
