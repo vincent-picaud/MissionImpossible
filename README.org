@@ -126,7 +126,7 @@ Mathematical Programming 155.1-2 (2016): 81-103.
 
    - [2020-02-09 Sun 11:56] \\
      After an effort to provide some documentation and a =sqrt()= bug fix (thanks to
-     Fabrice Gaudier), I think its time to release the v0.1.0 version!
+     Fabrice Gaudier), I think it's time to release the v0.1.0 version!
    - [2020-01-07 Tue 12:27] \\
      This a *pre-release*. Some developments remain to be done
      (implementing special functions, adding examples and benchmarks)
@@ -700,19 +700,19 @@ You can compute the Jacobian:
 - column by column using the =Jacobian_column()= (fix j and compute ∂ⱼfⁱ
   for all i)
 
-*Note:* in application we often encounter real functions. In that case
+*Note:* in applications we often encounter real functions. In that case
   there is only one row and the (total) differential is simply 
 
   dfₓ=Σ ∂ᵢf dxⁱ
 
-  In that case it is clearly better to compute df row by row as we
+  It is clearly better to compute df row by row as we
   only have one row. We get a "row vector" that can be used to
   represent the gradient of f ("column vector", denoted by ∇fₓ):
 
   dfₓ.h = <∇fₓ,h>
 
   That is the reason why there is an alias of the =Jacobian_row()=
-  function which is called =gradient()=.
+  function which is =gradient()=.
 
 *Example:* (I just reproduced the already given Jacobian example).
 
