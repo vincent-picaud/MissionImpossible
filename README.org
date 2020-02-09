@@ -496,7 +496,8 @@ This part focuses on the things to know to properly use this library.
 
 ** AD types
 
-To compute derivatives you must use =AD<T>= types in place of the usual =T= types (where =T= represents a real  instead of These are the types you must use when you want to compute derivatives.
+To compute derivatives you must use =AD<T>= types in place of the usual
+=T= types (where =T= represents a real type like =float= or =double=):
 - =AD<T>= for first order derivatives
 - =AD<AD<T>>= for second order derivatives
 - =AD<AD<AD<T>>>= for third order derivatives
@@ -701,6 +702,85 @@ tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD
 ** Local Tape
 
 If you want to do local computations and release tape memory afterward
-you can use a local tape. In that case you must take care of only
+you can use a local tape. 
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/local_tape_memory.cpp
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+using namespace MissionImpossible;
+
+int
+main()
+{
+  auto print_tape_size = [](auto msg) {
+    std::cout << std::endl << ">>> " << msg << std::endl;
+    std::cout << "statements : " << tape<double>().statement_size() << std::endl;
+    std::cout << "memory     : " << tape<double>().memory_size() << std::endl;
+  };
+
+  print_tape_size("Initial tape state");
+
+  AD<double> x0 = 2, x1 = 3, y;
+
+  y = 4 * x0 + 2 * x1;
+
+  auto grad = gradient(y);
+  std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
+
+  print_tape_size("After first computation and before local tape use");
+
+  // Same computation but using a local tape
+  {
+    MissionImpossible_Tape<double> local_tape;
+
+    AD<double> x0 = 2, x1 = 3, y;
+
+    y = 4 * x0 + 2 * x1;
+
+    auto grad = gradient(local_tape, y);  // <- here gradient use the local_tape
+
+    std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
+
+    print_tape_size("After local tape use");
+  }
+
+  print_tape_size("After local tape destruction");
+}
+#+END_src
+
+
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/doc/local_tape_memory
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_example
+
+>>> Initial tape state
+statements : 0
+memory     : 8
++14, +4, +2
+
+>>> After first computation and before local tape use
+statements : 3
+memory     : 64
++14, +4, +2
+
+>>> After local tape use
+statements : 6
+memory     : 120
+
+>>> After local tape destruction
+statements : 3
+memory     : 64
+#+END_example
+
+
+If you use a local tape you must take care of only
 using =AD<T>= declared in the scope of this local tape. By example:
 

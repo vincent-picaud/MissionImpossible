@@ -5,8 +5,9 @@ using namespace MissionImpossible;
 int
 main()
 {
-  auto print_tape_size = []() { std::cout << "size: " << tape<double>().statement_size() << std::endl; };
-
+  auto print_tape_size = []() {
+    std::cout << "size: " << tape<double>().statement_size() << std::endl;
+  };
 
   // GOOD
   //================
@@ -28,9 +29,9 @@ main()
 
   // GOOD
   //================
-  AD<double> a=1,b=2; // Ok, as a, b are not used in local_tape scope 
+  AD<double> a = 1, b = 2;  // Ok, as a, b are not used in local_tape scope
 
-  print_tape_size();  
+  print_tape_size();
   {
     MissionImpossible_Tape<double> local_tape;
 
@@ -44,5 +45,4 @@ main()
   }
 
   print_tape_size();
- 
 }

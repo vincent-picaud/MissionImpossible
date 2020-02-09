@@ -17,3 +17,7 @@ executable('underlying_value',
 executable('local_tape',
 	   'local_tape.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('local_tape_memory',
+	   'local_tape_memory.cpp',
+	   dependencies : [MissionImpossible_dep])
