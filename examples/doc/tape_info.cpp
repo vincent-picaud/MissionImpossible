@@ -14,7 +14,7 @@ main()
 
   print_tape_size("Initial tape state (contains a small amount of preallocated memory)");
 
-  for (size_t i = 1; i < 10000; ++i)
+  for (size_t i = 1; i < 1000; ++i)
   {
     AD<double> x0 = 2, x1 = 3, y;
 

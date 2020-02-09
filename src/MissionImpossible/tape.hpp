@@ -86,7 +86,7 @@ namespace MissionImpossible
     }
 
    public:
-    Tape() : Tape(1024, 3 * 1024) {}
+    Tape() : Tape(1024, 1024) {}
 
     Tape(const std::size_t index_capacity, const std::size_t tape_capacity)
         : _index_end(1),
