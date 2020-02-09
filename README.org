@@ -707,10 +707,10 @@ From the library user perspective, you can use these methods:
 - =allocated_memory_size()=: preallocated memory 
 
 - =reset()= rewind the tape at the beginning, do not release currently
-  allocated tape memory. *Attention*: this *invalidate* all previously
+  allocated tape memory. *Attention*: this *invalidates* all previously
   declared =AD<T>= variable.
 - =clear()= rewind the tape at the beginning and release allocated
-  memory. *Attention*: this *invalidate* all previously declared =AD<T>=
+  memory. *Attention*: this *invalidates* all previously declared =AD<T>=
   variable.
 
 #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results

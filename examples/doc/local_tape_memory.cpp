@@ -24,7 +24,7 @@ main()
 
   print_tape_size("Final tape state");
 
-  std::cout << ">>>>> Same computation but using a local tape" << std::endl;
+  std::cout  << std::endl << "[[ Same computation but using a local tape ]]" << std::endl;
 
   print_tape_size("Initial tape state");
 
