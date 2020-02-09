@@ -5,7 +5,7 @@
 
 * What is it?
 
-  *Mission : Impossible* is a concise and fast C++17 implementation of
+  *Mission : Impossible* is a concise header only C++17 implementation of
   automatic differentiation based on operator overloading. For repeated
   calculations it is very easy to define an auto-destructive local tape,
   hence the wink to the "Mission: Impossible" series.
@@ -124,9 +124,13 @@ $(pwd)/build/examples/local_tape
 
 ** News
 
+   - [2020-02-09 Sun 19:44] \\
+     Adding a CMake build solution. Some code cleaning.
+
    - [2020-02-09 Sun 11:56] \\
      After an effort to provide some documentation and a =sqrt()= bug fix (thanks to
-     Fabrice Gaudier), I think it's time to release the v0.1.0 version!
+     Fabrice Gaudier), I think it's time to release the *v0.1.0* version!
+
    - [2020-01-07 Tue 12:27] \\
      This a *pre-release*. Some developments remain to be done
      (implementing special functions, adding examples and benchmarks)
@@ -134,26 +138,32 @@ $(pwd)/build/examples/local_tape
 
 * Compilation
 
-  The library currently uses the [[https://mesonbuild.com/][meson]] build system.
+** Meson 
 
-  If you are not familiar with meson, the compilation procedure is as
-  follows:
+   The library main build tool is the [[https://mesonbuild.com/][meson]] build system.
 
-  #+BEGIN_SRC sh :eval never
+   If you are not familiar with meson, the compilation procedure is as
+   follows:
+
+   #+BEGIN_SRC sh :eval never
 git clone https://github.com/vincent-picaud/MissionImpossible.git
 cd MissionImpossible/
 meson build
 cd build
 ninja test
-  #+END_SRC 
-
-** Release
+   #+END_SRC 
 
    To get an *optimized* version, use:
 
    #+BEGIN_SRC sh :eval never
 meson --buildtype=release -Db_ndebug=true build-release
    #+END_SRC
+
+** CMake 
+
+For you convenience I also provide a CMake solution. 
+
+*Note:* the CMake solution does not include/run tests.
 
 * Examples
 
