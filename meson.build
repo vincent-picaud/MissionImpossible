@@ -10,6 +10,5 @@ gtest_dep = gtest_proj.get_variable('gtest_main_dep')
 
 subdir('src')
 subdir('test')
-subdir('bin')
 subdir('sandbox')
 subdir('examples')
