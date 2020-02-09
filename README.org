@@ -754,7 +754,35 @@ main()
 }
 #+END_src
 
-TODO: doc nested tapes
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/doc/tape_info
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_example
+
+>>> Initial tape state (contains a small amount of preallocated memory)
+statements                : 0
+memory           (kBytes) : 0
+allocated memory (kBytes) : 24
+
+>>> Final tape state (tape has allocated some fresh memory)
+statements                : 2997
+memory           (kBytes) : 54
+allocated memory (kBytes) : 64
+
+>>> after tape.reset() (the extra allocated memory is not released)
+statements                : 0
+memory           (kBytes) : 0
+allocated memory (kBytes) : 64
+
+>>> after tape.clear() (releases extra memory and starts with a new tape)
+statements                : 0
+memory           (kBytes) : 0
+allocated memory (kBytes) : 24
+#+END_example
+
+*** TODO: doc nested tapes
 
 ** Local Tape
 
