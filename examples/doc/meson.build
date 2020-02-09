@@ -21,3 +21,7 @@ executable('local_tape',
 executable('local_tape_memory',
 	   'local_tape_memory.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('tape_info',
+	   'tape_info.cpp',
+	   dependencies : [MissionImpossible_dep])

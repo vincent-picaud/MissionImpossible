@@ -86,7 +86,7 @@ namespace MissionImpossible
     }
 
    public:
-    Tape() : Tape(1024, 4 * 1024) {}
+    Tape() : Tape(1024, 3 * 1024) {}
 
     Tape(const std::size_t index_capacity, const std::size_t tape_capacity)
         : _index_end(1),
@@ -99,6 +99,18 @@ namespace MissionImpossible
       _index[0] = 0;
     }
 
+    void
+    swap(Tape&& other)
+    {
+      using std::swap;
+
+      swap(_index_end, other._index_end);
+      swap(_index_capacity, other._index_capacity);
+      swap(_index, other._index);
+      swap(_tape_capacity, other._tape_capacity);
+      swap(_tape, other._tape);
+    }
+
     std::size_t
     statement_size() const
     {
@@ -109,6 +121,12 @@ namespace MissionImpossible
     memory_size() const
     {
       return _index_end * sizeof(index_type) + _index[_index_end - 1] * sizeof(Index_PartialD);
+    };
+
+    std::size_t
+    allocated_memory_size() const
+    {
+      return _index_capacity * sizeof(index_type) + _tape_capacity * sizeof(Index_PartialD);
     };
 
     // New encoding: to best tested in reverse mode!
@@ -155,6 +173,21 @@ namespace MissionImpossible
       assert(check_invariant());
     }
 
+    // rewind the tape.
+    // CAVEAT: invalidate all AD<T> already declared
+    void
+    reset()
+    {
+      rewind(0);
+    }
+
+    // restart with a fresh new tape (release memory)
+    // CAVEAT: invalidate all AD<T> already declared
+    void
+    clear()
+    {
+      swap(Tape());
+    }
     void
     forward(const std::size_t row_begin, value_type* const diff) const
     {
