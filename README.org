@@ -3,6 +3,8 @@
 #+HTML_HEAD_EXTRA: <style type="text/css"> pre {background:#EEEEEE; padding: 3px 13px}    </style>
 #+TITLE: Mission : Impossible (self-destructing AD local tapes...)
 
+[[https://travis-ci.org/vincent-picaud/GnuPlotScript][file:https://travis-ci.org/vincent-picaud/GnuPlotScripting.svg?branch=master]]
+
 * What is it?
 
   *Mission : Impossible* is a concise header only C++17 implementation of
