@@ -166,7 +166,14 @@ namespace MissionImpossible
 
         for (std::size_t j = partial_begin; j < partial_end; ++j)
         {
-          diff[i] += _tape[j].value * diff[_tape[j].index];
+          const auto indirection = _tape[j].index;
+          assert(indirection >= row_begin);  // you must check if a
+                                             // local_tape was not
+                                             // used with an out of
+                                             // scope AD<T>
+                                             // variable...
+
+          diff[i] += _tape[j].value * diff[indirection];
         }
       }
     }
@@ -200,6 +207,12 @@ namespace MissionImpossible
             for (std::size_t j = partial_begin; j < partial_end; ++j)
             {
               const auto indirection = _tape[j].index;
+              assert(indirection >= row_begin);  // you must check if a
+                                                 // local_tape was not
+                                                 // used with an out of
+                                                 // scope AD<T>
+                                                 // variable...
+
               diff[indirection] += _tape[j].value;
             }
             continue;
@@ -210,6 +223,12 @@ namespace MissionImpossible
           for (std::size_t j = partial_begin; j < partial_end; ++j)
           {
             const auto indirection = _tape[j].index;
+            assert(indirection >= row_begin);  // you must check if a
+                                               // local_tape was not
+                                               // used with an out of
+                                               // scope AD<T>
+                                               // variable...
+
             diff[indirection] += _tape[j].value * diff_i_m_1;
           }
         }

@@ -5,13 +5,21 @@ using namespace MissionImpossible;
 int
 main()
 {
-  auto print_tape_size = []() {
-    std::cout << "size: " << tape<double>().statement_size() << std::endl;
-  };
+  // GOOD
+  //================
+  {
+    MissionImpossible_Tape<double> local_tape;
+
+    AD<double> x0 = 2, x1 = 3, y;
+
+    y = 4 * x0 + 2 * x1;
+
+    auto grad = gradient(local_tape, y);
+  }
 
   // GOOD
   //================
-  print_tape_size();
+  AD<double> a = 1;  // Ok, as "a" is not used in local_tape scope
 
   {
     MissionImpossible_Tape<double> local_tape;
@@ -21,28 +29,17 @@ main()
     y = 4 * x0 + 2 * x1;
 
     auto grad = gradient(local_tape, y);
-    std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
-    print_tape_size();
   }
 
-  print_tape_size();
-
-  // GOOD
+  //  BAD
   //================
-  AD<double> a = 1, b = 2;  // Ok, as a, b are not used in local_tape scope
-
-  print_tape_size();
   {
     MissionImpossible_Tape<double> local_tape;
 
     AD<double> x0 = 2, x1 = 3, y;
 
-    y = 4 * x0 + 2 * x1;
+    y = 4 * x0 + 2 * x1 + a;  // CAVEAT: "a" was not declared in the tape scope
 
-    auto grad = gradient(local_tape, y);
-    std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
-    print_tape_size();
+    auto grad = gradient(local_tape, y);  // Undefined behavior
   }
-
-  print_tape_size();
 }
