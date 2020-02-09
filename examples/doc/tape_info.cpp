@@ -19,8 +19,6 @@ main()
     AD<double> x0 = 2, x1 = 3, y;
 
     y = 4 * x0 + 2 * x1;
-
-    auto grad = gradient(y);
   }
 
   print_tape_size("Final tape state (tape has allocated some fresh memory)");
