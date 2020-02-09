@@ -685,7 +685,28 @@ d2y = 20 dx⊗dx
 
 ** Computing derivatives
 
-TODO 
+   A differential evaluated at point X, dfₓ is a linear application
+that can be represented (given basis) by a matrix (also known as
+Jacobian) of components ∂ⱼfⁱ where i denotes rows and j columns.
+You can compute the Jacobian:
+- row by row using the =Jacobian_row()= function (uses reverse mode)
+- column by column using the =Jacobian_column()= function (uses forward mode)
+
+*Note:* in application we often encounter real functions. In that case
+  there is only one row and the (total) differential is simply 
+
+  dfₓ=∂ᵢf dxⁱ
+
+  In that case it is clearly better to compute df row by row as we
+  only have one row. We get a "row vector" that can be used to
+  represent the gradient of f denoted by ∇fₓ:
+
+  dfₓ.h = <∇fₓ,h>
+
+  That is the reason why there is an alias of the =Jacobian_row()=
+  function which is called =gradient()=.
+
+*Example:*
 
 ** Tape 
 
