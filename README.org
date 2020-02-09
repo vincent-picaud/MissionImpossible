@@ -191,13 +191,16 @@ main()
   //
   std::cout << "Jacobian row by row" << std::endl;
 
-  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1
-  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2
+  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
+                                            // computes ∂ᵣy¹, ∂ₒy¹
   
-  std::cout << "∇y1(r,θ) = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
+                                            // computes ∂ᵣy², ∂ₒy²
+
+  std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
   std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
 
-  std::cout << "∇y2(r,θ) = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+  std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
   std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
 
   ////////////////////////////////////////
@@ -208,13 +211,13 @@ main()
   //
   std::cout << std::endl << "Jacobian column by column" << std::endl;
 
-  auto Jacobian_column_r     = Jacobian_column(r);      // r column
-  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column
+  auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
+  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
 
-  std::cout << "∂r y1  = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
-            << "∂θ y1  = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
-  std::cout << "∂r y2  = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
-            << "∂θ y2  = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
+  std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
+            << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
+  std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
+            << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
 }
 #+END_src
 
@@ -227,12 +230,12 @@ $(pwd)/build/examples/Jacobian
 #+RESULTS:
 #+BEGIN_example
 Jacobian row by row
-∇y1(r,θ) =             0.995004,            -0.199667
-∇y2(r,θ) =            0.0998334,              1.99001
+∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
+∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
 
 Jacobian column by column
-∂r y1  =             0.995004	∂θ y1  =            -0.199667
-∂r y2  =            0.0998334	∂θ y2  =              1.99001
+∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
+∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
 #+END_example
 
 
@@ -689,24 +692,111 @@ d2y = 20 dx⊗dx
 that can be represented (given basis) by a matrix (also known as
 Jacobian) of components ∂ⱼfⁱ where i denotes rows and j columns.
 You can compute the Jacobian:
-- row by row using the =Jacobian_row()= function (uses reverse mode)
-- column by column using the =Jacobian_column()= function (uses forward mode)
+- row by row using the =Jacobian_row()= function (fix i and compute ∂ⱼfⁱ
+  for all j)
+- column by column using the =Jacobian_column()= (fix j and compute ∂ⱼfⁱ
+  for all i)
 
 *Note:* in application we often encounter real functions. In that case
   there is only one row and the (total) differential is simply 
 
-  dfₓ=∂ᵢf dxⁱ
+  dfₓ=Σ ∂ᵢf dxⁱ
 
   In that case it is clearly better to compute df row by row as we
   only have one row. We get a "row vector" that can be used to
-  represent the gradient of f denoted by ∇fₓ:
+  represent the gradient of f ("column vector", denoted by ∇fₓ):
 
   dfₓ.h = <∇fₓ,h>
 
   That is the reason why there is an alias of the =Jacobian_row()=
   function which is called =gradient()=.
 
-*Example:*
+*Example:* (I just reproduced the already given Jacobian example).
+
+#+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
+cat $(pwd)/examples/doc/Jacobian.cpp
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_src cpp :eval never
+#include "MissionImpossible/MissionImpossible.hpp"
+
+#include <iostream>
+
+using namespace MissionImpossible;
+
+int
+main()
+{
+  AD<double> r = 2, theta = 0.1;
+
+  AD<double> y1 = r * cos(theta);
+  AD<double> y2 = r * sin(theta);
+
+  //////////////////////////////////
+  // Computes Jacobian row by row //
+  //////////////////////////////////
+  //
+  // -> AKA reverse-mode
+  //
+  std::cout << "Jacobian row by row" << std::endl;
+
+  auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
+                                            // computes ∂ᵣy¹, ∂ₒy¹
+  
+  auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
+                                            // computes ∂ᵣy², ∂ₒy²
+
+  std::cout << "∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] = " << std::setw(20) << Jacobian_row_y1[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y1[theta] << std::endl;
+
+  std::cout << "∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] = " << std::setw(20) << Jacobian_row_y2[r] << ", ";
+  std::cout << std::setw(20) << Jacobian_row_y2[theta] << std::endl;
+
+  ////////////////////////////////////////
+  // Computes Jacobian column by column //
+  ////////////////////////////////////////
+  //
+  // -> AKA forward-mode
+  //
+  std::cout << std::endl << "Jacobian column by column" << std::endl;
+
+  auto Jacobian_column_r     = Jacobian_column(r);      // r column computes ∂ᵣy¹, ∂ᵣy²
+  auto Jacobian_column_theta = Jacobian_column(theta);  // θ column compules ∂ₒy¹, ∂ₒy²
+
+  std::cout << "∂ᵣy¹ = " << std::setw(20) << Jacobian_column_r[y1] << "\t"
+            << "∂ᵣy² = " << std::setw(20) << Jacobian_column_theta[y1] << std::endl;
+  std::cout << "∂ₒy¹ = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
+            << "∂ₒy² = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
+}
+#+END_src
+
+#+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
+$(pwd)/build/examples/doc/Jacobian
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_example
+Jacobian row by row
+∇y1(r,θ) = [ ∂ᵣy¹, ∂ₒy¹ ] =             0.995004,            -0.199667
+∇y2(r,θ) = [ ∂ᵣy², ∂ₒy² ] =            0.0998334,              1.99001
+
+Jacobian column by column
+∂ᵣy¹ =             0.995004	∂ᵣy² =            -0.199667
+∂ₒy¹ =            0.0998334	∂ₒy² =              1.99001
+#+END_example
+
+*Note:* there are also variants of the =Jacobian_row()= and
+=Jacobian_column()= that use local tape. In that case have a look at the "local tape" section and use:
+
+#+BEGIN_SRC cpp :eval never 
+MissionImpossible_Tape<double> local_tape;
+
+// ... computations ...
+
+auto row_by_row       = Jacobian_row(local_tape, y1);  // or equivalently gradient(local_tape,y1)
+auto column_by_column = Jacobian_column(local_tape, r);
+#+END_SRC
 
 ** Tape 
 
@@ -801,8 +891,6 @@ memory           (kBytes) : 0
 allocated memory (kBytes) : 24
 #+END_example
 
-*** TODO: doc nested tapes
-
 ** Local Tape
 
 If you want to do local computations and release tape memory afterward
@@ -840,7 +928,7 @@ main()
 
   print_tape_size("Final tape state");
 
-  std::cout << ">>>>> Same computation but using a local tape" << std::endl;
+  std::cout  << std::endl << "[[ Same computation but using a local tape ]]" << std::endl;
 
   print_tape_size("Initial tape state");
 
@@ -878,7 +966,8 @@ f: +14, grad: [ +4, +2 ]
 >>> Final tape state
 statements : 3
 memory     : 64
->>>>> Same computation but using a local tape
+
+[[ Same computation but using a local tape ]]
 
 >>> Initial tape state
 statements : 3

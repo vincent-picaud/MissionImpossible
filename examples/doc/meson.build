@@ -25,3 +25,7 @@ executable('local_tape_memory',
 executable('tape_info',
 	   'tape_info.cpp',
 	   dependencies : [MissionImpossible_dep])
+
+executable('Jacobian',
+	   'Jacobian.cpp',
+	   dependencies : [MissionImpossible_dep])
