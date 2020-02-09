@@ -19,7 +19,7 @@ cat $(pwd)/examples/local_tape.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <array>
@@ -76,7 +76,7 @@ main()
   std::cout << "f2  = " << f2 << std::endl;
   std::cout << "∇f2 = [ " << grad[0] << ", " << grad[1] << " ]" << std::endl;
 }
-#+end_src
+#+END_src
 
 prints
 
@@ -85,11 +85,11 @@ $(pwd)/build/examples/local_tape
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 f1  = 254
 f2  = 254
 ∇f2 = [ 604, -100 ]
-#+end_src
+#+END_src
 
 This library has been optimized for unstructured (= not vectorized)
 first order derivatives. Its speed must be comparable to [[https://github.com/rjhogan/Adept-2][Adept]] as it
@@ -168,7 +168,7 @@ cat $(pwd)/examples/Jacobian.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
@@ -216,7 +216,7 @@ main()
   std::cout << "∂r y2  = " << std::setw(20) << Jacobian_column_r[y2] << "\t"
             << "∂θ y2  = " << std::setw(20) << Jacobian_column_theta[y2] << std::endl;
 }
-#+end_src
+#+END_src
 
 prints
 
@@ -225,7 +225,7 @@ $(pwd)/build/examples/Jacobian
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
 Jacobian row by row
 ∇y1(r,θ) =             0.995004,            -0.199667
 ∇y2(r,θ) =            0.0998334,              1.99001
@@ -233,7 +233,7 @@ Jacobian row by row
 Jacobian column by column
 ∂r y1  =             0.995004	∂θ y1  =            -0.199667
 ∂r y2  =            0.0998334	∂θ y2  =              1.99001
-#+end_example
+#+END_example
 
 
 ** Complex number example
@@ -245,7 +245,7 @@ cat $(pwd)/examples/ad_complex.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <complex>
@@ -313,7 +313,7 @@ main()
   std::cout << std::endl << "Not holomorph f2: " << std::endl;
   more_versatile(f_not_holomorph);
 }
-#+end_src
+#+END_src
 
 prints:
 
@@ -322,7 +322,7 @@ $(pwd)/build/examples/ad_complex
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
           f1:   
  f = (-0.00144263,+0.0098095)
 df = (-0.0842465,+0.0276969)
@@ -340,7 +340,7 @@ df = +0.447214, -0.894427
 --> Cauchy-Riemann check:
 +0.447214 ?= +0
 +0.894427 ?= -0
-#+end_example
+#+END_example
 
 ** Hessian action Hv, directional derivatives
 
@@ -351,7 +351,7 @@ cat $(pwd)/examples/Hv.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 using namespace MissionImpossible;
@@ -381,7 +381,7 @@ main()
   std::cout << "Hv= " << z_gradient[x0] << ", ";
   std::cout << z_gradient[x1] << std::endl;
 }
-#+end_src
+#+END_src
 
 prints
 
@@ -390,11 +390,11 @@ $(pwd)/build/examples/Hv
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
 f = +254
 ∇f= +604, -100
 Hv= +3890, -480
-#+end_example
+#+END_example
 
 ** Third order example 
 
@@ -405,7 +405,7 @@ cat $(pwd)/examples/nested.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 #include <iostream>
@@ -456,7 +456,7 @@ main()
   std::cout << "∂³₁₁₀f = " << third_order_x1_x1_row[x0] << std::endl;
   std::cout << "∂³₁₁₁f = " << third_order_x1_x1_row[x1] << std::endl;
 }
-#+end_src
+#+END_src
 
 which prints
 
@@ -466,7 +466,7 @@ $(pwd)/build/examples/nested
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
 f     = +254
 
 ∂₀f   = +604
@@ -485,7 +485,7 @@ f     = +254
 ∂³₁₀₁f = +0
 ∂³₁₁₀f = +0
 ∂³₁₁₁f = +0
-#+end_example
+#+END_example
 
 # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
 # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
@@ -513,7 +513,7 @@ cat $(pwd)/examples/doc/ad.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 using namespace MissionImpossible;
@@ -539,7 +539,7 @@ main()
 
   auto grad2 = gradient(y2); // undefined behavior
 }
-#+end_src
+#+END_src
 
 *** Constant scalar parameter 
 
@@ -550,7 +550,7 @@ cat $(pwd)/examples/doc/underlying_type.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include <vector>
 
 // BAD
@@ -579,7 +579,7 @@ main()
   
   scale_v2(2, v);  // <- OK
 }
-#+end_src
+#+END_src
 
 The use of =typename std::vector<T>::value_type= avoids type conflict as
  now only one expression (here =std::vector<T>=) is used to deduce the
@@ -595,7 +595,7 @@ cat $(pwd)/examples/doc/underlying_type_2.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 using namespace MissionImpossible;
@@ -621,7 +621,7 @@ main()
   std::cout << "dy  = " << dy[x] << " dx" << std::endl;
   std::cout << "d2y = " << d2y[x] << " dx⊗dx" << std::endl;
 }
-#+end_src
+#+END_src
 
 which prints:
 
@@ -630,11 +630,11 @@ $(pwd)/build/examples/doc/underlying_type_2
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
 y   = +40
 dy  = +40 dx
 d2y = +20 dx⊗dx
-#+end_example
+#+END_example
 
 ** =underlying_value()=
 
@@ -647,7 +647,7 @@ cat $(pwd)/examples/doc/underlying_value.cpp
 #+END_SRC
 
 #+RESULTS:
-#+begin_src cpp :eval never
+#+BEGIN_src cpp :eval never
 #include "MissionImpossible/MissionImpossible.hpp"
 
 using namespace MissionImpossible;
@@ -670,18 +670,18 @@ main()
   std::cout << "dy  = " << value_dy << " dx" << std::endl;
   std::cout << "d2y = " << value_d2y << " dx⊗dx" << std::endl;
 }
-#+end_src
+#+END_src
 
 #+BEGIN_SRC sh :eval no-export :wrap "example" :results output :exports results
 $(pwd)/build/examples/doc/underlying_value
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
+#+BEGIN_example
 y   = 40
 dy  = 40 dx
 d2y = 20 dx⊗dx
-#+end_example
+#+END_example
 
 ** Computing derivatives
 
@@ -730,11 +730,16 @@ main()
   y = 4 * x0 + 2 * x1;
 
   auto grad = gradient(y);
-  std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
 
-  print_tape_size("After first computation and before local tape use");
+  std::cout << std::endl
+            << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
+
+  print_tape_size("Final tape state");
 
   // Same computation but using a local tape
+  //
+  print_tape_size("Initial local tape state");
+
   {
     MissionImpossible_Tape<double> local_tape;
 
@@ -744,12 +749,11 @@ main()
 
     auto grad = gradient(local_tape, y);  // <- here gradient use the local_tape
 
-    std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
-
-    print_tape_size("After local tape use");
+    std::cout << std::endl
+              << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
   }
 
-  print_tape_size("After local tape destruction");
+  print_tape_size("Final local tape state (global tape state has not changed)");
 }
 #+END_src
 
@@ -764,18 +768,20 @@ $(pwd)/build/examples/doc/local_tape_memory
 >>> Initial tape state
 statements : 0
 memory     : 8
-+14, +4, +2
 
->>> After first computation and before local tape use
+f: +14, grad: [ +4, +2 ]
+
+>>> Final tape state
 statements : 3
 memory     : 64
-+14, +4, +2
 
->>> After local tape use
-statements : 6
-memory     : 120
+>>> Initial local tape state
+statements : 3
+memory     : 64
 
->>> After local tape destruction
+f: +14, grad: [ +4, +2 ]
+
+>>> Final local tape state (global tape state has not changed)
 statements : 3
 memory     : 64
 #+END_example

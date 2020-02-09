@@ -18,11 +18,16 @@ main()
   y = 4 * x0 + 2 * x1;
 
   auto grad = gradient(y);
-  std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
 
-  print_tape_size("After first computation and before local tape use");
+  std::cout << std::endl
+            << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
+
+  print_tape_size("Final tape state");
 
   // Same computation but using a local tape
+  //
+  print_tape_size("Initial tape state");
+
   {
     MissionImpossible_Tape<double> local_tape;
 
@@ -32,10 +37,9 @@ main()
 
     auto grad = gradient(local_tape, y);  // <- here gradient use the local_tape
 
-    std::cout << y << ", " << grad[x0] << ", " << grad[x1] << std::endl;
-
-    print_tape_size("After local tape use");
+    std::cout << std::endl
+              << "f: " << y << ", grad: [ " << grad[x0] << ", " << grad[x1] << " ]" << std::endl;
   }
 
-  print_tape_size("After local tape destruction");
+  print_tape_size("Final tape state (global tape state has not changed)");
 }
