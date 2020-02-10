@@ -827,12 +827,12 @@ tape<AD<AD<T>>>();  // returns a reference Tape<T>& to the tape associated to AD
    - =memory_size()=: used memory to store all the statements
    - =allocated_memory_size()=: preallocated memory 
 
-   - =reset()= rewind the tape at the beginning, do not release currently
+   - =reset()= rewinds the tape at the beginning, does not release currently
      allocated tape memory. *Attention*: this *invalidates* all previously
-     declared =AD<T>= variable.
-   - =clear()= rewind the tape at the beginning and release allocated
+     declared =AD<T>= variables.
+   - =clear()= rewinds the tape at the beginning and releases allocated
      memory. *Attention*: this *invalidates* all previously declared =AD<T>=
-     variable.
+     variables.
 
    #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/tape_info.cpp
@@ -903,8 +903,8 @@ $(pwd)/build/examples/doc/tape_info
 
 ** Local Tape
 
-   If you want to do local computations and release tape memory afterward
-   you can use a local tape. 
+   If you want to do local computations and rewind the tape afterward
+   you can use a local tape.
 
    #+BEGIN_SRC sh :eval no-export :wrap "src cpp :eval never" :results output :exports results
 cat $(pwd)/examples/doc/local_tape_memory.cpp
