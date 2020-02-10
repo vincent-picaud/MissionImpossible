@@ -157,9 +157,9 @@ meson --buildtype=release -Db_ndebug=true build-release
 
 ** CMake 
 
-For you convenience I also provide a CMake solution. 
+For your convenience I also provide CMake solution.
 
-*Note:* the CMake solution does not include/run tests.
+*Note:* the CMake solution does not run tests.
 
 * Examples
 
@@ -547,7 +547,7 @@ cat $(pwd)/examples/doc/ad.cpp
      AD<double> x2, y2;
 
      y2 = 2 * x2;  // use of x2 without initialization
-		   // triggers an assert(0) in DEBUG mode
+                   // triggers an assert(0) in DEBUG mode
 
      auto grad2 = gradient(y2); // undefined behavior
    }
@@ -587,7 +587,7 @@ cat $(pwd)/examples/doc/underlying_type.cpp
       std::vector<double> v(10);
 
       scale_v1(2, v);  // <- does not compile
-		       // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
+                       // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
 
       scale_v2(2, v);  // <- OK
     }
@@ -751,7 +751,7 @@ cat $(pwd)/examples/doc/Jacobian.cpp
      std::cout << "Jacobian row by row" << std::endl;
 
      auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
-					       // computes ∂ᵣy¹, ∂ₒy¹
+                                               // computes ∂ᵣy¹, ∂ₒy¹
 
      auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
 					       // computes ∂ᵣy², ∂ₒy²

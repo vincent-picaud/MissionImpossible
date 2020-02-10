@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.12)
 project(
   "MissionImpossible"
   VERSION
-  0.2.0
+  0.1.1
   DESCRIPTION
   "Named optional argument in C++17."
   HOMEPAGE_URL
