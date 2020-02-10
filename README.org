@@ -1,7 +1,7 @@
 #+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:t tags:not-in-toc
 #+HTML_HEAD_EXTRA: <style type="text/css"> blockquote {background:#EEEEEE; padding: 3px 13px}    </style>
 #+HTML_HEAD_EXTRA: <style type="text/css"> pre {background:#EEEEEE; padding: 3px 13px}    </style>
-#+TITLE: Mission : Impossible (self-destructing AD local tapes...)
+#+TITLE: Mission : Impossible (AutoDiff)
 
 [[https://travis-ci.org/vincent-picaud/MissionImpossible][file:https://travis-ci.org/vincent-picaud/MissionImpossible.svg?branch=master]]
 
