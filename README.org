@@ -502,7 +502,7 @@ $(pwd)/build/examples/nested
    # figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape.jpeg
    # ./figures/tape.jpeg http://pixorblog.files.wordpress.com/2020/01/tape-1.jpeg
 
-* Documentation, how to use this library
+* Mission : Impossible, survival guide
 
   This part focuses on the things to know to properly use this library.
 
