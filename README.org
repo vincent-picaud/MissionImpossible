@@ -5,23 +5,6 @@
 
 [[https://travis-ci.org/vincent-picaud/MissionImpossible][file:https://travis-ci.org/vincent-picaud/MissionImpossible.svg?branch=master]]
 
-* Table of contents                                                     :TOC:
-- [[#what-is-it][What is it?]]
-  - [[#news][News]]
-- [[#compilation][Compilation]]
-  - [[#meson][Meson]]
-  - [[#cmake][CMake]]
-- [[#examples][Examples]]
-  - [[#jacobian-example][Jacobian example]]
-  - [[#complex-number-example][Complex number example]]
-  - [[#hessian-action-hv-directional-derivatives][Hessian action Hv, directional derivatives]]
-  - [[#third-order-example][Third order example]]
-- [[#mission--impossible-survival-guide][Mission : Impossible, survival guide]]
-  - [[#ad-types][AD types]]
-  - [[#computing-derivatives][Computing derivatives]]
-  - [[#tape][Tape]]
-  - [[#local-tape][Local Tape]]
-
 * What is it?
 
   *Mission : Impossible* is a concise header only C++17 implementation of
