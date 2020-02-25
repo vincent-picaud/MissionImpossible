@@ -379,7 +379,7 @@ namespace MissionImpossible
     //   return y;
     // }
 
-    const VALUE_TYPE
+    VALUE_TYPE
     value() const
     {
       return _f_value;

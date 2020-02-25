@@ -15,16 +15,16 @@ using namespace MissionImpossible;
 
 //////////////////////////////////////////////////////////////////
 
-std::random_device rd{};
-std::mt19937 gen{rd()};
-std::normal_distribution<> d{0, 1};
+std::random_device current_random_device{};
+std::mt19937 current_generator{current_random_device()};
+std::normal_distribution<> current_distribution{0, 1};
 
 //////////////////////////////////////////////////////////////////
 
 template <typename T, std::size_t N>
 struct TinyVector : public std::array<T, N>
 {
-  TinyVector
+  TinyVector&
   operator=(const std::array<T, N>& v)
   {
     static_cast<std::array<T, N>&>(*this) = v;
@@ -62,7 +62,7 @@ initialize(TinyVector<T, N>& a)
 {
   for (auto& a_i : a)
   {
-    a_i = 0.5 * d(gen);
+    a_i = 0.5 * current_distribution(current_generator);
   }
 }
 
@@ -388,7 +388,7 @@ main()
 
   for (std::size_t iter = 0; iter < 1e5; ++iter)
   {
-    const size_t sample_idx = random_sample(gen);
+    const size_t sample_idx = random_sample(current_generator);
     [[maybe_unused]] const auto cost =
         iterate(eta, W2, b2, W3, b3, W4, b4, XY.first, XY.second, sample_idx);
 
