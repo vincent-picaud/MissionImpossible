@@ -1069,3 +1069,4 @@ cat $(pwd)/examples/doc/local_tape.cpp
    *Note:* local tapes can be nested too (but you still have to respect
    variable scopes!).
 
+ 
