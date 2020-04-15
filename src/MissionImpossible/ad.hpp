@@ -217,7 +217,7 @@ namespace MissionImpossible
   template <typename T, std::size_t N>
   inline auto operator*(const AD_Underlying_Type_t<T> v, const AD_Differential<T, N>& dg0) noexcept
   {
-    using namespace Detail;
+    using Detail::operator*;
 
     return AD_Differential{v * dg0.value(), dg0.index()};
   }
