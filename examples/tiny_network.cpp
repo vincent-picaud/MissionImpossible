@@ -395,7 +395,7 @@ main()
     // Gnuplot:
     // gnuplot> set logscale y 10
     // gnuplot> plot "cv.txt" u 1:3 w l
-    
+
     //    std::cerr << "\n" << iter << " " << sample_idx << " " << cost;
   }
 

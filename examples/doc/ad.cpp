@@ -21,5 +21,5 @@ main()
   y2 = 2 * x2;  // use of x2 without initialization
                 // triggers an assert(0) in DEBUG mode
 
-  auto grad2 = gradient(y2); // undefined behavior
+  auto grad2 = gradient(y2);  // undefined behavior
 }

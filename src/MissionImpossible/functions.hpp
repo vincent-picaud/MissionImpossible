@@ -80,7 +80,7 @@ namespace MissionImpossible
     using std::max;
 
     if (x0.value() == max(x0.value(), x1.value())) return x0.impl();
-    
+
     return x1.impl();
   }
 

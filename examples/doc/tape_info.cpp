@@ -8,8 +8,9 @@ main()
   auto print_tape_size = [](auto msg) {
     std::cout << std::endl << ">>> " << msg << std::endl;
     std::cout << "statements                : " << tape<double>().statement_size() << std::endl;
-    std::cout << "memory           (kBytes) : " << tape<double>().memory_size()/1024 << std::endl;
-    std::cout << "allocated memory (kBytes) : " << tape<double>().allocated_memory_size()/1024 << std::endl;
+    std::cout << "memory           (kBytes) : " << tape<double>().memory_size() / 1024 << std::endl;
+    std::cout << "allocated memory (kBytes) : " << tape<double>().allocated_memory_size() / 1024
+              << std::endl;
   };
 
   print_tape_size("Initial tape state (contains a small amount of preallocated memory)");

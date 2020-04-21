@@ -380,10 +380,7 @@ namespace MissionImpossible
     // }
 
     VALUE_TYPE
-    value() const
-    {
-      return _f_value;
-    }
+    value() const { return _f_value; }
     const differential_type&
     differential() const noexcept
     {

@@ -33,7 +33,9 @@ namespace MissionImpossible
     }
 
    public:
-    Tape_Vector(const Tape<T>& tape) : _offset(0), _size(tape.statement_size()), _data(new T[_size]) {}
+    Tape_Vector(const Tape<T>& tape) : _offset(0), _size(tape.statement_size()), _data(new T[_size])
+    {
+    }
     Tape_Vector(const MissionImpossible_Tape<T>& tape)
         : _offset(tape.index_begin()), _size(tape.size()), _data(new T[_size])
     {

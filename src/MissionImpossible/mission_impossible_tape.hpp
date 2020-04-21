@@ -58,7 +58,7 @@ namespace MissionImpossible
 
   template <typename T>
   class MissionImpossible_Tape<AD<T>> : public MissionImpossible_Tape<T>,
-                                         public Detail::MissionImpossible_Tape_Data<AD<T>>
+                                        public Detail::MissionImpossible_Tape_Data<AD<T>>
   {
    protected:
     using recursion_type = MissionImpossible_Tape<T>;

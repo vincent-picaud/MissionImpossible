@@ -22,7 +22,7 @@ main()
   std::vector<double> v(10);
 
   scale_v1(2, v);  // <- does not compile
-                   // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
-  
+      // "...deduced conflicting types for parameter ‘T’ (‘int’ and ‘double’)..."
+
   scale_v2(2, v);  // <- OK
 }

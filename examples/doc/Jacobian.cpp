@@ -22,7 +22,7 @@ main()
 
   auto Jacobian_row_y1 = Jacobian_row(y1);  // ∇y1 (or equivalently gradient(y1))
                                             // computes ∂ᵣy¹, ∂ₒy¹
-  
+
   auto Jacobian_row_y2 = Jacobian_row(y2);  // ∇y2 (or equivalently gradient(y2))
                                             // computes ∂ᵣy², ∂ₒy²
 
