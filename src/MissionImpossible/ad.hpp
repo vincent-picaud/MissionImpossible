@@ -32,7 +32,7 @@ namespace MissionImpossible
   class AD_Crtp : AD_Types<T>
   {
    public:
-    AD_TYPES(T);
+    AD_TYPES(T)
 
     IMPL&
     impl() noexcept
@@ -95,7 +95,7 @@ namespace MissionImpossible
   class AD_Differential : public AD_Types<T>
   {
    public:
-    AD_TYPES(T);
+    AD_TYPES(T)
 
     using value_array_type = std::array<T, N>;
     using index_array_type = std::array<index_type, N>;
@@ -247,7 +247,7 @@ namespace MissionImpossible
   class AD : public AD_Crtp<T, AD<T>>
   {
    public:
-    AD_TYPES(T);
+    AD_TYPES(T)
 
     using differential_type = AD_Differential<T, 1>;
 
@@ -356,7 +356,7 @@ namespace MissionImpossible
   class AD_Function : public AD_Crtp<T, AD_Function<T, VALUE_TYPE, N>>
   {
    public:
-    AD_TYPES(T);
+    AD_TYPES(T)
 
     using differential_type = AD_Differential<T, N>;
 
@@ -380,10 +380,7 @@ namespace MissionImpossible
     // }
 
     VALUE_TYPE
-    value() const
-    {
-      return _f_value;
-    }
+    value() const { return _f_value; }
     const differential_type&
     differential() const noexcept
     {
