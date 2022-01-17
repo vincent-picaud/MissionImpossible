@@ -7,3 +7,4 @@ build-release
 subprojects/benchmark-1.4.1
 /README.html
 build_cmake/**
+/.cache/
