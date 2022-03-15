@@ -16,7 +16,7 @@ namespace MissionImpossible
   bool
   operator==(const std::complex<T>& c, const Identity_t<T>& s)
   {
-    return (c.real() == 0) && (c.real() == s);
+    return (c.imag() == 0) && (c.real() == s);
   }
   template <typename T>
   bool
@@ -29,7 +29,7 @@ namespace MissionImpossible
   bool
   operator!=(const std::complex<T>& c, const Identity_t<T>& s)
   {
-    return (c.real() != 0) || (c.real() != s);
+    return (c.imag() != 0) || (c.real() != s);
   }
 
   template <typename T>
