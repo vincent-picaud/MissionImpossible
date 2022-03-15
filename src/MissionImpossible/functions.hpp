@@ -41,7 +41,7 @@ namespace MissionImpossible
   inline AD<T>
   min(const AD_Crtp<T, IMPL>& x1, const AD_Underlying_Type_t<T> x0) noexcept
   {
-    return min(x1, x0);
+    return min(x0, x1);
   }
 
   template <typename T, typename IMPL0, typename IMPL1>
@@ -70,7 +70,7 @@ namespace MissionImpossible
   inline AD<T>
   max(const AD_Crtp<T, IMPL>& x1, const AD_Underlying_Type_t<T> x0) noexcept
   {
-    return max(x1, x0);
+    return max(x0, x1);
   }
 
   template <typename T, typename IMPL0, typename IMPL1>
