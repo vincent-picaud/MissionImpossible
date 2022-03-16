@@ -137,18 +137,21 @@ $(pwd)/build/examples/local_tape
 
 ** News
 
-   - [2020-02-09 Sun 19:44] \\
-     Adding a CMake build solution + CI + code cleaning. *v0.1.1*.
+  - [2022-03-16 Wed 08:32] \\
+    min/max and complex comparison bugs fix thanks to Léopold Delahaye
+  
+  - [2020-02-09 Sun 19:44] \\
+    Adding a CMake build solution + CI + code cleaning. *v0.1.1*.
 
-   - [2020-02-09 Sun 11:56] \\
-     After an effort to provide some documentation and a =sqrt()= bug
-     fix (thanks to Fabrice Gaudier), I think it's time to release the
-     *v0.1.0* version!
+  - [2020-02-09 Sun 11:56] \\
+    After an effort to provide some documentation and a =sqrt()= bug
+    fix (thanks to Fabrice Gaudier), I think it's time to release the
+    *v0.1.0* version!
 
-   - [2020-01-07 Tue 12:27] \\
-     This a *pre-release*. Some developments remain to be done
-     (implementing special functions, adding examples and benchmarks)
-     but the design and API is not expected to change a lot.
+  - [2020-01-07 Tue 12:27] \\
+    This a *pre-release*. Some developments remain to be done
+    (implementing special functions, adding examples and benchmarks)
+    but the design and API is not expected to change a lot.
 
 * Compilation
 
